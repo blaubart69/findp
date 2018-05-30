@@ -1,9 +1,10 @@
 #pragma once
 
 template<class T>
-class IConcurrentQueue {
+class IConcurrentQueue 
+{
 public:
 	virtual ~IConcurrentQueue() {}
-	virtual bool enqueue(const T* data) = 0;
-	virtual bool tryDequeue(T** data, const unsigned long milliseconds) = 0;
+	virtual bool enqueue(const T* data)										= 0;
+	virtual bool tryDequeue(T** data, const unsigned long milliseconds)		= 0;
 };

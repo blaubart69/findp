@@ -24,6 +24,9 @@
     <ClInclude Include="IConcurrentQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParallelExec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -33,6 +36,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EnumDir.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParallelExec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
