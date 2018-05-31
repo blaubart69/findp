@@ -3,7 +3,7 @@
 #include "ParallelExec.h"
 
 template<typename T>
-ParallelExec<T>::ParallelExec(IConcurrentQueue<T*> queueToUse, ThreadFunc workFunc, HANDLE QuitPressed, int maxThreads)
+ParallelExec<T>::ParallelExec(IConcurrentQueue<T> *queueToUse, ThreadFunc workFunc, HANDLE QuitPressed, int maxThreads)
 {
 	_queue = queueToUse;
 	_workFunc = workFunc;
@@ -20,22 +20,14 @@ ParallelExec<T>::~ParallelExec()
 }
 
 template<typename T>
-void ParallelExec<T>::Start(const T* item)
-{
-	EnqueueWork(item);
-	StartThreads(threads);
-}
-
-template<typename T>
 bool ParallelExec<T>::Wait(int milliSeconds)
 {
 	return WaitForSingleObject(_hasFinished, milliSeconds) == WAIT_OBJECT_0;
 }
 
 template<typename T>
-void ParallelExec<T>::EnqueueWork(const T * item)
+void ParallelExec<T>::EnqueueWork(const T *item)
 {
-	InterlockedIncrement(&_enqueued);
 	_queue->enqueue(item);
 
 	if (_running < _maxThreads)
@@ -54,7 +46,6 @@ DWORD WINAPI ParallelExec<T>::PoolThread(LPVOID lpParam)
 	T* item;
 	while ( self->_queue->tryDequeue(&item, 0) )
 	{
-		InterlockedDecrement(&self->_enqueued);
 		self->_workFunc(item, self->EnqueueWork);
 
 		if (WaitForSingleObject(self->_QuitPressed, 0) == WAIT_OBJECT_0)
