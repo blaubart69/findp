@@ -69,7 +69,7 @@ bool IOCPQueueImpl<T>::tryDequeue(T ** data, const unsigned long milliseconds)
 	BOOL bSuccess = GetQueuedCompletionStatus(
 		_hCompletionPort
 		, &dwSize
-		, (PULONG_PTR)&data
+		, (PULONG_PTR)data
 		, &pOverlapped
 		, milliseconds);
 

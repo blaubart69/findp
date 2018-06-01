@@ -15,5 +15,9 @@
 
 #include <Windows.h>
 
+#include <string>
+#include <memory>
+#include <functional>
+
 
 // TODO: reference additional headers your program requires here

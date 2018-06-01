@@ -149,8 +149,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="EnumDir.h" />
     <ClInclude Include="IOCPQueueImpl.h" />
     <ClInclude Include="IConcurrentQueue.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="ParallelExec.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -158,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="EnumDir.cpp" />
     <ClCompile Include="findp.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

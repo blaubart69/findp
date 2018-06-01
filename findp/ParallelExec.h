@@ -9,8 +9,8 @@ class ParallelExec
 {
 public:
 
-	typedef void (*enqueueItemFunc)	(const T* item);
-	typedef void (*WorkFunc)		(T* item, enqueueItemFunc enqFunc);
+	//typedef void (*enqueueItemFunc)	(ParallelExec<T> *executor);
+	typedef void (*WorkFunc)		(T* item, ParallelExec<T> *executor);
 
 	ParallelExec(IConcurrentQueue<T> *queueToUse, WorkFunc workFunc, HANDLE QuitPressed, int maxThreads);
 	~ParallelExec();
@@ -75,13 +75,11 @@ DWORD WINAPI ParallelExec<T>::PoolThread(LPVOID lpParam)
 
 	InterlockedIncrement(&self->_running);
 
-	enqueueItemFunc encFunc = &ParallelExec<T>::EnqueueWork;
-
 	T* item;
 	while (self->_queue->tryDequeue(&item, 0))
 	{
-		//self->_workFunc(item, self->EnqueueWork);
-		self->_workFunc(item, encFunc);
+		self->_workFunc(item, self);
+		delete item;
 
 		if (WaitForSingleObject(self->_QuitPressed, 0) == WAIT_OBJECT_0)
 		{
@@ -93,6 +91,8 @@ DWORD WINAPI ParallelExec<T>::PoolThread(LPVOID lpParam)
 	{
 		SetEvent(self->_hasFinished);
 	}
+
+	return 0;
 }
 
 template<typename T>
