@@ -15,6 +15,8 @@
 
 #include <Windows.h>
 
+#include <Shlwapi.h>
+
 #include <string>
 #include <memory>
 #include <functional>

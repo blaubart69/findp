@@ -12,6 +12,8 @@ public:
 		return _instance;
 	};
 	void inf(const WCHAR* format, ...) const;
+	void err(const WCHAR* format, ...) const;
+	void out(const WCHAR* format, ...) const;
 
 private:
 	static Log * _instance;
