@@ -13,14 +13,17 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	 }
 
 	 opts->sum = false;
+	 opts->progress = false;
 
 	 for (int i = 1; i < argc; i++)
 	 {
 		 if (argv[i][0] == L'-' && lstrlen(argv[i]) > 1)
 		 {
-			 if (argv[i][1] == L's')
+			 switch (argv[i][1])
 			 {
-				 opts->sum = true;
+				default:								break;
+				 case L's': opts->sum = true;			break;
+				 case L'p': opts->progress = true;		break;
 			 }
 		 }
 		 else

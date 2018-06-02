@@ -16,7 +16,7 @@ void EnumDir(std::wstring *fulldirname, std::function<void(WIN32_FIND_DATA*)> On
 	fulldirname->append(L"\\*");
 	if ((hSearch = FindFirstFile(fulldirname->c_str(), &FindBuffer)) == INVALID_HANDLE_VALUE) {
 		dwError = GetLastError();
-		logger->win32err(L"FindFirstFile");
+		logger->win32err(L"FindFirstFile", fulldirname->c_str());
 	}
 	fulldirname->resize(fulldirname->length() - 2, L'\0');
 
