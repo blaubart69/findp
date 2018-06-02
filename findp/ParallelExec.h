@@ -12,11 +12,14 @@ public:
 	//typedef void (*enqueueItemFunc)	(ParallelExec<T> *executor);
 	typedef void (*WorkFunc)		(T* item, ParallelExec<T,C> *executor, C* context);
 
-	ParallelExec(IConcurrentQueue<T> *queueToUse, WorkFunc workFunc, C* context, HANDLE QuitPressed, int maxThreads);
+	ParallelExec(IConcurrentQueue<T> *queueToUse, WorkFunc workFunc, C* context, int maxThreads);
 	~ParallelExec();
 
 	void EnqueueWork(const T* item);
-	bool Wait(int milliSeconds);
+	bool Wait(int milliSeconds) const;
+	void Cancel();
+	void Stats(long *startedThreads, long *endedThreads);
+	void SignalEndToOtherThreads();
 
 private:
 
@@ -25,28 +28,31 @@ private:
 	C* _context;
 
 	HANDLE _hasFinished;
-	HANDLE _QuitPressed;
 	int		_maxThreads;
+	volatile bool _canceled;
 
-	long _running;
+	volatile long _itemCount;
 	long _startedThreads;
+	long _endedThreads;
 
 	static DWORD WINAPI PoolThread(LPVOID lpParam);
 
-	void StartPoolThread();
+	void StartPoolThreads(int numberToStart);
 };
 
 template<typename T, typename C>
-ParallelExec<T,C>::ParallelExec(IConcurrentQueue<T> *queueToUse, WorkFunc workFunc, C* context, HANDLE QuitPressed, int maxThreads)
+ParallelExec<T,C>::ParallelExec(IConcurrentQueue<T> *queueToUse, WorkFunc workFunc, C* context, int maxThreads)
 {
 	_queue = queueToUse;
 	_workFunc = workFunc;
-	_running = 0;
-	_startedThreads = 0;
+	_itemCount = 0;
+	_canceled = false;
+	_startedThreads = _endedThreads = 0;
 	_maxThreads = maxThreads;
-	_QuitPressed = QuitPressed;
 	_context = context;
 	_hasFinished = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	StartPoolThreads(maxThreads);
 }
 
 template<typename T, typename C>
@@ -56,7 +62,7 @@ ParallelExec<T,C>::~ParallelExec()
 }
 
 template<typename T, typename C>
-bool ParallelExec<T,C>::Wait(int milliSeconds)
+bool ParallelExec<T,C>::Wait(int milliSeconds) const
 {
 	return WaitForSingleObject(_hasFinished, milliSeconds) == WAIT_OBJECT_0;
 }
@@ -64,11 +70,29 @@ bool ParallelExec<T,C>::Wait(int milliSeconds)
 template<typename T, typename C>
 void ParallelExec<T,C>::EnqueueWork(const T *item)
 {
+	InterlockedIncrement(&_itemCount);
 	_queue->enqueue(item);
+}
 
-	if (_running < _maxThreads)
+template<typename T, typename C>
+inline void ParallelExec<T, C>::Cancel()
+{
+	_canceled = true;
+}
+
+template<typename T, typename C>
+inline void ParallelExec<T, C>::Stats(long *startedThreads, long *endedThreads)
+{
+	*startedThreads = _startedThreads;
+	*endedThreads = _endedThreads;
+}
+
+template<typename T, typename C>
+inline void ParallelExec<T, C>::SignalEndToOtherThreads()
+{
+	for (int i = 0; i < _maxThreads; i++)
 	{
-		StartPoolThread();
+		_queue->enqueue(nullptr);
 	}
 }
 
@@ -76,46 +100,51 @@ template<typename T, typename C>
 DWORD WINAPI ParallelExec<T,C>::PoolThread(LPVOID lpParam)
 {
 	ParallelExec<T,C> *self = (ParallelExec<T,C>*)lpParam;
-
-	InterlockedIncrement(&self->_running);
+	InterlockedIncrement(&self->_startedThreads);
 
 	T* item;
-	while (self->_queue->tryDequeue(&item, 0))
+	while (self->_queue->tryDequeue(&item, INFINITE))
 	{
-		self->_workFunc(item, self, self->_context);
-		delete item;
+		if (item != nullptr)
+		{
+			self->_workFunc(item, self, self->_context);
+			delete item;
 
-		if (WaitForSingleObject(self->_QuitPressed, 0) == WAIT_OBJECT_0)
+			if (InterlockedDecrement(&self->_itemCount) == 0)
+			{
+				self->SignalEndToOtherThreads();
+				SetEvent(self->_hasFinished);
+				break;
+			}
+		}
+		else
 		{
 			break;
 		}
 	}
 
-	if (InterlockedDecrement(&self->_running) == 0)
-	{
-		SetEvent(self->_hasFinished);
-	}
+	InterlockedIncrement(&self->_endedThreads);
 
 	return 0;
 }
 
 template<typename T,typename C>
-void ParallelExec<T,C>::StartPoolThread()
+void ParallelExec<T, C>::StartPoolThreads(int numberToStart)
 {
-	DWORD dwThreadId;
-
-	HANDLE hThread = CreateThread(
-		NULL
-		, 0
-		, PoolThread
-		, this
-		, 0
-		, &dwThreadId);
-	
-	if (hThread != NULL)
+	for (int i = 0; i < numberToStart; i++)
 	{
-		InterlockedIncrement(&_startedThreads);
-		CloseHandle(hThread);
-	}
+		DWORD dwThreadId;
+		HANDLE hThread = CreateThread(
+			NULL
+			, 0
+			, PoolThread
+			, this
+			, 0
+			, &dwThreadId);
 
+		if (hThread != NULL)
+		{
+			CloseHandle(hThread);
+		}
+	}
 }

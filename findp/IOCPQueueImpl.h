@@ -10,11 +10,11 @@ public:
 	~IOCPQueueImpl()											override;
 	bool enqueue(const T* data)									override;
 	bool tryDequeue(T** data, const unsigned long milliseconds) override;
-	unsigned long count() const									override;
+	//unsigned long count() const									override;
 private:
 
 	HANDLE			_hCompletionPort;
-	volatile long	_count;
+	//volatile long	_count;
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ template<typename T>
 IOCPQueueImpl<T>::IOCPQueueImpl()
 //-------------------------------------------------------------------------------------------------
 {
-	_count = 0;
+	//_count = 0;
 
 	if ((_hCompletionPort = CreateIoCompletionPort(
 		INVALID_HANDLE_VALUE
@@ -51,10 +51,10 @@ bool IOCPQueueImpl<T>::enqueue(const T * data)
 		, (ULONG_PTR)data
 		, NULL);
 
-	if (bSuccess)
+	/*if (bSuccess)
 	{
 		InterlockedIncrement(&_count);
-	}
+	}*/
 
 	return bSuccess;
 }
@@ -73,17 +73,18 @@ bool IOCPQueueImpl<T>::tryDequeue(T ** data, const unsigned long milliseconds)
 		, &pOverlapped
 		, milliseconds);
 
-	if (bSuccess)
+	/*if (bSuccess)
 	{
 		InterlockedDecrement(&_count);
-	}
+	}*/
 
 	return bSuccess;
 }
 //-------------------------------------------------------------------------------------------------
-template<typename T>
-unsigned long IOCPQueueImpl<T>::count() const
+//template<typename T>
+//unsigned long IOCPQueueImpl<T>::count() const
 //-------------------------------------------------------------------------------------------------
-{
-	return _count;
-}
+//{
+//	return _count;
+//}
+//

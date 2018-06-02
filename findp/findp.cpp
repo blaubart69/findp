@@ -39,7 +39,10 @@ void threadEnumFunc(DirEntry *item, ParallelExec<DirEntry,Context> *executor, Co
 		{
 			InterlockedIncrement64(&(ctx->stats.dirs));
 
+			size_t newLen = item->FullDirname->length() + 1 + lstrlen(finddata->cFileName) + 2;
+
 			auto newFullDir = std::make_unique<std::wstring>();
+			newFullDir->reserve(newLen);
 			newFullDir->assign(*(item->FullDirname.get()));
 			newFullDir->append(L"\\");
 			newFullDir->append(finddata->cFileName);
@@ -69,29 +72,33 @@ int wmain(int argc, wchar_t *argv[])
 		return rc;
 	}
 
-	HANDLE quitPressed = CreateEvent(NULL, TRUE, FALSE, NULL);
-
 	Context ctx;
 	ctx.sum = opts.sum;
 
 	auto *queue		= new IOCPQueueImpl<DirEntry>();
-	auto *executor  = new ParallelExec<DirEntry,Context>(queue, threadEnumFunc, &ctx, quitPressed, 32);
+	auto *executor  = new ParallelExec<DirEntry,Context>(queue, threadEnumFunc, &ctx, 32);
 
 	auto startFullDir = std::make_unique<std::wstring>(opts.rootDir);
 	executor->EnqueueWork(new DirEntry(std::move(startFullDir)));
 
-	while (! executor->Wait(1000))
+	while (! executor->Wait(1000) )
 	{
 	}
 
 	WCHAR humanSize[32];
 	StrFormatByteSizeW(ctx.stats.sumFileSize, humanSize, 32);
 
-	wprintf(L"dirs\t%lld\nfiles\t%lld\nsize\t%lld\t(%s)", 
+	wprintf(L"dirs\t%16lld\nfiles\t%16lld\nsize\t%16lld\t(%s)", 
 		ctx.stats.dirs,
 		ctx.stats.files, 
 		ctx.stats.sumFileSize,
 		humanSize);
+
+	long startedThreads;
+	long endedThreads;
+	executor->Stats(&startedThreads, &endedThreads);
+
+	wprintf(L"\nthreads started/ended: %ld/%ld", startedThreads, endedThreads);
 
     return 0;
 }

@@ -15,6 +15,8 @@ public:
 	void err(const WCHAR* format, ...) const;
 	void out(const WCHAR* format, ...) const;
 
+	void win32err(LPCWSTR Apiname) const;
+
 private:
 	static Log * _instance;
 
