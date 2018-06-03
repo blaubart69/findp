@@ -88,19 +88,18 @@ int wmain(int argc, wchar_t *argv[])
 	WCHAR humanSize[32];
 	StrFormatByteSizeW(ctx.stats.sumFileSize, humanSize, 32);
 
-	wprintf(L"dirs\t%16lld" 
-		  "\nfiles\t%16lld"
-		  "\nsize\t%16lld\t(%s)", 
+	logger->out(L"dirs\t%16I64d"
+		"\nfiles\t%16I64d (%s) (%I64d bytes)",
 		ctx.stats.dirs,
-		ctx.stats.files, 
-		ctx.stats.sumFileSize,
-		humanSize);
+		ctx.stats.files,
+		humanSize,
+		ctx.stats.sumFileSize);
 
 	long startedThreads;
 	long endedThreads;
 	executor->Stats(&startedThreads, &endedThreads);
 
-	wprintf(L"\nthreads started/ended: %ld/%ld", startedThreads, endedThreads);
+	//logger->outLine(L"\nthreads started/ended: %ld/%ld", startedThreads, endedThreads);
 
     return 0;
 }

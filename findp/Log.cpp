@@ -54,6 +54,13 @@ void Log::out(const WCHAR * format, ...) const
 {
 	va_list args;
 	va_start(args, format);
+	bee_vprintf(NULL, format, args, false);
+	va_end(args);
+}
+void Log::outLine(const WCHAR * format, ...) const
+{
+	va_list args;
+	va_start(args, format);
 	bee_vprintf(NULL, format, args, true);
 	va_end(args);
 }

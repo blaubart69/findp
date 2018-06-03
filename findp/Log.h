@@ -15,6 +15,8 @@ public:
 	void err(const WCHAR* format, ...) const;
 	void out(const WCHAR* format, ...) const;
 
+	void outLine(const WCHAR * format, ...) const;
+
 	void win32err(LPCWSTR Apiname) const;
 	void win32err(LPCWSTR Apiname, LPCWSTR param) const;
 
