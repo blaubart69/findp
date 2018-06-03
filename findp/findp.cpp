@@ -75,8 +75,8 @@ int wmain(int argc, wchar_t *argv[])
 	Context ctx;
 	ctx.sum = opts.sum;
 
-	auto *queue		= new IOCPQueueImpl<DirEntry>();
-	auto *executor  = new ParallelExec<DirEntry,Context>(queue, threadEnumFunc, &ctx, 32);
+	auto queue    = std::make_unique< IOCPQueueImpl<DirEntry> >();
+	auto executor = std::make_unique< ParallelExec<DirEntry, Context> >(queue, threadEnumFunc, &ctx, 32);
 
 	auto startFullDir = std::make_unique<std::wstring>(opts.rootDir);
 	executor->EnqueueWork(new DirEntry(std::move(startFullDir)));
