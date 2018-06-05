@@ -1,9 +1,7 @@
 #include "stdafx.h"
 
-#include "getopts.h"
+#include "findp.h"
 #include "Log.h"
-
-
 
 int getopts(int argc, wchar_t *argv[], Options* opts)
 {
@@ -14,6 +12,8 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 
 	 opts->sum = false;
 	 opts->progress = false;
+	 opts->maxDepth = -1;
+	 opts->followJunctions = false;
 
 	 for (int i = 1; i < argc; i++)
 	 {
@@ -21,9 +21,11 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 		 {
 			 switch (argv[i][1])
 			 {
-				default:								break;
-				 case L's': opts->sum = true;			break;
-				 case L'p': opts->progress = true;		break;
+				default:									break;
+				 case L's': opts->sum = true;				break;
+				 case L'p': opts->progress = true;			break;
+				 case L'j': opts->followJunctions = true;	break;
+				 case L'd': opts->maxDepth = atoi((const char*)argv[i+++1]); break;
 			 }
 		 }
 		 else
@@ -35,7 +37,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	 if (opts->rootDir.empty())
 	 {
 		 Log::Instance()->err(L"no directory given");;
-		 Log::Instance()->inf(L"usage: findp.exe [-s] {directory}");;
+		 Log::Instance()->inf(L"usage: findp.exe [-s] [-p] [-j] [-d maxDepth] {directory}");;
 		 return 2;
 	 }
 

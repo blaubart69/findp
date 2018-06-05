@@ -9,48 +9,42 @@ class ParallelExec
 {
 public:
 
-	//typedef void (*enqueueItemFunc)	(ParallelExec<T> *executor);
 	typedef void (*WorkFunc)		(T* item, ParallelExec<T,C> *executor, C* context);
 
-	//ParallelExec(IConcurrentQueue<T> *queueToUse, WorkFunc workFunc, C* context, int maxThreads);
 	ParallelExec(std::unique_ptr< IConcurrentQueue<T> > &&queueToUse, WorkFunc workFunc, C* context, int maxThreads);
 	~ParallelExec();
 
 	void EnqueueWork(const T* item);
 	bool Wait(int milliSeconds) const;
 	void Cancel();
-	void Stats(long *startedThreads, long *endedThreads);
-	void SignalEndToOtherThreads();
+	void Stats(long *queued, long *running, long *done) const;
 
 private:
 
-	//IConcurrentQueue<T> *_queue;
+	__declspec(align(64)) volatile long _itemCount;
+	__declspec(align(64)) volatile long _running;
+	__declspec(align(64)) volatile long _done;
+
+	volatile bool _canceled;
+
 	std::unique_ptr< IConcurrentQueue<T> > _queue;
 	WorkFunc _workFunc;
 	C* _context;
-
-	HANDLE _hasFinished;
+	HANDLE	_hasFinished;
 	int		_maxThreads;
-	volatile bool _canceled;
-
-	volatile long _itemCount;
-	long _startedThreads;
-	long _endedThreads;
 
 	static DWORD WINAPI PoolThread(LPVOID lpParam);
-
 	void StartPoolThreads(int numberToStart);
+	void SignalEndToOtherThreads();
 };
 
 template<typename T, typename C>
-//ParallelExec<T,C>::ParallelExec(IConcurrentQueue<T> *queueToUse, WorkFunc workFunc, C* context, int maxThreads)
 ParallelExec<T, C>::ParallelExec(std::unique_ptr< IConcurrentQueue<T> > &&queueToUse, WorkFunc workFunc, C* context, int maxThreads)
 	: _queue(std::move(queueToUse))
 {
 	_workFunc = workFunc;
-	_itemCount = 0;
+	_itemCount = _running = _done = 0;
 	_canceled = false;
-	_startedThreads = _endedThreads = 0;
 	_maxThreads = maxThreads;
 	_context = context;
 	_hasFinished = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -78,55 +72,31 @@ void ParallelExec<T,C>::EnqueueWork(const T *item)
 }
 
 template<typename T, typename C>
-inline void ParallelExec<T, C>::Cancel()
-{
-	_canceled = true;
-}
-
-template<typename T, typename C>
-inline void ParallelExec<T, C>::Stats(long *startedThreads, long *endedThreads)
-{
-	*startedThreads = _startedThreads;
-	*endedThreads = _endedThreads;
-}
-
-template<typename T, typename C>
-inline void ParallelExec<T, C>::SignalEndToOtherThreads()
-{
-	for (int i = 0; i < _maxThreads; i++)
-	{
-		_queue->enqueue(nullptr);
-	}
-}
-
-template<typename T, typename C>
 DWORD WINAPI ParallelExec<T,C>::PoolThread(LPVOID lpParam)
 {
 	ParallelExec<T,C> *self = (ParallelExec<T,C>*)lpParam;
-	InterlockedIncrement(&self->_startedThreads);
 
 	T* item;
 	while (self->_queue->tryDequeue(&item, INFINITE))
 	{
-		if (item != nullptr)
-		{
-			self->_workFunc(item, self, self->_context);
-			delete item;
-
-			if (InterlockedDecrement(&self->_itemCount) == 0)
-			{
-				self->SignalEndToOtherThreads();
-				SetEvent(self->_hasFinished);
-				break;
-			}
-		}
-		else
+		if (item == nullptr)
 		{
 			break;
 		}
-	}
 
-	InterlockedIncrement(&self->_endedThreads);
+		InterlockedIncrement(&self->_running);
+		self->_workFunc(item, self, self->_context);
+		delete item;
+		InterlockedDecrement(&self->_running);
+		InterlockedIncrement(&self->_done);
+
+		if ( self->_canceled || (InterlockedDecrement(&self->_itemCount) == 0) )
+		{
+			self->SignalEndToOtherThreads();
+			SetEvent(self->_hasFinished);
+			break;
+		}
+	}
 
 	return 0;
 }
@@ -149,5 +119,28 @@ void ParallelExec<T, C>::StartPoolThreads(int numberToStart)
 		{
 			CloseHandle(hThread);
 		}
+	}
+}
+
+template<typename T, typename C>
+inline void ParallelExec<T, C>::Cancel()
+{
+	_canceled = true;
+}
+
+template<typename T, typename C>
+inline void ParallelExec<T, C>::Stats(long *queued, long *running, long *done) const
+{
+	*queued = _itemCount;
+	*running = _running;
+	*done = _done;
+}
+
+template<typename T, typename C>
+inline void ParallelExec<T, C>::SignalEndToOtherThreads()
+{
+	for (int i = 0; i < _maxThreads; i++)
+	{
+		_queue->enqueue(nullptr);
 	}
 }

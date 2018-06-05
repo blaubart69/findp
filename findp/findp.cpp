@@ -4,8 +4,7 @@
 #include "stdafx.h"
 
 #include "Log.h"
-#include "getopts.h"
-#include "common.h"
+#include "findp.h"
 
 #include "IConcurrentQueue.h"
 #include "IOCPQueueImpl.h"
@@ -15,92 +14,63 @@
 
 Log* logger;
 
-struct DirEntry {
-public:
-	std::unique_ptr<std::wstring> FullDirname;
-
-	DirEntry(std::unique_ptr<std::wstring>&& dirname) 
-		: FullDirname(std::move(dirname))
-	{
-	}
-};
-
-void threadEnumFunc(DirEntry *item, ParallelExec<DirEntry,Context> *executor, Context *ctx)
-{
-	EnumDir(item->FullDirname.get(), 
-		[item, executor, ctx] (WIN32_FIND_DATA *finddata)
-	{
-		if ( !ctx->sum )
-		{
-			wprintf(L"%s\\%s\n", item->FullDirname.get()->c_str(), finddata->cFileName);
-		}
-
-		if ((finddata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
-		{
-			InterlockedIncrement64(&(ctx->stats.dirs));
-
-			size_t newLen = item->FullDirname->length() + 1 + lstrlen(finddata->cFileName) + 2;
-
-			auto newFullDir = std::make_unique<std::wstring>();
-			newFullDir->reserve(newLen);
-			newFullDir->assign(*(item->FullDirname.get()));
-			newFullDir->append(L"\\");
-			newFullDir->append(finddata->cFileName);
-
-			executor->EnqueueWork( new DirEntry(std::move(newFullDir)) );
-		}
-		else
-		{
-			InterlockedIncrement64(&(ctx->stats.files));
-
-			LARGE_INTEGER li;
-			li.HighPart = finddata->nFileSizeHigh;
-			li.LowPart  = finddata->nFileSizeLow;
-			InterlockedAdd64(&(ctx->stats.sumFileSize), li.QuadPart);
-		}
-	});
-}
+void printStats(LONGLONG dirs, LONGLONG files, LONGLONG sumFileSize);
+void printProgress(const ParallelExec<DirEntry, Context>* executor);
 
 int wmain(int argc, wchar_t *argv[])
 {
 	logger = Log::Instance();
 	int rc;
 
-	Options opts;
-	if ((rc = getopts(argc, argv, &opts)) != 0)
+	Context ctx;
+	if ((rc = getopts(argc, argv, &ctx.opts)) != 0)
 	{
 		return rc;
 	}
 
-	Context ctx;
-	ctx.sum = opts.sum;
+	if (!TryToSetPrivilege(SE_BACKUP_NAME, TRUE))
+	{
+		logger->wrn(L"could not set privilege SE_BACKUP_NAME");
+	}
 
 	auto queue    = std::make_unique< IOCPQueueImpl<DirEntry> >();
-	auto executor = std::make_unique< ParallelExec<DirEntry, Context> >(std::move(queue), threadEnumFunc, &ctx, 32);
+	auto executor = std::make_unique< ParallelExec<DirEntry, Context> >(std::move(queue), ProcessDirectory, &ctx, 32);
 
-	auto startFullDir = std::make_unique<std::wstring>(opts.rootDir);
-	executor->EnqueueWork(new DirEntry(std::move(startFullDir)));
+	auto startFullDir = std::make_unique<std::wstring>(ctx.opts.rootDir);
+	executor->EnqueueWork(new DirEntry(std::move(startFullDir), 0));
 
 	while (! executor->Wait(1000) )
 	{
+		if (ctx.opts.progress)
+		{
+			printProgress(executor.get());
+		}
 	}
 
-	WCHAR humanSize[32];
-	StrFormatByteSizeW(ctx.stats.sumFileSize, humanSize, 32);
-
-	logger->out(L"dirs\t%16I64d"
-		"\nfiles\t%16I64d (%s) (%I64d bytes)",
-		ctx.stats.dirs,
-		ctx.stats.files,
-		humanSize,
-		ctx.stats.sumFileSize);
-
-	long startedThreads;
-	long endedThreads;
-	executor->Stats(&startedThreads, &endedThreads);
-
-	//logger->outLine(L"\nthreads started/ended: %ld/%ld", startedThreads, endedThreads);
+	printStats(ctx.stats.dirs, ctx.stats.files, ctx.stats.sumFileSize);
 
     return 0;
+}
+
+void printProgress(const ParallelExec<DirEntry, Context>* executor)
+{
+	long queued, running, done;
+	executor->Stats(&queued, &running, &done);
+
+	logger->writeLine(L"queued/running/done %ld/%ld/%ld", queued, running, done);
+}
+
+void printStats(LONGLONG dirs, LONGLONG files, LONGLONG sumFileSize)
+{
+	WCHAR humanSize[32];
+	StrFormatByteSizeW(sumFileSize, humanSize, 32);
+
+	logger->write(
+	   L"\ndirs\t%12I64d"
+		"\nfiles\t%12I64d (%s) (%I64d bytes)",
+		dirs,
+		files,
+		humanSize,
+		sumFileSize);
 }
 

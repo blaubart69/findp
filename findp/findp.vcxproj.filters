@@ -36,10 +36,7 @@
     <ClInclude Include="EnumDir.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="getopts.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common.h">
+    <ClInclude Include="findp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -57,6 +54,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="getopts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessDirectory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessEntry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TrySetPrivilege.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

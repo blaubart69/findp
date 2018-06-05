@@ -17,6 +17,7 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <cstdlib>
 
 
 // TODO: reference additional headers your program requires here

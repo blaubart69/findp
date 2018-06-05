@@ -42,6 +42,13 @@ void Log::inf(const WCHAR* format, ...) const
 	bee_vprintf(L"I: ", format, args, true);
 	va_end(args);
 }
+void Log::wrn(const WCHAR* format, ...) const
+{
+	va_list args;
+	va_start(args, format);
+	bee_vprintf(L"W: ", format, args, true);
+	va_end(args);
+}
 void Log::err(const WCHAR* format, ...) const
 {
 	va_list args;
@@ -50,14 +57,14 @@ void Log::err(const WCHAR* format, ...) const
 	va_end(args);
 }
 
-void Log::out(const WCHAR * format, ...) const
+void Log::write(const WCHAR * format, ...) const
 {
 	va_list args;
 	va_start(args, format);
 	bee_vprintf(NULL, format, args, false);
 	va_end(args);
 }
-void Log::outLine(const WCHAR * format, ...) const
+void Log::writeLine(const WCHAR * format, ...) const
 {
 	va_list args;
 	va_start(args, format);
