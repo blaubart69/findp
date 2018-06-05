@@ -86,7 +86,6 @@ DWORD WINAPI ParallelExec<T,C>::PoolThread(LPVOID lpParam)
 
 		InterlockedIncrement(&self->_running);
 		self->_workFunc(item, self, self->_context);
-		delete item;
 		InterlockedDecrement(&self->_running);
 		InterlockedIncrement(&self->_done);
 

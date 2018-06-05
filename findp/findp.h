@@ -38,6 +38,13 @@ public:
 	}
 };
 
+typedef struct {
+	int		depth;
+	DWORD	fullDirnameLen;
+	WCHAR	fullDirname[1];
+} DirEntry_C;
+
+
 void ProcessDirectory(DirEntry *item, ParallelExec<DirEntry, Context> *executor, Context *ctx);
 void ProcessEntry(const std::wstring *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx);
 int getopts(int argc, wchar_t *argv[], Options* opts);

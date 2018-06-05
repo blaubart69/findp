@@ -14,7 +14,7 @@
 
 Log* logger;
 
-void printStats(LONGLONG dirs, LONGLONG files, LONGLONG sumFileSize);
+void printStats(Stats *stats);
 void printProgress(const ParallelExec<DirEntry, Context>* executor);
 
 int wmain(int argc, wchar_t *argv[])
@@ -47,7 +47,7 @@ int wmain(int argc, wchar_t *argv[])
 		}
 	}
 
-	printStats(ctx.stats.dirs, ctx.stats.files, ctx.stats.sumFileSize);
+	printStats(&ctx.stats);
 
     return 0;
 }
@@ -60,17 +60,17 @@ void printProgress(const ParallelExec<DirEntry, Context>* executor)
 	logger->writeLine(L"queued/running/done %ld/%ld/%ld", queued, running, done);
 }
 
-void printStats(LONGLONG dirs, LONGLONG files, LONGLONG sumFileSize)
+void printStats(Stats *stats)
 {
 	WCHAR humanSize[32];
-	StrFormatByteSizeW(sumFileSize, humanSize, 32);
+	StrFormatByteSizeW(stats->sumFileSize, humanSize, 32);
 
 	logger->write(
 	   L"\ndirs\t%12I64d"
 		"\nfiles\t%12I64d (%s) (%I64d bytes)",
-		dirs,
-		files,
+		stats->dirs,
+		stats->files,
 		humanSize,
-		sumFileSize);
+		stats->sumFileSize);
 }
 

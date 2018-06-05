@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "findp.h"
 #include "EnumDir.h"
+#include "Log.h"
 
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth);
 
@@ -40,6 +41,8 @@ void ProcessDirectory(DirEntry *item, ParallelExec<DirEntry, Context> *executor,
 			ProcessEntry(item->FullDirname.get(), finddata, ctx);
 		}
 	});
+
+	delete item;
 }
 
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth)
@@ -64,4 +67,42 @@ bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int m
 
 	return enterDir;
 
+}
+
+DirEntry_C* CreateDirEntryC(const DirEntry_C *parent, LPCWSTR currentDir, int currDepth)
+{
+	int newEntryDirLen = 
+		(parent->fullDirnameLen == 0 ? 0 : parent->fullDirnameLen + 1)
+		+ lstrlen(currentDir);
+
+	int sizeToAlloc =
+		sizeof(DirEntry_C)
+		+ 
+		(
+			newEntryDirLen
+			+ 2				// "\*"
+		) * sizeof(WCHAR)
+		;
+
+	DirEntry_C* newEntry;
+	if ((newEntry = (DirEntry_C*)HeapAlloc(GetProcessHeap(), 0, sizeToAlloc)) == NULL)
+	{
+		Log::Instance()->win32err(L"HeapAlloc");
+	}
+	else
+	{
+		newEntry->depth = currDepth;
+		newEntry->fullDirnameLen = newEntryDirLen;
+
+		WCHAR *writer = newEntry->fullDirname;
+		if (parent->fullDirnameLen > 0)
+		{
+			lstrcpy(writer, parent->fullDirname);
+			writer += parent->fullDirnameLen;
+			*writer = L'\\';
+			writer++;
+		}
+		lstrcpy(writer, currentDir);
+	}
+	return newEntry;
 }
