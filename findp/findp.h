@@ -14,10 +14,12 @@ struct Stats
 struct Options
 {
 	std::wstring rootDir;
+	std::unique_ptr<std::wregex> FilenameRegex;
 	bool sum;
 	bool progress;
-	int maxDepth;
 	bool followJunctions;
+	int maxDepth;
+	int ThreadsToUse;
 };
 
 struct Context

@@ -72,16 +72,20 @@ bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int m
 DirEntry_C* CreateDirEntryC(const DirEntry_C *parent, LPCWSTR currentDir, int currDepth)
 {
 	int newEntryDirLen = 
-		(parent->fullDirnameLen == 0 ? 0 : parent->fullDirnameLen + 1)
+		(parent == NULL ? 
+			0								
+			: parent->fullDirnameLen 
+				+ 1	// + "\"
+		)
 		+ lstrlen(currentDir);
 
 	int sizeToAlloc =
 		sizeof(DirEntry_C)
-		+ 
-		(
+		+ 	(
 			newEntryDirLen
-			+ 2				// "\*"
-		) * sizeof(WCHAR)
+			+ 2	// "\*"
+			) 
+			* sizeof(WCHAR)
 		;
 
 	DirEntry_C* newEntry;
@@ -95,7 +99,7 @@ DirEntry_C* CreateDirEntryC(const DirEntry_C *parent, LPCWSTR currentDir, int cu
 		newEntry->fullDirnameLen = newEntryDirLen;
 
 		WCHAR *writer = newEntry->fullDirname;
-		if (parent->fullDirnameLen > 0)
+		if (parent != NULL)
 		{
 			lstrcpy(writer, parent->fullDirname);
 			writer += parent->fullDirnameLen;

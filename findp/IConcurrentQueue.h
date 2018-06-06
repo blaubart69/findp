@@ -7,5 +7,4 @@ public:
 	virtual ~IConcurrentQueue() {}
 	virtual bool enqueue(const T* data)										= 0;
 	virtual bool tryDequeue(T** data, const unsigned long milliseconds)		= 0;
-	//virtual unsigned long count() const										= 0;
 };

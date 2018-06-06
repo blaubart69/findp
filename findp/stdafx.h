@@ -17,6 +17,8 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <regex>
+
 #include <cstdlib>
 
 

@@ -6,6 +6,16 @@ void ProcessEntry(const std::wstring *FullBaseDir, WIN32_FIND_DATA *finddata, Co
 {
 	Log *logger = Log::Instance();
 
-	logger->writeLine(L"%s\\%s", FullBaseDir->c_str(), finddata->cFileName);
+	bool printEntry = true;
+	if (ctx->opts.FilenameRegex != nullptr)
+	{
+		printEntry = std::regex_search(
+			finddata->cFileName
+			, *ctx->opts.FilenameRegex.get());
+	}
 
+	if (printEntry)
+	{
+		logger->writeLine(L"%s\\%s", FullBaseDir->c_str(), finddata->cFileName);
+	}
 }

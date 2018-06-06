@@ -11,6 +11,7 @@ public:
 		}
 		return _instance;
 	};
+	void dbg(const WCHAR* format, ...) const;
 	void inf(const WCHAR* format, ...) const;
 	void wrn(const WCHAR* format, ...) const;
 	void err(const WCHAR* format, ...) const;

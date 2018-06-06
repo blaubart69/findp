@@ -33,8 +33,8 @@ int wmain(int argc, wchar_t *argv[])
 		logger->wrn(L"could not set privilege SE_BACKUP_NAME");
 	}
 
-	auto queue    = std::make_unique< IOCPQueueImpl<DirEntry> >();
-	auto executor = std::make_unique< ParallelExec<DirEntry, Context> >(std::move(queue), ProcessDirectory, &ctx, 32);
+	auto queue    = std::make_unique< IOCPQueueImpl<DirEntry> >(ctx.opts.ThreadsToUse);
+	auto executor = std::make_unique< ParallelExec<DirEntry, Context> >(std::move(queue), ProcessDirectory, &ctx, ctx.opts.ThreadsToUse);
 
 	auto startFullDir = std::make_unique<std::wstring>(ctx.opts.rootDir);
 	executor->EnqueueWork(new DirEntry(std::move(startFullDir), 0));

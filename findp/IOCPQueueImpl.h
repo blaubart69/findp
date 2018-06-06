@@ -6,7 +6,7 @@ template<typename T>
 class IOCPQueueImpl : public IConcurrentQueue<T>
 {
 public:
-	IOCPQueueImpl();
+	IOCPQueueImpl(DWORD NumberOfConcurrentThreads);
 	~IOCPQueueImpl()											override;
 	bool enqueue(const T* data)									override;
 	bool tryDequeue(T** data, const unsigned long milliseconds) override;
@@ -19,7 +19,7 @@ private:
 
 //-------------------------------------------------------------------------------------------------
 template<typename T>
-IOCPQueueImpl<T>::IOCPQueueImpl()
+IOCPQueueImpl<T>::IOCPQueueImpl(DWORD NumberOfConcurrentThreads)
 //-------------------------------------------------------------------------------------------------
 {
 	//_count = 0;
@@ -28,7 +28,7 @@ IOCPQueueImpl<T>::IOCPQueueImpl()
 		INVALID_HANDLE_VALUE
 		, NULL
 		, 0
-		, 0)) == NULL)
+		, NumberOfConcurrentThreads)) == NULL)
 	{
 	}
 

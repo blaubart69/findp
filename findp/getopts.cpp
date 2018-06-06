@@ -14,6 +14,10 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	 opts->progress = false;
 	 opts->maxDepth = -1;
 	 opts->followJunctions = false;
+	 opts->FilenameRegex = std::unique_ptr<std::wregex>{};
+	 opts->ThreadsToUse = 32;
+
+	 LPWSTR regex = NULL;
 
 	 for (int i = 1; i < argc; i++)
 	 {
@@ -25,7 +29,9 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 				 case L's': opts->sum = true;				break;
 				 case L'p': opts->progress = true;			break;
 				 case L'j': opts->followJunctions = true;	break;
-				 case L'd': opts->maxDepth = atoi((const char*)argv[i+++1]); break;
+				 case L'd': opts->maxDepth = atoi((const char*)argv[++i]); break;
+				 case L'r': regex = argv[++i];				break;
+				 case L't': opts->ThreadsToUse = atoi((const char *)argv[++i]); break;
 			 }
 		 }
 		 else
@@ -37,8 +43,14 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	 if (opts->rootDir.empty())
 	 {
 		 Log::Instance()->err(L"no directory given");;
-		 Log::Instance()->inf(L"usage: findp.exe [-s] [-p] [-j] [-d maxDepth] {directory}");;
+		 Log::Instance()->inf(L"usage: findp.exe [-s] [-p] [-j] [-d maxDepth] [-r regex-for-filename] {directory}");;
 		 return 2;
+	 }
+
+	 if (regex != NULL)
+	 {
+		 Log::Instance()->inf(L"regex parsed: %s", regex);
+		 opts->FilenameRegex = std::make_unique<std::wregex>(regex, std::regex_constants::icase);
 	 }
 
 	 return 0;

@@ -34,7 +34,13 @@ void bee_printf(LPCWSTR prefix, const WCHAR* format, ...)
 	bee_vprintf(prefix, format, args, false);
 	va_end(args);
 }
-
+void Log::dbg(const WCHAR* format, ...) const
+{
+	va_list args;
+	va_start(args, format);
+	bee_vprintf(L"D: ", format, args, true);
+	va_end(args);
+}
 void Log::inf(const WCHAR* format, ...) const
 {
 	va_list args;
