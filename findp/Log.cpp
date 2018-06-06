@@ -36,6 +36,8 @@ void bee_printf(LPCWSTR prefix, const WCHAR* format, ...)
 }
 void Log::dbg(const WCHAR* format, ...) const
 {
+	if (_level < 3) return;
+
 	va_list args;
 	va_start(args, format);
 	bee_vprintf(L"D: ", format, args, true);
@@ -43,6 +45,7 @@ void Log::dbg(const WCHAR* format, ...) const
 }
 void Log::inf(const WCHAR* format, ...) const
 {
+	if (_level < 2) return;
 	va_list args;
 	va_start(args, format);
 	bee_vprintf(L"I: ", format, args, true);
@@ -50,6 +53,7 @@ void Log::inf(const WCHAR* format, ...) const
 }
 void Log::wrn(const WCHAR* format, ...) const
 {
+	if (_level < 1) return;
 	va_list args;
 	va_start(args, format);
 	bee_vprintf(L"W: ", format, args, true);

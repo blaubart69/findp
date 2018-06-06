@@ -116,7 +116,7 @@ void ParallelExec<T, C>::StartPoolThreads(int numberToStart)
 
 		if (hThread != NULL)
 		{
-			Log::Instance()->dbg(L"thread started. ThreadId: %ld", dwThreadId);
+			//Log::Instance()->dbg(L"thread started. ThreadId: %ld", dwThreadId);
 			CloseHandle(hThread);
 		}
 		

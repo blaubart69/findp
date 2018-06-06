@@ -16,11 +16,15 @@ Log* logger;
 
 void printStats(Stats *stats);
 void printProgress(const ParallelExec<DirEntry, Context>* executor);
+void ReadKey();
 
 int wmain(int argc, wchar_t *argv[])
 {
 	logger = Log::Instance();
+	logger->setLevel(3);
 	int rc;
+
+	ReadKey();
 
 	Context ctx;
 	if ((rc = getopts(argc, argv, &ctx.opts)) != 0)
@@ -32,6 +36,8 @@ int wmain(int argc, wchar_t *argv[])
 	{
 		logger->wrn(L"could not set privilege SE_BACKUP_NAME");
 	}
+
+	ReadKey();
 
 	auto queue    = std::make_unique< IOCPQueueImpl<DirEntry> >(ctx.opts.ThreadsToUse);
 	auto executor = std::make_unique< ParallelExec<DirEntry, Context> >(std::move(queue), ProcessDirectory, &ctx, ctx.opts.ThreadsToUse);
@@ -72,5 +78,23 @@ void printStats(Stats *stats)
 		stats->files,
 		humanSize,
 		stats->sumFileSize);
+}
+
+void ReadKey()
+{
+	logger->dbg(L"press any key");
+
+	INPUT_RECORD buffer[64];
+	do
+	{
+		DWORD numberEventsRead = 0;
+		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), buffer, 64, &numberEventsRead);
+		//logger->dbg(L"events read: %ld %d %d", numberEventsRead, buffer[0].EventType, buffer[0].Event.KeyEvent.wVirtualKeyCode);
+
+		if (buffer[0].EventType == 1 && buffer[0].Event.KeyEvent.wVirtualKeyCode == VK_RETURN)
+		{
+			break;
+		}
+	} while (true);
 }
 
