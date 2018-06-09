@@ -21,7 +21,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 
 	 for (int i = 1; i < argc; i++)
 	 {
-		 if (argv[i][0] == L'-' && lstrlen(argv[i]) > 1)
+		 if (argv[i][0] == L'-' && argv[i][1] != L'\0')
 		 {
 			 switch (argv[i][1])
 			 {
@@ -29,9 +29,9 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 				 case L's': opts->sum = true;				break;
 				 case L'p': opts->progress = true;			break;
 				 case L'j': opts->followJunctions = true;	break;
-				 case L'd': opts->maxDepth = atoi((const char*)argv[++i]); break;
 				 case L'r': regex = argv[++i];				break;
-				 case L't': opts->ThreadsToUse = atoi((const char *)argv[++i]); break;
+				 case L'd': if ( i+1 < argc) opts->maxDepth = _wtoi((const wchar_t*)argv[++i]); break;
+				 case L't': if ( i+1 < argc) opts->ThreadsToUse = _wtoi((const wchar_t *)argv[++i]); break;
 			 }
 		 }
 		 else

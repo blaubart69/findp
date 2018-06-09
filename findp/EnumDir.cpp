@@ -18,20 +18,26 @@ void EnumDir(std::wstring *fulldirname, std::function<void(WIN32_FIND_DATA*)> On
 	}
 	fulldirname->resize(fulldirname->length() - 2, L'\0');
 
-	while (dwError != ERROR_NO_MORE_FILES) {
-
-		if (dwError != NO_ERROR) {
-
-			//Message(MSGID_ERROR_WINAPI_S, TEXT(__FILE__), __LINE__, L"FindFirst/NextFile", pElement->wcFileName, dwError);
+	while (dwError != ERROR_NO_MORE_FILES) 
+	{
+		if (dwError != NO_ERROR) 
+		{
 			break;
 		}
-		else if (!IsDotDir(FindBuffer.cFileName, FindBuffer.dwFileAttributes)) {
+		else if (!IsDotDir(FindBuffer.cFileName, FindBuffer.dwFileAttributes)) 
+		{
 			OnDirEntry(&FindBuffer);
 		}
 
-		if (!FindNextFile(hSearch, &FindBuffer)) {
+		if (!FindNextFile(hSearch, &FindBuffer)) 
+		{
 			dwError = GetLastError();
 		}
+	}
+
+	if (dwError != ERROR_NO_MORE_FILES)
+	{
+		Log::Instance()->win32err(L"FindNextFile", fulldirname->c_str());
 	}
 
 	if (hSearch != INVALID_HANDLE_VALUE)

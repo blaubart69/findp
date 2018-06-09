@@ -11,21 +11,29 @@ struct Stats
 	LONGLONG enumDone = 0;
 };
 
+struct Extensions
+{
+	LONGLONG noExtSum;
+	std::unordered_map<std::wstring, LONGLONG> exts;
+};
+
 struct Options
 {
 	std::wstring rootDir;
-	std::unique_ptr<std::wregex> FilenameRegex;
 	bool sum;
 	bool progress;
 	bool followJunctions;
 	int maxDepth;
 	int ThreadsToUse;
+	std::unique_ptr<std::wregex> FilenameRegex;
+	
 };
 
 struct Context
 {
 	Stats	stats;
 	Options opts;
+	Extensions ext;
 };
 
 struct DirEntry {

@@ -21,10 +21,8 @@ void ReadKey();
 int wmain(int argc, wchar_t *argv[])
 {
 	logger = Log::Instance();
-	logger->setLevel(3);
+	logger->setLevel(2);
 	int rc;
-
-	ReadKey();
 
 	Context ctx;
 	if ((rc = getopts(argc, argv, &ctx.opts)) != 0)
@@ -36,8 +34,6 @@ int wmain(int argc, wchar_t *argv[])
 	{
 		logger->wrn(L"could not set privilege SE_BACKUP_NAME");
 	}
-
-	ReadKey();
 
 	auto queue    = std::make_unique< IOCPQueueImpl<DirEntry> >(ctx.opts.ThreadsToUse);
 	auto executor = std::make_unique< ParallelExec<DirEntry, Context> >(std::move(queue), ProcessDirectory, &ctx, ctx.opts.ThreadsToUse);

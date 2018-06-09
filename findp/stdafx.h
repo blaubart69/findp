@@ -11,15 +11,15 @@
 #include "targetver.h"
 
 #include <Windows.h>
-
 #include <Shlwapi.h>
 
 #include <string>
 #include <memory>
 #include <functional>
 #include <regex>
-
 #include <cstdlib>
+#include <unordered_map>
 
+#include "XGetopt.h"
 
 // TODO: reference additional headers your program requires here
