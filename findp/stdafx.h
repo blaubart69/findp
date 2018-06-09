@@ -20,6 +20,4 @@
 #include <cstdlib>
 #include <unordered_map>
 
-#include "XGetopt.h"
-
 // TODO: reference additional headers your program requires here

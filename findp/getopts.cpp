@@ -16,6 +16,8 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	 opts->followJunctions = false;
 	 opts->FilenameRegex = std::unique_ptr<std::wregex>{};
 	 opts->ThreadsToUse = 32;
+	 opts->SumUpExtensions = false;
+	 opts->matchByRegEx = false;
 
 	 LPWSTR regex = NULL;
 
@@ -29,9 +31,11 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 				 case L's': opts->sum = true;				break;
 				 case L'p': opts->progress = true;			break;
 				 case L'j': opts->followJunctions = true;	break;
-				 case L'r': regex = argv[++i];				break;
-				 case L'd': if ( i+1 < argc) opts->maxDepth = _wtoi((const wchar_t*)argv[++i]); break;
-				 case L't': if ( i+1 < argc) opts->ThreadsToUse = _wtoi((const wchar_t *)argv[++i]); break;
+				 case L'e': opts->SumUpExtensions = true;	break;
+				 case L'v': Log::Instance()->setLevel(3);	break;
+				 case L'r': if ( i+1 < argc) regex = argv[++i];				break;
+				 case L'd': if ( i+1 < argc) opts->maxDepth     = _wtoi((const wchar_t*)argv[++i]); break;
+				 case L't': if ( i+1 < argc) opts->ThreadsToUse = _wtoi((const wchar_t*)argv[++i]); break;
 			 }
 		 }
 		 else
@@ -49,8 +53,9 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 
 	 if (regex != NULL)
 	 {
-		 Log::Instance()->inf(L"regex parsed: %s", regex);
+		 Log::Instance()->dbg(L"regex parsed: %s", regex);
 		 opts->FilenameRegex = std::make_unique<std::wregex>(regex, std::regex_constants::icase);
+		 opts->matchByRegEx = true;
 	 }
 
 	 return 0;

@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Hash">
+      <UniqueIdentifier>{c9fb4560-9f94-4fe8-954c-f96c9644c868}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -37,6 +40,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="findp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MikeHash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -64,6 +70,15 @@
     </ClCompile>
     <ClCompile Include="TrySetPrivilege.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PrintEntry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessExtension.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MikeHash\MikeHash.c">
+      <Filter>Source Files\Hash</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

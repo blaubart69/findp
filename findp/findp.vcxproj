@@ -168,6 +168,7 @@
     <ClInclude Include="IOCPQueueImpl.h" />
     <ClInclude Include="IConcurrentQueue.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="MikeHash.h" />
     <ClInclude Include="ParallelExec.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -177,8 +178,16 @@
     <ClCompile Include="findp.cpp" />
     <ClCompile Include="getopts.cpp" />
     <ClCompile Include="Log.cpp" />
+    <ClCompile Include="MikeHash\MikeHash.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="PrintEntry.cpp" />
     <ClCompile Include="ProcessDirectory.cpp" />
     <ClCompile Include="ProcessEntry.cpp" />
+    <ClCompile Include="ProcessExtension.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="TestMikeHash.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="obj">
+      <UniqueIdentifier>{2b5dafa7-6dd5-4dd6-b988-43ba56509377}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="..\findp\x64\Debug\MikeHash.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\ProcessExtension.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\Log.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\stdafx.obj">
+      <Filter>obj</Filter>
+    </Object>
+  </ItemGroup>
+</Project>

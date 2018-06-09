@@ -14,8 +14,9 @@
 
 Log* logger;
 
-void printStats(Stats *stats);
+void printStats(Stats *stats, bool printMatched);
 void printProgress(const ParallelExec<DirEntry, Context>* executor);
+void printExtensions(Extensions *ext);
 void ReadKey();
 
 int wmain(int argc, wchar_t *argv[])
@@ -49,7 +50,11 @@ int wmain(int argc, wchar_t *argv[])
 		}
 	}
 
-	printStats(&ctx.stats);
+	printStats(&ctx.stats, ctx.opts.matchByRegEx);
+	if (ctx.opts.SumUpExtensions)
+	{
+		printExtensions(&ctx.ext);
+	}
 
     return 0;
 }
@@ -62,18 +67,38 @@ void printProgress(const ParallelExec<DirEntry, Context>* executor)
 	logger->writeLine(L"queued/running/done %ld/%ld/%ld", queued, running, done);
 }
 
-void printStats(Stats *stats)
+void printStats(Stats *stats, bool printMatched)
 {
 	WCHAR humanSize[32];
-	StrFormatByteSizeW(stats->sumFileSize, humanSize, 32);
 
 	logger->write(
-	   L"\ndirs\t%12I64d"
-		"\nfiles\t%12I64d (%s) (%I64d bytes)",
+	   L"\ndirs/files/filesize"
+	   L"\t%I64d/%I64d/%s",
 		stats->dirs,
 		stats->files,
-		humanSize,
-		stats->sumFileSize);
+		StrFormatByteSizeW(stats->sumFileSize, humanSize, 32));
+
+	if (printMatched)
+	{
+		logger->write(
+			L" | matched files/filesize"
+			L" %I64d/%s",
+			stats->filesMatched,
+			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32));
+	}
+
+	logger->write(L"\n");
+}
+
+void printExtensions(Extensions *ext)
+{
+	logger->writeLine(L"%12I64d\tno extension", ext->noExtSum);
+
+	MikeHT_ForEach(ext->extsHashtable, 
+		[](LPWSTR key, LONGLONG val)
+		{
+			logger->writeLine(L"%12I64d\t%s", val, key);
+		});
 }
 
 void ReadKey()

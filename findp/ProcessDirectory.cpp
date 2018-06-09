@@ -10,7 +10,7 @@ void ProcessDirectory(DirEntry *item, ParallelExec<DirEntry, Context> *executor,
 	EnumDir(item->FullDirname.get(),
 		[item, executor, ctx](WIN32_FIND_DATA *finddata)
 	{
-		if ((finddata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+		if ( isDirectory(finddata->dwFileAttributes) )
 		{
 			InterlockedIncrement64(&(ctx->stats.dirs));
 
@@ -36,10 +36,7 @@ void ProcessDirectory(DirEntry *item, ParallelExec<DirEntry, Context> *executor,
 			li.LowPart = finddata->nFileSizeLow;
 			InterlockedAdd64(&(ctx->stats.sumFileSize), li.QuadPart);
 		}
-		if (!ctx->opts.sum)
-		{
-			ProcessEntry(item->FullDirname.get(), finddata, ctx);
-		}
+		ProcessEntry(item->FullDirname.get(), finddata, ctx);
 	});
 
 	delete item;
