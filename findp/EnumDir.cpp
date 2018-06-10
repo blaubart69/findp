@@ -12,19 +12,19 @@ void EnumDir(std::wstring *fulldirname, std::function<void(WIN32_FIND_DATA*)> On
 	WIN32_FIND_DATA FindBuffer;
 
 	fulldirname->append(L"\\*");
-	if ((hSearch = FindFirstFile(fulldirname->c_str(), &FindBuffer)) == INVALID_HANDLE_VALUE) {
-		dwError = GetLastError();
-		Log::Instance()->win32err(L"FindFirstFile", fulldirname->c_str());
-	}
+	hSearch = FindFirstFile(fulldirname->c_str(), &FindBuffer);
 	fulldirname->resize(fulldirname->length() - 2, L'\0');
 
-	while (dwError != ERROR_NO_MORE_FILES) 
+	if ( hSearch == INVALID_HANDLE_VALUE )
 	{
-		if (dwError != NO_ERROR) 
-		{
-			break;
-		}
-		else if (!IsDotDir(FindBuffer.cFileName, FindBuffer.dwFileAttributes)) 
+		dwError = GetLastError();
+		Log::Instance()->win32err(L"FindFirstFile", fulldirname->c_str());
+		return;
+	}
+
+	do
+	{
+		if (!IsDotDir(FindBuffer.cFileName, FindBuffer.dwFileAttributes)) 
 		{
 			OnDirEntry(&FindBuffer);
 		}
@@ -33,7 +33,7 @@ void EnumDir(std::wstring *fulldirname, std::function<void(WIN32_FIND_DATA*)> On
 		{
 			dwError = GetLastError();
 		}
-	}
+	} while (dwError != ERROR_NO_MORE_FILES);
 
 	if (dwError != ERROR_NO_MORE_FILES)
 	{
