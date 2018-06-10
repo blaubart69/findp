@@ -23,8 +23,9 @@ struct Extensions
 
 	Extensions()
 	{
-		DWORD HastableSize = 1023;
-		extsHashtable = MikeHT_Init(HastableSize);
+		DWORD HastableSize = 65537;
+		//extsHashtable = MikeHT_Init(HastableSize, hash_djb2);
+		extsHashtable = MikeHT_Init(HastableSize, HashValueSimple);
 		Log::Instance()->dbg(L"extension hashtable init with %d array size", HastableSize);
 	}
 

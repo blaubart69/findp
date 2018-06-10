@@ -11,8 +11,11 @@ typedef struct _SLIST {
 	WCHAR          Key[1]; // for the \0
 } SLIST;
 
+typedef DWORD (*pfHashFunction)(const WCHAR *str, DWORD *len);
+
 typedef struct _HT {
 	DWORD Entries;
+	pfHashFunction pfHashFunction;
 	SLIST *Table[1];
 } HT;
 
@@ -27,11 +30,14 @@ extern "C" {
 
 typedef void(*KeyValCallback)(LPWSTR Key, LONGLONG Val, LPVOID context);
 
-HT*		MikeHT_Init		(DWORD Entries);
+HT*		MikeHT_Init		(DWORD Entries, pfHashFunction HashFuntionToUse);
 DWORD	MikeHT_Free		(HT *ht);
 BOOL	MikeHT_Insert	(HT *ht, LPWSTR Key, LONGLONG Val);
 BOOL    MikeHT_Get		(HT *ht, LPWSTR Key, LONGLONG *Val);
 DWORD   MikeHT_ForEach  (HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPVOID context);
+
+DWORD HashValueSimple(const WCHAR *str, DWORD *len);
+DWORD hash_djb2		 (const WCHAR *str, DWORD *len);
 
 #ifdef __cplusplus
 }

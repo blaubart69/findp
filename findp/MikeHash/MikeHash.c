@@ -28,26 +28,27 @@ DWORD hash_djb2(const WCHAR *str, DWORD *len) {
 
 	DWORD hash = 5381;
 	
-	const WCHAR* c = str;
-	while (*c++)
+	const WCHAR *p = str;
+	while ( *p )
 	{
 		hash = 
 			((hash << 5) + hash) // hash * 33 
-			^ *c; 
+			^ *p; 
+		p++;
 	}
 
-	*len = c - str;
+	*len = p - str;
 
 	return hash;
 }
 
 //-------------------------------------------------------------------------------------------------
-static DWORD HashValue(LPWSTR s, DWORD *len) {
+DWORD HashValueSimple(const WCHAR *str, DWORD *len) {
 //-------------------------------------------------------------------------------------------------
 
 	DWORD hash = 0, l = 0; WCHAR w;
 
-	while ((w = *s++) != L'\0') {
+	while ((w = *str++) != L'\0') {
 		hash += hash + w;
 		l++;
 	} /* endwhile */
@@ -124,7 +125,7 @@ BOOL MikeHT_Get(HT *ht, LPWSTR Key, LONGLONG *Val) {
 //=================================================================================================
 
 	DWORD KeyLen;
-	DWORD idx = HashValue(Key, &KeyLen) % ht->Entries;
+	DWORD idx = ht->pfHashFunction(Key, &KeyLen) % ht->Entries;
 
 	SLIST *p = ht->Table[idx];
 
@@ -147,8 +148,9 @@ BOOL MikeHT_Insert( HT *ht, LPWSTR Key, LONGLONG Val ) {
     DWORD KeyLen;
     SLIST *pNew, *pOld; 
 
-    DWORD idx = HashValue( Key, &KeyLen ) % ht->Entries;
+    //DWORD idx = HashValue( Key, &KeyLen ) % ht->Entries;
 	//DWORD idx = hash_djb2(Key, &KeyLen) % ht->Entries;
+	DWORD idx = ht->pfHashFunction(Key, &KeyLen) % ht->Entries;
 
     for (;;) {
 
@@ -214,7 +216,7 @@ DWORD MikeHT_Free( HT *ht ) {
     return n;
 }
 //=================================================================================================
-HT* MikeHT_Init( DWORD Entries ) {
+HT* MikeHT_Init( DWORD Entries, pfHashFunction HashFuntionToUse ) {
 //=================================================================================================
 
     HT *ht = (HT*)HeapAlloc( GetProcessHeap()
@@ -222,6 +224,7 @@ HT* MikeHT_Init( DWORD Entries ) {
                       , sizeof( *ht ) + ( Entries - 1 ) * sizeof( ht->Table[ 0 ] ));
 
     ht->Entries = Entries;
+	ht->pfHashFunction = HashFuntionToUse;
 
     return ht;
 }
