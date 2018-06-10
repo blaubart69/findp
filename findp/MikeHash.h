@@ -36,8 +36,8 @@ BOOL	MikeHT_Insert	(HT *ht, LPWSTR Key, LONGLONG Val);
 BOOL    MikeHT_Get		(HT *ht, LPWSTR Key, LONGLONG *Val);
 DWORD   MikeHT_ForEach  (HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPVOID context);
 
-DWORD HashValueSimple(const WCHAR *str, DWORD *len);
-DWORD hash_djb2		 (const WCHAR *str, DWORD *len);
+DWORD	MikeHT_HashValueSimple	(const WCHAR *str, DWORD *len);
+DWORD	MikeHT_hash_djb2		(const WCHAR *str, DWORD *len);
 
 #ifdef __cplusplus
 }

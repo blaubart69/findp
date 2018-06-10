@@ -23,7 +23,7 @@ InterlockedAdd_Inline (
 #endif
 
 //-------------------------------------------------------------------------------------------------
-DWORD hash_djb2(const WCHAR *str, DWORD *len) {
+DWORD MikeHT_hash_djb2(const WCHAR *str, DWORD *len) {
 //-------------------------------------------------------------------------------------------------
 
 	DWORD hash = 5381;
@@ -43,7 +43,7 @@ DWORD hash_djb2(const WCHAR *str, DWORD *len) {
 }
 
 //-------------------------------------------------------------------------------------------------
-DWORD HashValueSimple(const WCHAR *str, DWORD *len) {
+DWORD MikeHT_HashValueSimple(const WCHAR *str, DWORD *len) {
 //-------------------------------------------------------------------------------------------------
 
 	DWORD hash = 0, l = 0; WCHAR w;
