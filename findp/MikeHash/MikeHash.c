@@ -31,9 +31,7 @@ DWORD MikeHT_hash_djb2(const WCHAR *str, DWORD *len) {
 	const WCHAR *p = str;
 	while ( *p )
 	{
-		hash = 
-			((hash << 5) + hash) // hash * 33 
-			^ *p; 
+		hash = ( hash * 33 ) ^ *p;	// ((hash << 5) + hash) // hash * 33 ... compiler knows best :-)
 		p++;
 	}
 
@@ -59,7 +57,7 @@ DWORD MikeHT_HashValueSimple(const WCHAR *str, DWORD *len) {
 }
 
 //-------------------------------------------------------------------------------------------------
-static SLIST* FindInList(SLIST *p, LPCWSTR Key, DWORD KeyLen) {
+static SLIST* FindInList(const SLIST *p, LPCWSTR Key, const DWORD KeyLen) {
 //-------------------------------------------------------------------------------------------------
 
 	while (p != NULL) {
@@ -121,11 +119,11 @@ DWORD MikeHT_ForEach(HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPV
 	return ItemCount;
 }
 //=================================================================================================
-BOOL MikeHT_Get(HT *ht, LPWSTR Key, LONGLONG *Val) {
+BOOL MikeHT_Get(HT *ht, LPCWSTR Key, LONGLONG *Val) {
 //=================================================================================================
 
 	DWORD KeyLen;
-	DWORD idx = ht->pfHashFunction(Key, &KeyLen) % ht->Entries;
+	DWORD idx = MikeHT_hash_djb2(Key, &KeyLen) % ht->Entries;
 
 	SLIST *p = ht->Table[idx];
 
@@ -146,13 +144,13 @@ BOOL MikeHT_Insert( HT *ht, LPWSTR Key, LONGLONG Val ) {
 //=================================================================================================
 
     DWORD KeyLen;
-    SLIST *pNew, *pOld; 
 
     //DWORD idx = HashValue( Key, &KeyLen ) % ht->Entries;
-	//DWORD idx = hash_djb2(Key, &KeyLen) % ht->Entries;
-	DWORD idx = ht->pfHashFunction(Key, &KeyLen) % ht->Entries;
+	DWORD idx = MikeHT_hash_djb2(Key, &KeyLen) % ht->Entries;
 
     for (;;) {
+
+		SLIST *pNew, *pOld;
 
         // search
 
@@ -162,10 +160,8 @@ BOOL MikeHT_Insert( HT *ht, LPWSTR Key, LONGLONG Val ) {
 		if (pNew != NULL)
 		{
 			// found
-
 			InterlockedAdd64(&pNew->Val, Val);
 			return FALSE;
-
 		}
 
         // create
@@ -216,7 +212,7 @@ DWORD MikeHT_Free( HT *ht ) {
     return n;
 }
 //=================================================================================================
-HT* MikeHT_Init( DWORD Entries, pfHashFunction HashFuntionToUse ) {
+HT* MikeHT_Init( DWORD Entries ) {
 //=================================================================================================
 
     HT *ht = (HT*)HeapAlloc( GetProcessHeap()
@@ -224,7 +220,6 @@ HT* MikeHT_Init( DWORD Entries, pfHashFunction HashFuntionToUse ) {
                       , sizeof( *ht ) + ( Entries - 1 ) * sizeof( ht->Table[ 0 ] ));
 
     ht->Entries = Entries;
-	ht->pfHashFunction = HashFuntionToUse;
 
     return ht;
 }
