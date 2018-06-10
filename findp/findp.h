@@ -4,6 +4,7 @@
 #include "ParallelExec.h"
 #include "MikeHash.h"
 #include "Log.h"
+#include "beestr.h"
 
 struct Stats
 {
@@ -69,9 +70,8 @@ public:
 
 typedef struct {
 	int		depth;
-	DWORD	fullDirnameLen;
-	WCHAR	fullDirname[1];
-} DirEntry_C;
+	BEESTR	fullDirname;
+} DirEntryC;
 
 
 void ProcessDirectory(DirEntry *item, ParallelExec<DirEntry, Context> *executor, Context *ctx);

@@ -18,6 +18,5 @@
 #include <functional>
 #include <regex>
 #include <cstdlib>
-#include <unordered_map>
 
 // TODO: reference additional headers your program requires here

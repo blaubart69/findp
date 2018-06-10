@@ -66,40 +66,31 @@ bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int m
 
 }
 
-DirEntry_C* CreateDirEntryC(const DirEntry_C *parent, LPCWSTR currentDir, int currDepth)
+DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir, int currDepth)
 {
-	int newEntryDirLen = 
-		(parent == NULL ? 
-			0								
-			: parent->fullDirnameLen 
-				+ 1	// + "\"
-		)
+	DWORD newFullDirLen = 
+		  (parent == NULL ? 0 : parent->fullDirname.len + 1 ) // +1 == \ in between 
 		+ lstrlen(currentDir);
 
-	int sizeToAlloc =
-		sizeof(DirEntry_C)
-		+ 	(
-			newEntryDirLen
-			+ 2	// "\*"
-			) 
-			* sizeof(WCHAR)
-		;
+	DWORD sizeToAlloc =
+		  sizeof(DirEntryC)
+		+ (newFullDirLen + 2 /* to append \* for searching */ ) * sizeof(WCHAR);
 
-	DirEntry_C* newEntry;
-	if ((newEntry = (DirEntry_C*)HeapAlloc(GetProcessHeap(), 0, sizeToAlloc)) == NULL)
+	DirEntryC* newEntry;
+	if ((newEntry = (DirEntryC*)HeapAlloc(GetProcessHeap(), 0, sizeToAlloc)) == NULL)
 	{
 		Log::Instance()->win32err(L"HeapAlloc");
 	}
 	else
 	{
 		newEntry->depth = currDepth;
-		newEntry->fullDirnameLen = newEntryDirLen;
+		newEntry->fullDirname.len = newFullDirLen;
 
-		WCHAR *writer = newEntry->fullDirname;
+		WCHAR *writer = newEntry->fullDirname.str;
 		if (parent != NULL)
 		{
-			lstrcpy(writer, parent->fullDirname);
-			writer += parent->fullDirnameLen;
+			lstrcpy(writer, parent->fullDirname.str);
+			writer += parent->fullDirname.len;
 			*writer = L'\\';
 			writer++;
 		}

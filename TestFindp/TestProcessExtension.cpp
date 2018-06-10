@@ -33,7 +33,7 @@ TEST(ProcessExtension, NoExtension) {
 	ProcessExtension(&ext, L"NixIsDo", 11);
 
 	LONGLONG val;
-	DWORD count = MikeHT_ForEach(ext.extsHashtable, [](auto key, auto val) {});
+	DWORD count = MikeHT_ForEach(ext.extsHashtable, [](auto key, auto val, auto ctx) {}, NULL, NULL);
 	EXPECT_EQ(0, count);
 	EXPECT_EQ(11, ext.noExtSum);
 }
@@ -45,7 +45,7 @@ TEST(ProcessExtension, DotAtEnd) {
 	ProcessExtension(&ext, L"kaungornedsei.", 12);
 
 	LONGLONG val;
-	DWORD count = MikeHT_ForEach(ext.extsHashtable, [](auto key, auto val) {});
+	DWORD count = MikeHT_ForEach(ext.extsHashtable, [](auto key, auto val, auto ctx) {}, NULL, NULL);
 	EXPECT_EQ(0, count);
 	EXPECT_EQ(12, ext.noExtSum);
 }
@@ -57,7 +57,7 @@ TEST(ProcessExtension, OnlyDot) {
 	ProcessExtension(&ext, L".", 22);
 
 	LONGLONG val;
-	DWORD count = MikeHT_ForEach(ext.extsHashtable, [](auto key, auto val) {});
+	DWORD count = MikeHT_ForEach(ext.extsHashtable, [](auto key, auto val, auto ctx) {}, NULL, NULL);
 	EXPECT_EQ(0, count);
 	EXPECT_EQ(22, ext.noExtSum);
 }

@@ -177,6 +177,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="beestr.h" />
     <ClInclude Include="findp.h" />
     <ClInclude Include="EnumDir.h" />
     <ClInclude Include="IOCPQueueImpl.h" />

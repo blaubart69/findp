@@ -45,6 +45,9 @@
     <ClInclude Include="MikeHash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="beestr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
