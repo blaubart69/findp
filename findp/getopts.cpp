@@ -74,13 +74,15 @@ void PrintUsage(void)
 {
 	Log::Instance()->inf(
 		L"usage: findp.exe [OPTIONS] {directory}"
-		L"\n-s ... sum dirs, files, filesize. don't print anything"
+		L"\n-s ... sum dirs, files, filesize. don't print filenames"
+		L"\n-e ... group extensions and calc the sum of the filesizes. write to .\\exts.txt (UTF-8)"
 		L"\n-p ... show progress"
 		L"\n-j ... follow directory junctions"
-		L"\n-r ... regex to match filenames"
-		L"\n-d ... how many directory to go down"
 		L"\n-v ... verbose/debug"
 		L"\n-h ... show this help"
+		L"\n-r {regex to apply to filename} ... regex to match filenames"
+		L"\n-d {depth}                      ... how many directory to go down"
+		L"\n-t {numberThreads}			    ... threads to start for parallel enumerations"
 	    L"\n\nSamples:"
 		L"\nfindp.exe -r \"\\.pdf$\" ... find all files with pdf extension"
 		L"\n"
