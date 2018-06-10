@@ -53,7 +53,8 @@ int wmain(int argc, wchar_t *argv[])
 	printStats(&ctx.stats, ctx.opts.matchByRegEx);
 	if (ctx.opts.SumUpExtensions)
 	{
-		printExtensions(&ctx.ext);
+		LPCWSTR extFilename = L".\\exts.txt";
+		WriteExtensions(extFilename, &ctx.ext);
 	}
 
     return 0;
@@ -88,17 +89,6 @@ void printStats(Stats *stats, bool printMatched)
 	}
 
 	logger->write(L"\n");
-}
-
-void printExtensions(Extensions *ext)
-{
-	logger->writeLine(L"%12I64d\tno extension", ext->noExtSum);
-
-	MikeHT_ForEach(ext->extsHashtable, 
-		[](LPWSTR key, LONGLONG val)
-		{
-			logger->writeLine(L"%12I64d\t%s", val, key);
-		});
 }
 
 void ReadKey()

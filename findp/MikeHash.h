@@ -16,17 +16,22 @@ typedef struct _HT {
 	SLIST *Table[1];
 } HT;
 
+typedef struct _HT_STATS {
+	DWORD ArrayItems;
+	DWORD LongestList;
+} HT_STATS;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef void(*KeyValCallback)(LPWSTR Key, LONGLONG Val);
+typedef void(*KeyValCallback)(LPWSTR Key, LONGLONG Val, LPVOID context);
 
 HT*		MikeHT_Init		(DWORD Entries);
 DWORD	MikeHT_Free		(HT *ht);
 BOOL	MikeHT_Insert	(HT *ht, LPWSTR Key, LONGLONG Val);
 BOOL    MikeHT_Get		(HT *ht, LPWSTR Key, LONGLONG *Val);
-DWORD	MikeHT_ForEach  (HT *ht, KeyValCallback KeyValCallback);
+DWORD   MikeHT_ForEach  (HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPVOID context);
 
 #ifdef __cplusplus
 }

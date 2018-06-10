@@ -78,6 +78,7 @@ void ProcessDirectory(DirEntry *item, ParallelExec<DirEntry, Context> *executor,
 void ProcessEntry(const std::wstring *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx);
 void PrintEntry(const std::wstring *FullBaseDir, WIN32_FIND_DATA *finddata);
 void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize);
+void WriteExtensions(LPCWSTR filename, const Extensions *ext);
 
 int getopts(int argc, wchar_t *argv[], Options* opts);
 BOOL TryToSetPrivilege(LPCWSTR szPrivilege, BOOL bEnablePrivilege);

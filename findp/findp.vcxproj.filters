@@ -80,5 +80,8 @@
     <ClCompile Include="MikeHash\MikeHash.c">
       <Filter>Source Files\Hash</Filter>
     </ClCompile>
+    <ClCompile Include="WriteExtensionToFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

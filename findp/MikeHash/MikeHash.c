@@ -31,7 +31,9 @@ DWORD hash_djb2(const WCHAR *str, DWORD *len) {
 	const WCHAR* c = str;
 	while (*c++)
 	{
-		hash = ((hash << 5) + hash) + *c; /* hash * 33 + c */
+		hash = 
+			((hash << 5) + hash) // hash * 33 
+			^ *c; 
 	}
 
 	*len = c - str;
@@ -82,21 +84,40 @@ static SLIST* FindInList(SLIST *p, LPCWSTR Key, DWORD KeyLen) {
 	return p;
 }
 //=================================================================================================
-DWORD MikeHT_ForEach(HT *ht, KeyValCallback KeyValCallback) {
+DWORD MikeHT_ForEach(HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPVOID context) {
 //=================================================================================================
 
-	DWORD count = 0;
-
-	for (int i = 0; i < ht->Entries; i++)
+	if (stats != NULL)
 	{
-		for ( SLIST* elem = ht->Table[i]; elem != NULL; elem=elem->Nxt)
-		{
-			count++;
-			KeyValCallback(elem->Key, elem->Val);
-		}
+		stats->ArrayItems = 0;
+		stats->LongestList = 0;
 	}
 
-	return count;
+	DWORD ItemCount = 0;
+
+	for (DWORD i = 0; i < ht->Entries; i++)
+	{
+		if (stats != NULL && ht->Table[i] != NULL)
+		{
+			stats->ArrayItems++;
+		}
+
+		DWORD ListCount = 0;
+		for ( SLIST* elem = ht->Table[i]; elem != NULL; elem=elem->Nxt)
+		{
+			ItemCount++;
+			ListCount++;
+			KeyValCallback(elem->Key, elem->Val, context);
+		}
+
+		if (stats != NULL)
+		{
+			stats->LongestList = max(stats->LongestList, ListCount);
+		}
+
+	}
+
+	return ItemCount;
 }
 //=================================================================================================
 BOOL MikeHT_Get(HT *ht, LPWSTR Key, LONGLONG *Val) {
@@ -127,7 +148,7 @@ BOOL MikeHT_Insert( HT *ht, LPWSTR Key, LONGLONG Val ) {
     SLIST *pNew, *pOld; 
 
     DWORD idx = HashValue( Key, &KeyLen ) % ht->Entries;
-	//DWORD idx = hash_djb2(Key, &l) % ht->Entries;
+	//DWORD idx = hash_djb2(Key, &KeyLen) % ht->Entries;
 
     for (;;) {
 
