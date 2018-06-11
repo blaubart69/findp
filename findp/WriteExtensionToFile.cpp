@@ -1,7 +1,5 @@
 #include "stdafx.h"
 
-#include "findp.h"
-
 int ConvertToUTF8(LPCWSTR text, DWORD len, LPSTR out, int outSizeBytes)
 {
 	return 

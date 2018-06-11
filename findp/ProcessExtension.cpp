@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "findp.h"
 
 bool FindExtension(LPCWSTR filename, LPWSTR *extension);
 

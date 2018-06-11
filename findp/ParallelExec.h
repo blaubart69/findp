@@ -1,9 +1,5 @@
 #pragma once
 
-#include "stdafx.h"
-
-#include "IConcurrentQueue.h"
-
 template<typename T, typename C>
 class ParallelExec
 {
@@ -29,7 +25,7 @@ private:
 
 	std::unique_ptr< IConcurrentQueue<T> > _queue;
 	WorkFunc _workFunc;
-	C* _context;
+	C*	_context;
 	HANDLE	_hasFinished;
 	int		_maxThreads;
 

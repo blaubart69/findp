@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "..\findp\MikeHash.h"
+
 
 TEST(MikeHashTable, JustInsert) {
   

@@ -1,11 +1,5 @@
 #pragma once
 
-#include "stdafx.h"
-#include "ParallelExec.h"
-#include "MikeHash.h"
-#include "Log.h"
-#include "beestr.h"
-
 struct Stats
 {
 	__declspec(align(64)) volatile LONGLONG files = 0;
@@ -38,13 +32,13 @@ struct Extensions
 
 struct Options
 {
-	std::wstring rootDir;
+	LPCWSTR rootDir;
+	LPCWSTR FilenameRegex;
 	bool sum;
 	bool progress;
 	bool followJunctions;
 	int maxDepth;
 	int ThreadsToUse;
-	std::unique_ptr<std::wregex> FilenameRegex;
 	bool matchByRegEx;
 	bool SumUpExtensions;
 };
@@ -56,38 +50,24 @@ struct Context
 	Extensions ext;
 };
 
-struct DirEntry {
-public:
-	std::unique_ptr<std::wstring> FullDirname;
-	const int depth;
+typedef struct _LSTR
+{
+	DWORD	len;
+	WCHAR	str[1];
+} LSTR;
 
-	DirEntry(std::unique_ptr<std::wstring>&& dirname, int depthOfDir)
-		: FullDirname(std::move(dirname))
-		, depth(depthOfDir)
-	{
-	}
-};
-
-typedef struct {
+typedef struct _DirEntryC {
 	int		depth;
-	BEESTR	fullDirname;
+	LSTR	fullDirname;
 } DirEntryC;
 
 
-void ProcessDirectory(DirEntry *item, ParallelExec<DirEntry, Context> *executor, Context *ctx);
-void ProcessEntry(const std::wstring *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx);
-void PrintEntry(const std::wstring *FullBaseDir, WIN32_FIND_DATA *finddata);
+void ProcessDirectory(DirEntryC *item, ParallelExec<DirEntryC, Context> *executor, Context *ctx);
+void ProcessEntry(LPCWSTR FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx);
+void PrintEntry(LPCWSTR FullBaseDir, WIN32_FIND_DATA *finddata);
 void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize);
 void WriteExtensions(LPCWSTR filename, const Extensions *ext);
-
+DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir, int currDepth);
 int getopts(int argc, wchar_t *argv[], Options* opts);
 BOOL TryToSetPrivilege(LPCWSTR szPrivilege, BOOL bEnablePrivilege);
 
-inline bool isDirectory(const DWORD dwFileAttributes)
-{
-	return (dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-}
-inline bool isFile(const DWORD dwFileAttributes)
-{
-	return !isDirectory(dwFileAttributes);
-}

@@ -1,8 +1,7 @@
 #include "stdafx.h"
-#include "findp.h"
-#include "Log.h"
 
-void ProcessEntry(const std::wstring *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx)
+
+void ProcessEntry(LPCWSTR FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx)
 {
 	LARGE_INTEGER li;
 	li.HighPart = finddata->nFileSizeHigh;
@@ -11,9 +10,11 @@ void ProcessEntry(const std::wstring *FullBaseDir, WIN32_FIND_DATA *finddata, Co
 	bool matched;
 	if ( ctx->opts.matchByRegEx && isFile(finddata->dwFileAttributes) )
 	{
+		std::wregex filenameRegex(ctx->opts.FilenameRegex, std::wregex::flag_type::icase);
+
 		matched = std::regex_search(
 			finddata->cFileName
-			, *ctx->opts.FilenameRegex.get());
+			, filenameRegex);
 
 		if (matched)
 		{
