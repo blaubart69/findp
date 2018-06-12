@@ -30,7 +30,7 @@ int wmain(int argc, wchar_t *argv[])
 	auto queue    = std::make_unique< IOCPQueueImpl<DirEntryC> >(ctx.opts.ThreadsToUse);
 	auto executor = std::make_unique< ParallelExec<DirEntryC, Context> >(std::move(queue), ProcessDirectory, &ctx, ctx.opts.ThreadsToUse);
 
-	executor->EnqueueWork( CreateDirEntryC(NULL, ctx.opts.rootDir,0) );
+	executor->EnqueueWork( CreateDirEntryC(NULL, ctx.opts.rootDir) );
 	while (! executor->Wait(1000) )
 	{
 		if (ctx.opts.progress)

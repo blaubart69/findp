@@ -2,35 +2,36 @@
 
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth);
 void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out);
-DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir, int currDepth);
+
 
 void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context> *executor, Context *ctx)
 {
 	EnumDir(
-		dirToEnum->fullDirname.str, dirToEnum->fullDirname.len,
+		dirToEnum->fullDirname.str, 
+		dirToEnum->fullDirname.len,
 		[dirToEnum, executor, ctx](WIN32_FIND_DATA *finddata)
-	{
-		if ( isDirectory(finddata->dwFileAttributes) )
 		{
-			InterlockedIncrement64(&(ctx->stats.dirs));
-
-			if (EnterDir(finddata->dwFileAttributes, ctx->opts.followJunctions, dirToEnum->depth, ctx->opts.maxDepth))
+			if ( isDirectory(finddata->dwFileAttributes) )
 			{
-				DirEntryC* newEntry = CreateDirEntryC(dirToEnum, finddata->cFileName, dirToEnum->depth + 1);
-				executor->EnqueueWork(newEntry);
-			}
-		}
-		else
-		{
-			InterlockedIncrement64(&(ctx->stats.files));
+				InterlockedIncrement64(&(ctx->stats.dirs));
 
-			LARGE_INTEGER li;
-			li.HighPart = finddata->nFileSizeHigh;
-			li.LowPart = finddata->nFileSizeLow;
-			InterlockedAdd64(&(ctx->stats.sumFileSize), li.QuadPart);
-		}
-		ProcessEntry(dirToEnum->fullDirname.str, finddata, ctx);
-	});
+				if (EnterDir(finddata->dwFileAttributes, ctx->opts.followJunctions, dirToEnum->depth, ctx->opts.maxDepth))
+				{
+					DirEntryC* newEntry = CreateDirEntryC(dirToEnum, finddata->cFileName);
+					executor->EnqueueWork(newEntry);
+				}
+			}
+			else
+			{
+				InterlockedIncrement64(&(ctx->stats.files));
+
+				LARGE_INTEGER li;
+				li.HighPart = finddata->nFileSizeHigh;
+				li.LowPart = finddata->nFileSizeLow;
+				InterlockedAdd64(&(ctx->stats.sumFileSize), li.QuadPart);
+			}
+			ProcessEntry(dirToEnum->fullDirname.str, finddata, ctx);
+		});
 
 	HeapFree(GetProcessHeap(), 0, dirToEnum);
 }
@@ -59,7 +60,7 @@ bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int m
 
 }
 
-DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir, int newDepth)
+DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir)
 {
 	DWORD newFullDirLen = 
 		  (parent == NULL ? 0 : parent->fullDirname.len + 1 ) // +1 == \ in between 
@@ -76,7 +77,7 @@ DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir, int newD
 	}
 	else
 	{
-		newEntry->depth				= newDepth;
+		newEntry->depth				= parent == NULL ? 0 : parent->depth + 1;
 		newEntry->fullDirname.len	= newFullDirLen;
 		ConcatDirs(parent == NULL ? NULL : &parent->fullDirname, currentDir, newEntry->fullDirname.str);
 	}

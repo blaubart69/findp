@@ -67,7 +67,7 @@ void ProcessEntry(LPCWSTR FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx);
 void PrintEntry(LPCWSTR FullBaseDir, WIN32_FIND_DATA *finddata);
 void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize);
 void WriteExtensions(LPCWSTR filename, const Extensions *ext);
-DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir, int currDepth);
+DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir);
 int getopts(int argc, wchar_t *argv[], Options* opts);
 BOOL TryToSetPrivilege(LPCWSTR szPrivilege, BOOL bEnablePrivilege);
 
