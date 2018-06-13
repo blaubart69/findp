@@ -3,19 +3,10 @@
 
 #include "stdafx.h"
 
-#include "Log.h"
-#include "findp.h"
-
-#include "IConcurrentQueue.h"
-#include "IOCPQueueImpl.h"
-#include "ParallelExec.h"
-
-#include "EnumDir.h"
-
 Log* logger;
 
 void printStats(Stats *stats, bool printMatched);
-void printProgress(const ParallelExec<DirEntry, Context>* executor);
+void printProgress(const ParallelExec<DirEntryC, Context>* executor);
 void printExtensions(Extensions *ext);
 void ReadKey();
 
@@ -36,12 +27,10 @@ int wmain(int argc, wchar_t *argv[])
 		logger->wrn(L"could not set privilege SE_BACKUP_NAME");
 	}
 
-	auto queue    = std::make_unique< IOCPQueueImpl<DirEntry> >(ctx.opts.ThreadsToUse);
-	auto executor = std::make_unique< ParallelExec<DirEntry, Context> >(std::move(queue), ProcessDirectory, &ctx, ctx.opts.ThreadsToUse);
+	auto queue    = std::make_unique< IOCPQueueImpl<DirEntryC> >(ctx.opts.ThreadsToUse);
+	auto executor = std::make_unique< ParallelExec<DirEntryC, Context> >(std::move(queue), ProcessDirectory, &ctx, ctx.opts.ThreadsToUse);
 
-	auto startFullDir = std::make_unique<std::wstring>(ctx.opts.rootDir);
-	executor->EnqueueWork(new DirEntry(std::move(startFullDir), 0));
-
+	executor->EnqueueWork( CreateDirEntryC(NULL, ctx.opts.rootDir) );
 	while (! executor->Wait(1000) )
 	{
 		if (ctx.opts.progress)
@@ -60,7 +49,7 @@ int wmain(int argc, wchar_t *argv[])
     return 0;
 }
 
-void printProgress(const ParallelExec<DirEntry, Context>* executor)
+void printProgress(const ParallelExec<DirEntryC, Context>* executor)
 {
 	long queued, running, done;
 	executor->Stats(&queued, &running, &done);

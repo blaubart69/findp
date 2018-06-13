@@ -57,7 +57,7 @@ DWORD MikeHT_HashValueSimple(const WCHAR *str, DWORD *len) {
 }
 
 //-------------------------------------------------------------------------------------------------
-static SLIST* FindInList(const SLIST *p, LPCWSTR Key, const DWORD KeyLen) {
+static SLIST* FindInList(SLIST *p, LPCWSTR Key, const DWORD KeyLen) {
 //-------------------------------------------------------------------------------------------------
 
 	while (p != NULL) {

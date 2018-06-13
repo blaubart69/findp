@@ -32,7 +32,7 @@ typedef void(*KeyValCallback)(LPWSTR Key, LONGLONG Val, LPVOID context);
 HT*		MikeHT_Init		(DWORD Entries);
 DWORD	MikeHT_Free		(HT *ht);
 BOOL	MikeHT_Insert	(HT *ht, LPWSTR Key, LONGLONG Val);
-BOOL    MikeHT_Get		(HT *ht, LPWSTR Key, LONGLONG *Val);
+BOOL    MikeHT_Get		(HT *ht, LPCWSTR Key, LONGLONG *Val);
 DWORD   MikeHT_ForEach  (HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPVOID context);
 
 //DWORD	MikeHT_HashValueSimple	(const WCHAR *str, DWORD *len);

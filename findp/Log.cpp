@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "Log.h"
 
 Log* Log::_instance = nullptr;
 

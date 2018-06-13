@@ -1,45 +1,39 @@
 #include "stdafx.h"
-#include "findp.h"
-#include "EnumDir.h"
-#include "Log.h"
 
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth);
+void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out);
 
-void ProcessDirectory(DirEntry *item, ParallelExec<DirEntry, Context> *executor, Context *ctx)
+
+void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context> *executor, Context *ctx)
 {
-	EnumDir(item->FullDirname.get(),
-		[item, executor, ctx](WIN32_FIND_DATA *finddata)
-	{
-		if ( isDirectory(finddata->dwFileAttributes) )
+	EnumDir(
+		dirToEnum->fullDirname.str, 
+		dirToEnum->fullDirname.len,
+		[dirToEnum, executor, ctx](WIN32_FIND_DATA *finddata)
 		{
-			InterlockedIncrement64(&(ctx->stats.dirs));
-
-			if (EnterDir(finddata->dwFileAttributes, ctx->opts.followJunctions, item->depth, ctx->opts.maxDepth))
+			if ( isDirectory(finddata->dwFileAttributes) )
 			{
-				size_t newLen = item->FullDirname->length() + 1 + lstrlen(finddata->cFileName) + 2;
+				InterlockedIncrement64(&(ctx->stats.dirs));
 
-				auto newFullDir = std::make_unique<std::wstring>();
-				newFullDir->reserve(newLen);
-				newFullDir->assign(*(item->FullDirname.get()));
-				newFullDir->append(L"\\");
-				newFullDir->append(finddata->cFileName);
-
-				executor->EnqueueWork(new DirEntry(std::move(newFullDir), item->depth + 1));
+				if (EnterDir(finddata->dwFileAttributes, ctx->opts.followJunctions, dirToEnum->depth, ctx->opts.maxDepth))
+				{
+					DirEntryC* newEntry = CreateDirEntryC(dirToEnum, finddata->cFileName);
+					executor->EnqueueWork(newEntry);
+				}
 			}
-		}
-		else
-		{
-			InterlockedIncrement64(&(ctx->stats.files));
+			else
+			{
+				InterlockedIncrement64(&(ctx->stats.files));
 
-			LARGE_INTEGER li;
-			li.HighPart = finddata->nFileSizeHigh;
-			li.LowPart = finddata->nFileSizeLow;
-			InterlockedAdd64(&(ctx->stats.sumFileSize), li.QuadPart);
-		}
-		ProcessEntry(item->FullDirname.get(), finddata, ctx);
-	});
+				LARGE_INTEGER li;
+				li.HighPart = finddata->nFileSizeHigh;
+				li.LowPart = finddata->nFileSizeLow;
+				InterlockedAdd64(&(ctx->stats.sumFileSize), li.QuadPart);
+			}
+			ProcessEntry(dirToEnum->fullDirname.str, finddata, ctx);
+		});
 
-	delete item;
+	HeapFree(GetProcessHeap(), 0, dirToEnum);
 }
 
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth)
@@ -66,7 +60,7 @@ bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int m
 
 }
 
-DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir, int currDepth)
+DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir)
 {
 	DWORD newFullDirLen = 
 		  (parent == NULL ? 0 : parent->fullDirname.len + 1 ) // +1 == \ in between 
@@ -83,18 +77,21 @@ DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir, int curr
 	}
 	else
 	{
-		newEntry->depth = currDepth;
-		newEntry->fullDirname.len = newFullDirLen;
-
-		WCHAR *writer = newEntry->fullDirname.str;
-		if (parent != NULL)
-		{
-			lstrcpy(writer, parent->fullDirname.str);
-			writer += parent->fullDirname.len;
-			*writer = L'\\';
-			writer++;
-		}
-		lstrcpy(writer, currentDir);
+		newEntry->depth				= parent == NULL ? 0 : parent->depth + 1;
+		newEntry->fullDirname.len	= newFullDirLen;
+		ConcatDirs(parent == NULL ? NULL : &parent->fullDirname, currentDir, newEntry->fullDirname.str);
 	}
 	return newEntry;
+}
+
+void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out)
+{
+	if (basedir != NULL)
+	{
+		lstrcpy(out, basedir->str);
+		out += basedir->len;
+		*out = L'\\';
+		out++;
+	}
+	lstrcpy(out, toAppend);
 }

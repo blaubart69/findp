@@ -36,16 +36,16 @@
     <ClInclude Include="Log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EnumDir.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="findp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MikeHash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="beestr.h">
+    <ClInclude Include="EnumDir.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -54,9 +54,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="findp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EnumDir.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Log.cpp">
@@ -84,6 +81,9 @@
       <Filter>Source Files\Hash</Filter>
     </ClCompile>
     <ClCompile Include="WriteExtensionToFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

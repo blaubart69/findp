@@ -1,8 +1,45 @@
 #pragma once
 
-#include "stdafx.h"
+template<typename finddataCallback>
+void EnumDir(LPWSTR fulldir, DWORD fulldirLength, finddataCallback OnDirEntry)
+{
+	HANDLE hSearch;
+	DWORD  dwError = NO_ERROR;
+	WIN32_FIND_DATA FindBuffer;
 
-typedef void(*EnumDirHandler)(WIN32_FIND_DATA *finddata);
+	lstrcpy(fulldir + fulldirLength, L"\\*");
+	hSearch = FindFirstFile(fulldir, &FindBuffer);
+	fulldir[fulldirLength] = L'\0';
 
-void EnumDir(std::wstring *fulldirname, std::function<void(WIN32_FIND_DATA*)> OnDirEntry);
-void EnumDir(LPCWSTR fulldirnameWithBackSlashStar, const EnumDirHandler OnDirEntry);
+	if (hSearch == INVALID_HANDLE_VALUE)
+	{
+		dwError = GetLastError();
+		Log::Instance()->win32err(L"FindFirstFile", fulldir);
+		return;
+	}
+
+	do
+	{
+		if (!IsDotDir(FindBuffer.cFileName, FindBuffer.dwFileAttributes))
+		{
+			OnDirEntry(&FindBuffer);
+		}
+
+		if (!FindNextFile(hSearch, &FindBuffer))
+		{
+			dwError = GetLastError();
+		}
+	} while (dwError != ERROR_NO_MORE_FILES);
+
+	if (dwError != ERROR_NO_MORE_FILES)
+	{
+		Log::Instance()->win32err(L"FindNextFile", fulldir);
+	}
+
+	if (hSearch != INVALID_HANDLE_VALUE)
+	{
+		FindClose(hSearch);
+	}
+
+}
+

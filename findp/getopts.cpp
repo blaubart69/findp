@@ -1,8 +1,5 @@
 #include "stdafx.h"
 
-#include "findp.h"
-#include "Log.h"
-
 void PrintUsage(void);
 
 int getopts(int argc, wchar_t *argv[], Options* opts)
@@ -16,12 +13,12 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	 opts->progress = false;
 	 opts->maxDepth = -1;
 	 opts->followJunctions = false;
-	 opts->FilenameRegex = std::unique_ptr<std::wregex>{};
+	 opts->FilenameRegex = NULL;
 	 opts->ThreadsToUse = 32;
 	 opts->SumUpExtensions = false;
 	 opts->matchByRegEx = false;
+	 opts->rootDir = NULL;
 
-	 LPWSTR regex = NULL;
 	 bool showHelp = false;
 
 	 for (int i = 1; i < argc; i++)
@@ -37,14 +34,14 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 				 case L'j': opts->followJunctions = true;	break;
 				 case L'e': opts->SumUpExtensions = true;	break;
 				 case L'v': Log::Instance()->setLevel(3);	break;
-				 case L'r': if ( i+1 < argc) regex = argv[++i];				break;
+				 case L'r': if ( i+1 < argc) opts->FilenameRegex = argv[++i];				break;
 				 case L'd': if ( i+1 < argc) opts->maxDepth     = _wtoi((const wchar_t*)argv[++i]); break;
 				 case L't': if ( i+1 < argc) opts->ThreadsToUse = _wtoi((const wchar_t*)argv[++i]); break;
 			 }
 		 }
 		 else
 		 {
-			 opts->rootDir.assign(argv[i]);
+			 opts->rootDir = argv[i];
 		 }
 	 }
 
@@ -54,17 +51,16 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 		 return 4;
 	 }
 
-	 if (opts->rootDir.empty())
+	 if (opts->rootDir == NULL)
 	 {
 		 Log::Instance()->err(L"no directory given");;
 		 PrintUsage();
 		 return 2;
 	 }
 
-	 if (regex != NULL)
+	 if (opts->FilenameRegex != NULL)
 	 {
-		 Log::Instance()->dbg(L"regex parsed: %s", regex);
-		 opts->FilenameRegex = std::make_unique<std::wregex>(regex, std::regex_constants::icase);
+		 Log::Instance()->dbg(L"regex parsed: %s", opts->FilenameRegex);
 		 opts->matchByRegEx = true;
 	 }
 

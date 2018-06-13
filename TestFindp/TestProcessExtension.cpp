@@ -1,6 +1,5 @@
 #include "pch.h"
 
-#include "..\findp\findp.h"
 
 TEST(ProcessExtension, OneExtension) {
 

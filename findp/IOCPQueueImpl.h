@@ -1,7 +1,5 @@
 #pragma once
 
-#include "IConcurrentQueue.h"
-
 template<typename T>
 class IOCPQueueImpl : public IConcurrentQueue<T>
 {
