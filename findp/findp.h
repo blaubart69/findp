@@ -32,7 +32,7 @@ struct Extensions
 
 struct Options
 {
-	LPCWSTR rootDir;
+	LPWSTR rootDir;
 	LPCWSTR FilenameSubstringPattern;
 	bool sum;
 	bool progress;

@@ -1,41 +1,5 @@
 #include "stdafx.h"
 
-int ConvertToUTF8(LPCWSTR text, DWORD len, LPSTR out, int outSizeBytes)
-{
-	return 
-	WideCharToMultiByte(
-		CP_UTF8
-		, 0				// dwFlags [in]
-		, text			// lpWideCharStr [in]
-		, len			// cchWideChar [in]
-		, out			// lpMultiByteStr [out, optional]
-		, outSizeBytes	// cbMultiByte [in]
-		, NULL			// lpDefaultChar[in, optional]
-		, NULL);		// lpUsedDefaultChar[out, optional]
-}
-
-void WriteUTF8f(HANDLE fp, LPCWSTR format, ...)
-{
-	WCHAR buffer[1024];
-
-	va_list args;
-	va_start(args, format);
-	int written = wvsprintfW(buffer, format, args);
-	va_end(args);
-
-	CHAR utf8buffer[1024];
-
-	int utf8bytes = ConvertToUTF8(buffer, written, utf8buffer, sizeof(utf8buffer));
-	if (utf8bytes == 0)
-	{
-		Log::Instance()->win32err(L"WideCharToMultiByte", buffer);
-	}
-	else
-	{
-		DWORD writtenToFile;
-		WriteFile(fp, utf8buffer, utf8bytes, &writtenToFile, NULL);
-	}
-}
 
 void WriteExtensionsToFile(const Extensions *ext, HANDLE fp)
 {

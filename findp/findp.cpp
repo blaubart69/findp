@@ -8,7 +8,7 @@ Log* logger;
 void printStats(Stats *stats, bool printMatched);
 void printProgress(const ParallelExec<DirEntryC, Context>* executor);
 bool CheckIfDirectory(LPCWSTR dirname);
-void ReadKey();
+
 
 int wmain(int argc, wchar_t *argv[])
 {
@@ -28,18 +28,10 @@ int wmain(int argc, wchar_t *argv[])
 	}
 
 	int l = lstrlen(ctx.opts.rootDir);
-	WCHAR x = ctx.opts.rootDir[l - 1];
-	WCHAR y = ctx.opts.rootDir[l - 2];
-	//if (l > 1 && ctx.opts.rootDir[l - 1] == L'\\')
-	if (l > 1) 
+	int lastCharIdx = l - 1;
+	if (l > 1 && ctx.opts.rootDir[lastCharIdx] == L'\\')
 	{
-		if (L'\\' == L'\\')
-		{
-			if (x == L'\\')
-			{
-				ctx.opts.rootDir[l - 1] == L'\0';
-			}
-		}
+		ctx.opts.rootDir[lastCharIdx] = L'\0';
 	}
 
 
@@ -101,23 +93,7 @@ void printStats(Stats *stats, bool printMatched)
 	logger->write(L"\n");
 }
 
-void ReadKey()
-{
-	logger->dbg(L"press any key");
 
-	INPUT_RECORD buffer[64];
-	do
-	{
-		DWORD numberEventsRead = 0;
-		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), buffer, 64, &numberEventsRead);
-		//logger->dbg(L"events read: %ld %d %d", numberEventsRead, buffer[0].EventType, buffer[0].Event.KeyEvent.wVirtualKeyCode);
-
-		if (buffer[0].EventType == 1 && buffer[0].Event.KeyEvent.wVirtualKeyCode == VK_RETURN)
-		{
-			break;
-		}
-	} while (true);
-}
 
 bool CheckIfDirectory(LPCWSTR dirname)
 {
