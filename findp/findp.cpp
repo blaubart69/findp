@@ -7,7 +7,6 @@ Log* logger;
 
 void printStats(Stats *stats, bool printMatched);
 void printProgress(const ParallelExec<DirEntryC, Context>* executor);
-void printExtensions(Extensions *ext);
 void ReadKey();
 
 int wmain(int argc, wchar_t *argv[])

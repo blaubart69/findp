@@ -10,8 +10,10 @@ void ProcessEntry(LPCWSTR FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx)
 	bool matched;
 	if ( ctx->opts.FilenameSubstringPattern != NULL && isFile(finddata->dwFileAttributes) )
 	{
-		if ( StrStrIW(finddata->cFileName, ctx->opts.FilenameSubstringPattern) != NULL )
+		matched = StrStrIW(finddata->cFileName, ctx->opts.FilenameSubstringPattern) != NULL;
+		if (matched)
 		{
+			matched = true;
 			InterlockedIncrement64(&ctx->stats.filesMatched);
 			InterlockedAdd64(&ctx->stats.sumFileSizeMatched, li.QuadPart);
 		}
