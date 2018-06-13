@@ -13,10 +13,9 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	 opts->progress = false;
 	 opts->maxDepth = -1;
 	 opts->followJunctions = false;
-	 opts->FilenameRegex = NULL;
+	 opts->FilenameSubstringPattern = NULL;
 	 opts->ThreadsToUse = 32;
 	 opts->SumUpExtensions = false;
-	 opts->matchByRegEx = false;
 	 opts->rootDir = NULL;
 
 	 bool showHelp = false;
@@ -34,9 +33,9 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 				 case L'j': opts->followJunctions = true;	break;
 				 case L'e': opts->SumUpExtensions = true;	break;
 				 case L'v': Log::Instance()->setLevel(3);	break;
-				 case L'r': if ( i+1 < argc) opts->FilenameRegex = argv[++i];				break;
-				 case L'd': if ( i+1 < argc) opts->maxDepth     = _wtoi((const wchar_t*)argv[++i]); break;
-				 case L't': if ( i+1 < argc) opts->ThreadsToUse = _wtoi((const wchar_t*)argv[++i]); break;
+				 case L'm': if ( i+1 < argc) opts->FilenameSubstringPattern = argv[++i];			break;
+				 case L'd': if ( i+1 < argc) opts->maxDepth     = StrToInt((const wchar_t*)argv[++i]); break;
+				 case L't': if ( i+1 < argc) opts->ThreadsToUse = StrToInt((const wchar_t*)argv[++i]); break;
 			 }
 		 }
 		 else
@@ -58,10 +57,9 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 		 return 2;
 	 }
 
-	 if (opts->FilenameRegex != NULL)
+	 if (opts->FilenameSubstringPattern != NULL)
 	 {
-		 Log::Instance()->dbg(L"regex parsed: %s", opts->FilenameRegex);
-		 opts->matchByRegEx = true;
+		 Log::Instance()->dbg(L"pattern parsed: %s", opts->FilenameSubstringPattern);
 	 }
 
 	 return 0;
@@ -76,11 +74,10 @@ void PrintUsage(void)
 		L"\n-j ... follow directory junctions"
 		L"\n-v ... verbose/debug"
 		L"\n-h ... show this help"
-		L"\n-r {regex to apply to filename} ... regex to match filenames"
-		L"\n-d {depth}                      ... how many directory to go down"
-		L"\n-t {numberThreads}			    ... threads to start for parallel enumerations"
+		L"\n-m {pattern}		... substring to match within filename"
+		L"\n-d {depth}          ... how many directory to go down"
+		L"\n-t {numberThreads}	... threads to start for parallel enumerations"
 	    L"\n\nSamples:"
-		L"\nfindp.exe -r \"\\.pdf$\" ... find all files with pdf extension"
 		L"\n"
 		L"\nprepend   \\\\?\\ if you want to have long path support."
 		L"\nOr        \\\\?\\UNC\\server\\share for network paths"

@@ -8,15 +8,9 @@ void ProcessEntry(LPCWSTR FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx)
 	li.LowPart  = finddata->nFileSizeLow;
 
 	bool matched;
-	if ( ctx->opts.matchByRegEx && isFile(finddata->dwFileAttributes) )
+	if ( ctx->opts.FilenameSubstringPattern != NULL && isFile(finddata->dwFileAttributes) )
 	{
-		std::wregex filenameRegex(ctx->opts.FilenameRegex, std::wregex::flag_type::icase);
-
-		matched = std::regex_search(
-			finddata->cFileName
-			, filenameRegex);
-
-		if (matched)
+		if ( StrStrIW(finddata->cFileName, ctx->opts.FilenameSubstringPattern) != NULL )
 		{
 			InterlockedIncrement64(&ctx->stats.filesMatched);
 			InterlockedAdd64(&ctx->stats.sumFileSizeMatched, li.QuadPart);
@@ -29,8 +23,8 @@ void ProcessEntry(LPCWSTR FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx)
 
 	if (!ctx->opts.sum)
 	{
-		if (  ! ctx->opts.matchByRegEx
-			|| (ctx->opts.matchByRegEx && matched && isFile(finddata->dwFileAttributes)))
+		if (    ctx->opts.FilenameSubstringPattern == NULL
+			|| (ctx->opts.FilenameSubstringPattern != NULL && matched && isFile(finddata->dwFileAttributes)))
 		{
 			PrintEntry(FullBaseDir, finddata);
 		}

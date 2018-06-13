@@ -9,15 +9,12 @@
 #define STRICT
 
 #include "targetver.h"
-
 #include <Windows.h>
-#include <Shlwapi.h>
-
-#include <memory>
-#include <regex>
-#include <cstdlib>
 
 // TODO: reference additional headers your program requires here
+
+#include <Shlwapi.h>
+#include <memory>
 
 #include "Log.h"
 #include "MikeHash.h"

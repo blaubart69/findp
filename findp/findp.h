@@ -33,13 +33,12 @@ struct Extensions
 struct Options
 {
 	LPCWSTR rootDir;
-	LPCWSTR FilenameRegex;
+	LPCWSTR FilenameSubstringPattern;
 	bool sum;
 	bool progress;
 	bool followJunctions;
 	int maxDepth;
 	int ThreadsToUse;
-	bool matchByRegEx;
 	bool SumUpExtensions;
 };
 

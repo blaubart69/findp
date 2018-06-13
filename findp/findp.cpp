@@ -39,7 +39,7 @@ int wmain(int argc, wchar_t *argv[])
 		}
 	}
 
-	printStats(&ctx.stats, ctx.opts.matchByRegEx);
+	printStats(&ctx.stats, ctx.opts.FilenameSubstringPattern != NULL);
 	if (ctx.opts.SumUpExtensions)
 	{
 		LPCWSTR extFilename = L".\\exts.txt";
