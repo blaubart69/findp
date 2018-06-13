@@ -7,6 +7,7 @@ Log* logger;
 
 void printStats(Stats *stats, bool printMatched);
 void printProgress(const ParallelExec<DirEntryC, Context>* executor);
+bool CheckIfDirectory(LPCWSTR dirname);
 void ReadKey();
 
 int wmain(int argc, wchar_t *argv[])
@@ -20,6 +21,27 @@ int wmain(int argc, wchar_t *argv[])
 	{
 		return rc;
 	}
+
+	if (!CheckIfDirectory(ctx.opts.rootDir))
+	{
+		return 4;
+	}
+
+	int l = lstrlen(ctx.opts.rootDir);
+	WCHAR x = ctx.opts.rootDir[l - 1];
+	WCHAR y = ctx.opts.rootDir[l - 2];
+	//if (l > 1 && ctx.opts.rootDir[l - 1] == L'\\')
+	if (l > 1) 
+	{
+		if (L'\\' == L'\\')
+		{
+			if (x == L'\\')
+			{
+				ctx.opts.rootDir[l - 1] == L'\0';
+			}
+		}
+	}
+
 
 	if (!TryToSetPrivilege(SE_BACKUP_NAME, TRUE))
 	{
@@ -97,3 +119,27 @@ void ReadKey()
 	} while (true);
 }
 
+bool CheckIfDirectory(LPCWSTR dirname)
+{
+	bool rc;
+
+	DWORD rootAttrs = GetFileAttributesW(dirname);
+	if (rootAttrs == INVALID_FILE_ATTRIBUTES)
+	{
+		logger->win32err(L"GetFileAttributes", dirname);
+		logger->err(L"directory [%s] does not exist", dirname);
+
+		rc = false;
+	}
+	else if (!isDirectory(rootAttrs))
+	{
+		logger->err(L"given parameter [%s] is not a directory", dirname);
+		rc = false;
+	}
+	else
+	{
+		rc = true;
+	}
+
+	return rc;
+}
