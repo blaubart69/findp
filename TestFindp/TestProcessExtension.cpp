@@ -73,3 +73,18 @@ TEST(ProcessExtension, OnlyDot) {
 	MikeHT_Get(ext.extsHashtable, L"", &noExtSum);
 	EXPECT_EQ(22, noExtSum);
 }
+TEST(ProcessExtension, CaseInSensitive) {
+
+	Extensions ext;
+
+	ProcessExtension(&ext, L".txt", 1);
+	ProcessExtension(&ext, L".Txt", 1);
+	ProcessExtension(&ext, L".txT", 1);
+	ProcessExtension(&ext, L".tXt", 1);
+	ProcessExtension(&ext, L".TXT", 1);
+
+	LONGLONG val;
+	bool found = MikeHT_Get(ext.extsHashtable, L"txt", &val);
+	EXPECT_TRUE(found);
+	EXPECT_EQ(5, val);
+}
