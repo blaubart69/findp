@@ -113,7 +113,6 @@ DWORD MikeHT_ForEach(HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPV
 		{
 			stats->LongestList = max(stats->LongestList, ListCount);
 		}
-
 	}
 
 	return ItemCount;
@@ -129,14 +128,18 @@ BOOL MikeHT_Get(HT *ht, LPCWSTR Key, LONGLONG *Val) {
 
 	p = FindInList(p, Key, KeyLen);
 
+	BOOL found;
 	if (p == NULL)
 	{
-		return FALSE;
+		found = FALSE;
 	}
-	
-	*Val = p->Val;
+	else
+	{
+		*Val = p->Val;
+		found = TRUE;
+	}
 
-	return TRUE;
+	return found;
 }
 
 //=================================================================================================

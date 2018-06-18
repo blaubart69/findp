@@ -179,6 +179,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="UTF8Writer.h" />
     <ClInclude Include="EnumDir.h" />
     <ClInclude Include="findp.h" />
     <ClInclude Include="IOCPQueueImpl.h" />
@@ -191,6 +192,7 @@
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="UTF8Writer.cpp" />
     <ClCompile Include="findp.cpp" />
     <ClCompile Include="getopts.cpp" />
     <ClCompile Include="Log.cpp" />

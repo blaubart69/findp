@@ -28,6 +28,7 @@ int wmain(int argc, wchar_t *argv[])
 	}
 
 	int l = lstrlen(ctx.opts.rootDir);
+
 	int lastCharIdx = l - 1;
 	if (l > 1 && ctx.opts.rootDir[lastCharIdx] == L'\\')
 	{
@@ -92,8 +93,6 @@ void printStats(Stats *stats, bool printMatched)
 
 	logger->write(L"\n");
 }
-
-
 
 bool CheckIfDirectory(LPCWSTR dirname)
 {

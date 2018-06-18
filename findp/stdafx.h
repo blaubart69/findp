@@ -16,9 +16,10 @@
 #include <Shlwapi.h>
 #include <memory>
 
+#include "utils.h"
+#include "UTF8Writer.h"
 #include "Log.h"
 #include "MikeHash.h"
-#include "utils.h"
 
 #include "IConcurrentQueue.h"
 #include "IOCPQueueImpl.h"

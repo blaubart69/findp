@@ -14,6 +14,11 @@ int WideCharToUTF8(LPCWSTR text, DWORD len, LPSTR out, int outSizeBytes)
 			, NULL);		// lpUsedDefaultChar[out, optional]
 }
 
+int CalcUTF8sizeBytes(LPCWSTR text, DWORD len)
+{
+	return WideCharToUTF8(text, len, NULL, 0);
+}
+
 void WriteUTF8f(HANDLE fp, LPCWSTR format, ...)
 {
 	WCHAR buffer[1024];
@@ -36,8 +41,6 @@ void WriteUTF8f(HANDLE fp, LPCWSTR format, ...)
 		WriteFile(fp, utf8buffer, utf8bytes, &writtenToFile, NULL);
 	}
 }
-
-
 //-------------------------------------------------------------------------------------------------
 BOOL IsDotDir(LPCWSTR cFileName, const DWORD dwFileAttributes) {
 //-------------------------------------------------------------------------------------------------
