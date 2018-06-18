@@ -38,6 +38,26 @@ TEST(MikeHashTable, InsertAndCheckValues) {
 	MikeHT_Free(ht);
 }
 
+TEST(MikeHashTable, InsertAndCheckValuesCaseInsensitive) {
+
+
+	HT *ht = MikeHT_Init(10);
+
+	MikeHT_Insert(ht, L"doc", 1);
+	MikeHT_Insert(ht, L"txt", 2);
+	MikeHT_Insert(ht, L"doc", 3);
+	MikeHT_Insert(ht, L"doc", 4);
+	MikeHT_Insert(ht, L"DOC", 4);
+
+	LONGLONG val;
+	MikeHT_Get(ht, L"doc", &val);
+	EXPECT_EQ(12, val);
+
+	MikeHT_Get(ht, L"txt", &val);
+	EXPECT_EQ(2, val);
+
+	MikeHT_Free(ht);
+}
 TEST(MikeHashTable, TraverseTable) {
 
 

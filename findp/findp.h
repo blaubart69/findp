@@ -12,7 +12,7 @@ struct Stats
 
 struct Extensions
 {
-	__declspec(align(64)) volatile LONGLONG noExtSum = 0;
+	//__declspec(align(64)) volatile LONGLONG noExtSum = 0;
 	//std::unordered_map<std::wstring, LONGLONG> exts;
 	HT* extsHashtable;
 

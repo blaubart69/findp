@@ -6,14 +6,8 @@ void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize)
 {
 	LPWSTR extension;
 
-	if ( ! FindExtension(filename, &extension) )
-	{
-		InterlockedAdd64(&ext->noExtSum, filesize);
-	}
-	else
-	{
-		MikeHT_Insert(ext->extsHashtable, extension, filesize);
-	}
+	FindExtension(filename, &extension);
+	MikeHT_Insert(ext->extsHashtable, extension, filesize);
 }
 
 bool FindExtension(LPCWSTR filename, LPWSTR *extension)
@@ -31,7 +25,7 @@ bool FindExtension(LPCWSTR filename, LPWSTR *extension)
 
 	if (dotPos == NULL)
 	{
-		*extension = NULL;
+		*extension = p;
 		return false;
 	}
 	
@@ -39,7 +33,7 @@ bool FindExtension(LPCWSTR filename, LPWSTR *extension)
 
 	if (dotPos == p)
 	{
-		*extension = NULL;
+		*extension = p;
 		return false;
 	}
 

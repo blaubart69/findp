@@ -31,7 +31,8 @@ DWORD MikeHT_hash_djb2(const WCHAR *str, DWORD *len) {
 	const WCHAR *p = str;
 	while ( *p )
 	{
-		hash = ( hash * 33 ) ^ *p;	// ((hash << 5) + hash) // hash * 33 ... compiler knows best :-)
+		WCHAR upper = LOWORD(CharUpperW((LPWSTR)*p));
+		hash = ( hash * 33 ) ^ upper;	// ((hash << 5) + hash) // hash * 33 ... compiler knows best :-)
 		p++;
 	}
 
@@ -65,7 +66,8 @@ static SLIST* FindInList(SLIST *p, LPCWSTR Key, const DWORD KeyLen) {
 		if (p->Len != KeyLen) {
 			; // no match
 		}
-		else if (memcmp(p->Key, Key, KeyLen * sizeof(WCHAR)) != 0) {
+		//else if (memcmp(p->Key, Key, KeyLen * sizeof(WCHAR)) != 0) {
+		else if ( lstrcmpiW(p->Key, Key) != 0) {
 			; // no match
 		}
 		else {

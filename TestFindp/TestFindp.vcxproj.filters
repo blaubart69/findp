@@ -3,6 +3,8 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="TestMikeHash.cpp" />
+    <ClCompile Include="TestProcessExtension.cpp" />
+    <ClCompile Include="TestToUpper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

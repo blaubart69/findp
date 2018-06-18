@@ -3,8 +3,6 @@
 
 void WriteExtensionsToFile(const Extensions *ext, HANDLE fp)
 {
-	WriteUTF8f(fp, L"%I64d\tno extension\r\n", ext->noExtSum);
-
 	HT_STATS stats;
 	DWORD itemCount = MikeHT_ForEach(
 		ext->extsHashtable,
