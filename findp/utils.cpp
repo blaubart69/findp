@@ -1,17 +1,17 @@
 #include "stdafx.h"
 
-int WideCharToUTF8(LPCWSTR text, DWORD len, LPSTR out, int outSizeBytes)
+int WideCharToUTF8(LPCWSTR text, DWORD cchWideChar, LPSTR lpUTF8Str, int cbUTF8SizeBytes)
 {
 	return
 		WideCharToMultiByte(
 			CP_UTF8
-			, 0				// dwFlags [in]
-			, text			// lpWideCharStr [in]
-			, len			// cchWideChar [in]
-			, out			// lpMultiByteStr [out, optional]
-			, outSizeBytes	// cbMultiByte [in]
-			, NULL			// lpDefaultChar[in, optional]
-			, NULL);		// lpUsedDefaultChar[out, optional]
+			, 0					// dwFlags [in]
+			, text				// lpWideCharStr [in]
+			, cchWideChar		// cchWideChar [in]
+			, lpUTF8Str			// lpMultiByteStr [out, optional]
+			, cbUTF8SizeBytes	// cbMultiByte [in]
+			, NULL				// lpDefaultChar[in, optional]
+			, NULL);			// lpUsedDefaultChar[out, optional]
 }
 
 int CalcUTF8sizeBytes(LPCWSTR text, DWORD len)

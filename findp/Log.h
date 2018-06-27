@@ -25,6 +25,8 @@ public:
 	void win32err(LPCWSTR Apiname) const;
 	void win32err(LPCWSTR Apiname, LPCWSTR param) const;
 
+	static void win32errfunc(LPCWSTR Apiname, LPCWSTR param);
+
 private:
 	static Log * _instance;
 

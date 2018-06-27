@@ -2,14 +2,14 @@
 
 #include "stdafx.h"
 
-class BufferedWriter
+class UTF8Writer
 {
 public:
-	BufferedWriter() = delete;
-	BufferedWriter(HANDLE fp, pfWin32Err WinErrFunc);
-	~BufferedWriter();
+	UTF8Writer() = delete;
+	UTF8Writer(HANDLE fp, pfWin32Err WinErrFunc);
+	~UTF8Writer();
 
-	BOOL append(LPCWSTR text, DWORD len);
+	BOOL append(LPCWSTR text, DWORD cchWideChar);
 	BOOL append(LPCWSTR format, ...);
 	BOOL append(LPCWSTR format, va_list args);
 	BOOL write();

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-BufferedWriter::BufferedWriter(HANDLE filehandle, pfWin32Err WinErrFunc)
+UTF8Writer::UTF8Writer(HANDLE filehandle, pfWin32Err WinErrFunc)
 	: _fp(filehandle), _winErrFunc()
 {
 	_lenBytes = 0;
@@ -13,7 +13,7 @@ BufferedWriter::BufferedWriter(HANDLE filehandle, pfWin32Err WinErrFunc)
 	}
 }
 
-BufferedWriter::~BufferedWriter()
+UTF8Writer::~UTF8Writer()
 {
 	if (_buf != NULL)
 	{
@@ -21,16 +21,16 @@ BufferedWriter::~BufferedWriter()
 	}
 }
 
-BOOL BufferedWriter::append(LPCWSTR text, DWORD len)
+BOOL UTF8Writer::append(LPCWSTR text, DWORD cchWideChar)
 {
 	BOOL rc = TRUE;
 
-	ensureAppend(len * 4);
+	ensureAppend(cchWideChar * 2 * 4);
 
 	int bytesWritten = WideCharToUTF8(
 		text
-		, len
-		, _buf + len
+		, cchWideChar
+		, _buf + _lenBytes
 		, _capacityBytes - _lenBytes);
 
 	if (bytesWritten == 0)
@@ -46,14 +46,14 @@ BOOL BufferedWriter::append(LPCWSTR text, DWORD len)
 	return rc;
 }
 
-BOOL BufferedWriter::append(LPCWSTR format, va_list args)
+BOOL UTF8Writer::append(LPCWSTR format, va_list args)
 {
 	WCHAR buffer[1024];
 	int writtenChars = wvsprintfW(buffer, format, args);
 	return append(buffer, writtenChars);
 }
 
-BOOL BufferedWriter::append(LPCWSTR format, ...)
+BOOL UTF8Writer::append(LPCWSTR format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -63,7 +63,7 @@ BOOL BufferedWriter::append(LPCWSTR format, ...)
 	return rc;
 }
 
-BOOL BufferedWriter::write()
+BOOL UTF8Writer::write()
 {
 	BOOL ok = WriteFile(
 		_fp
@@ -84,7 +84,7 @@ BOOL BufferedWriter::write()
 	return ok;
 }
 
-BOOL BufferedWriter::ensureCapacity(DWORD cap)
+BOOL UTF8Writer::ensureCapacity(DWORD cap)
 {
 	if (cap > _capacityBytes)
 	{
@@ -111,7 +111,7 @@ BOOL BufferedWriter::ensureCapacity(DWORD cap)
 	return TRUE;
 }
 
-BOOL BufferedWriter::ensureAppend(DWORD lenToAppend)
+BOOL UTF8Writer::ensureAppend(DWORD lenToAppend)
 {
 	return ensureCapacity(_capacityBytes + lenToAppend);
 }

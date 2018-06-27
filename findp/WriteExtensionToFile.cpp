@@ -1,18 +1,19 @@
 #include "stdafx.h"
 
 
-void WriteExtensionsToFile(const Extensions *ext, HANDLE fp)
+void WriteExtensions(const Extensions *ext, UTF8Writer* writer)
 {
 	HT_STATS stats;
 	DWORD itemCount = MikeHT_ForEach(
 		ext->extsHashtable,
 		[](LPWSTR key, LONGLONG val, LPVOID context)
 		{
-			HANDLE fpToWrite = (HANDLE)context;
-			WriteUTF8f(fpToWrite, L"%I64d\t%s\r\n", val, key);
+			UTF8Writer* u8writer = (UTF8Writer*)context;
+			u8writer->append(L"%I64d\t%s\r\n", val, key);
+			u8writer->write();
 		},
 		&stats,
-		fp);
+		writer);
 
 	Log::Instance()->dbg(L"Hash: items/arraysize/arrayplaces filled/longest SLIST\t%ld/%ld/%ld/%ld",
 		itemCount,
@@ -40,7 +41,9 @@ void WriteExtensions(LPCWSTR filename, const Extensions *ext)
 		return;
 	}
 
-	WriteExtensionsToFile(ext, fp);
+	UTF8Writer utf8writer(fp, Log::win32errfunc);
+
+	WriteExtensions(ext, &utf8writer);
 	CloseHandle(fp);
 
 	Log::Instance()->inf(L"extensions have been written to file %s", filename);

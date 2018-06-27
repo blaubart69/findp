@@ -114,3 +114,8 @@ void Log::win32err(LPCWSTR Apiname, LPCWSTR param) const
 	}
 }
 
+void Log::win32errfunc(LPCWSTR Apiname, LPCWSTR param)
+{
+	Log::Instance()->win32err(Apiname, param);
+}
+
