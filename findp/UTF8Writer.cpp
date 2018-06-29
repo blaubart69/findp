@@ -7,7 +7,7 @@ UTF8Writer::UTF8Writer(HANDLE filehandle, pfWin32Err WinErrFunc)
 	_capacityBytes = 4096;
 	_buf = (LPSTR)HeapAlloc(GetProcessHeap(), 0, _capacityBytes);
 
-	if (_buf == NULL)
+	if (_buf == nullptr)
 	{
 		if (_winErrFunc) _winErrFunc(L"HeapAlloc", L"BufferedWriter::ctor");
 	}
@@ -15,7 +15,7 @@ UTF8Writer::UTF8Writer(HANDLE filehandle, pfWin32Err WinErrFunc)
 
 UTF8Writer::~UTF8Writer()
 {
-	if (_buf != NULL)
+	if (_buf != nullptr)
 	{
 		HeapFree(GetProcessHeap(), 0, _buf);
 	}
@@ -25,10 +25,10 @@ BOOL UTF8Writer::append(LPCWSTR text, DWORD cchWideChar)
 {
 	BOOL rc = TRUE;
 
-	ensureAppend(cchWideChar * 2 * 4);
+	ensureAppend(cchWideChar * sizeof(WCHAR) * 4);
 
-	int bytesWritten = WideCharToUTF8(
-		text
+	const int bytesWritten = WideCharToUTF8(
+		  text
 		, cchWideChar
 		, _buf + _lenBytes
 		, _capacityBytes - _lenBytes);
@@ -49,7 +49,7 @@ BOOL UTF8Writer::append(LPCWSTR text, DWORD cchWideChar)
 BOOL UTF8Writer::append(LPCWSTR format, va_list args)
 {
 	WCHAR buffer[1024];
-	int writtenChars = wvsprintfW(buffer, format, args);
+	const int writtenChars = wvsprintfW(buffer, format, args);
 	return append(buffer, writtenChars);
 }
 

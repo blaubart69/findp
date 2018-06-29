@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 
-void ProcessEntry(LPCWSTR FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx)
+void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *lineWriter)
 {
 	LARGE_INTEGER li;
 	li.HighPart = finddata->nFileSizeHigh;
@@ -28,7 +28,7 @@ void ProcessEntry(LPCWSTR FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx)
 		if (    ctx->opts.FilenameSubstringPattern == NULL
 			|| (ctx->opts.FilenameSubstringPattern != NULL && matched && isFile(finddata->dwFileAttributes)))
 		{
-			PrintEntry(FullBaseDir, finddata);
+			PrintEntry(FullBaseDir, finddata, lineWriter);
 		}
 	}
 

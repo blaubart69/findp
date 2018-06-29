@@ -3,13 +3,14 @@
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth);
 void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out);
 
-
 void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context> *executor, Context *ctx)
 {
+	LineWriter lineWriter(GetStdHandle(STD_OUTPUT_HANDLE), GetConsoleOutputCP(), 1024, Log::win32errfunc);
+
 	EnumDir(
 		dirToEnum->fullDirname.str, 
 		dirToEnum->fullDirname.len,
-		[dirToEnum, executor, ctx](WIN32_FIND_DATA *finddata)
+		[dirToEnum, executor, ctx, &lineWriter](WIN32_FIND_DATA *finddata)
 		{
 			if ( isDirectory(finddata->dwFileAttributes) )
 			{
@@ -27,10 +28,10 @@ void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context> *ex
 
 				LARGE_INTEGER li;
 				li.HighPart = finddata->nFileSizeHigh;
-				li.LowPart = finddata->nFileSizeLow;
+				li.LowPart  = finddata->nFileSizeLow;
 				InterlockedAdd64(&(ctx->stats.sumFileSize), li.QuadPart);
 			}
-			ProcessEntry(dirToEnum->fullDirname.str, finddata, ctx);
+			ProcessEntry(&dirToEnum->fullDirname, finddata, ctx, &lineWriter);
 		});
 
 	HeapFree(GetProcessHeap(), 0, dirToEnum);
@@ -50,7 +51,7 @@ bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int m
 
 	if ((dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0)
 	{
-		if (FollowJunctions == false)
+		if (!FollowJunctions)
 		{
 			enterDir = false;
 		}
@@ -68,7 +69,9 @@ DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir)
 
 	DWORD sizeToAlloc =
 		  sizeof(DirEntryC)
-		+ (newFullDirLen + 2 /* to append \* for searching */ ) * sizeof(WCHAR);
+		+ (		newFullDirLen 
+			+	  2		// to append "\*" for searching 
+		  ) * sizeof(WCHAR);
 
 	DirEntryC* newEntry;
 	if ((newEntry = (DirEntryC*)HeapAlloc(GetProcessHeap(), 0, sizeToAlloc)) == NULL)
