@@ -17,7 +17,6 @@
 #include <memory>
 
 #include "utils.h"
-#include "UTF8Writer.h"
 #include "LineWriter.h"
 #include "Log.h"
 #include "MikeHash.h"

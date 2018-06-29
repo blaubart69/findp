@@ -48,9 +48,6 @@
     <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UTF8Writer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LineWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,9 +87,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UTF8Writer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LineWriter.cpp">

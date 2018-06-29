@@ -180,7 +180,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="LineWriter.h" />
-    <ClInclude Include="UTF8Writer.h" />
     <ClInclude Include="EnumDir.h" />
     <ClInclude Include="findp.h" />
     <ClInclude Include="IOCPQueueImpl.h" />
@@ -194,7 +193,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LineWriter.cpp" />
-    <ClCompile Include="UTF8Writer.cpp" />
     <ClCompile Include="findp.cpp" />
     <ClCompile Include="getopts.cpp" />
     <ClCompile Include="Log.cpp" />

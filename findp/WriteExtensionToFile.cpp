@@ -1,15 +1,15 @@
 #include "stdafx.h"
 
 
-void WriteExtensions(const Extensions *ext, UTF8Writer* writer)
+void WriteExtensions(const Extensions *ext, LineWriter* writer)
 {
 	HT_STATS stats;
 	DWORD itemCount = MikeHT_ForEach(
 		ext->extsHashtable,
 		[](LPWSTR key, LONGLONG val, LPVOID context)
 		{
-			UTF8Writer* u8writer = (UTF8Writer*)context;
-			u8writer->append(L"%I64d\t%s\r\n", val, key);
+		    LineWriter* u8writer = (LineWriter*)context;
+			u8writer->appendf(L"%I64d\t%s\r\n", val, key);
 			u8writer->write();
 		},
 		&stats,
@@ -41,7 +41,7 @@ void WriteExtensions(LPCWSTR filename, const Extensions *ext)
 		return;
 	}
 
-	UTF8Writer utf8writer(fp, Log::win32errfunc);
+	LineWriter utf8writer(fp, CP_UTF8, 1024, Log::win32errfunc);
 
 	WriteExtensions(ext, &utf8writer);
 	CloseHandle(fp);
