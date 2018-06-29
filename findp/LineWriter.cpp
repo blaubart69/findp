@@ -27,22 +27,15 @@ BOOL LineWriter::append(LPCWSTR text, DWORD cchWideChar)
 {
 	ensureAppend(cchWideChar * 4); // worst case: 4 bytes per character
 
-	const DWORD cbBytesLeft = _capacityBytes - _lenBytes;
+	const DWORD cbBytesLeft				= _capacityBytes - _lenBytes;
+	const LPSTR StartPositionInBuffer	= _buf + _lenBytes;
 
-	
-	Log::Instance()->dbg(L"LineWriter::append - codePage [%u], cchWideChar [%u], _capacityBytes [%u], _lenBytes [%u], text [%s]",
-		_codepage,
-		cchWideChar,
-		_capacityBytes,
-		_lenBytes,
-		text);
-	
 	const int bytesWritten = WideCharToMultiByte(
 		  _codepage
 		, 0								// dwFlags [in]
 		, text							// lpWideCharStr [in]
 		, cchWideChar					// cchWideChar [in]
-		, _buf + _lenBytes				// lpMultiByteStr [out, optional]
+		, StartPositionInBuffer			// lpMultiByteStr [out, optional]
 		, cbBytesLeft					// cbMultiByte [in]
 		, NULL							// lpDefaultChar[in, optional]
 		, NULL);						// lpUsedDefaultChar[out, optional]
@@ -54,14 +47,7 @@ BOOL LineWriter::append(LPCWSTR text, DWORD cchWideChar)
 		if (_winErrFunc)
 		{
 			WCHAR buf[1024];
-			wsprintfW(buf, L"LineWriter: codepage [%u], cchWideChar [%u], _lenBytes [%u], _capBytes [%u], bytesLeft [%u], text [%s]\n",
-				_codepage, 
-				cchWideChar, 
-				_lenBytes,
-				_capacityBytes,
-				cbBytesLeft,
-				text);
-
+			wsprintfW(buf, L"LineWriter: codepage [%u], cchWideChar [%u], _lenBytes [%u], _capBytes [%u], bytesLeft [%u], text [%s]\n", _codepage, cchWideChar, _lenBytes, _capacityBytes, cbBytesLeft, text);
 			_winErrFunc(L"WideCharToMultiByte", buf);
 		}
 	}
@@ -84,6 +70,8 @@ BOOL LineWriter::appendf(LPCWSTR format, ...)
 	return rc;
 }
 
+
+
 BOOL LineWriter::appendv(LPCWSTR format, va_list args)
 {
 	WCHAR buffer[1024];
@@ -91,22 +79,35 @@ BOOL LineWriter::appendv(LPCWSTR format, va_list args)
 	return append(buffer, writtenChars);
 }
 
+BOOL LineWriter::writeAndReset()
+{
+	return internal_write(true);
+}
+
 BOOL LineWriter::write()
 {
+	return internal_write(false);
+}
+
+BOOL LineWriter::internal_write(bool resetBuffer)
+{
 	BOOL ok = WriteFile(
-		  _filehandle
+		_filehandle
 		, _buf
 		, _lenBytes
 		, NULL
 		, NULL);
 
-	if (ok)
+	if (!ok)
 	{
-		_lenBytes = 0;
+		if (_winErrFunc) _winErrFunc(L"WriteFile", L"LineWriter::write()");
 	}
 	else
 	{
-		if (_winErrFunc) _winErrFunc(L"WriteFile", L"LineWriter::write()");
+		if (resetBuffer)
+		{
+			this->reset();
+		}
 	}
 
 	return ok;

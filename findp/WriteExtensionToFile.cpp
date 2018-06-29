@@ -9,8 +9,8 @@ void WriteExtensions(const Extensions *ext, LineWriter* writer)
 		[](LPWSTR key, LONGLONG val, LPVOID context)
 		{
 		    LineWriter* u8writer = (LineWriter*)context;
-			u8writer->appendf(L"%I64d\t%s\r\n", val, key);
-			u8writer->write();
+			u8writer->appendf(L"%I64u\t%s\r\n", val, key);
+			u8writer->writeAndReset();
 		},
 		&stats,
 		writer);

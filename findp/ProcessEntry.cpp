@@ -3,7 +3,7 @@
 
 void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *lineWriter)
 {
-	LARGE_INTEGER li;
+	ULARGE_INTEGER li;
 	li.HighPart = finddata->nFileSizeHigh;
 	li.LowPart  = finddata->nFileSizeLow;
 
@@ -28,7 +28,12 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 		if (    ctx->opts.FilenameSubstringPattern == NULL
 			|| (ctx->opts.FilenameSubstringPattern != NULL && matched && isFile(finddata->dwFileAttributes)))
 		{
-			PrintEntry(FullBaseDir, finddata, lineWriter);
+			if (   ctx->opts.emit == EmitType::Both
+				|| ctx->opts.emit == EmitType::Files && isFile     (finddata->dwFileAttributes)
+				|| ctx->opts.emit == EmitType::Dirs  && isDirectory(finddata->dwFileAttributes))
+			{
+				PrintEntry(FullBaseDir, finddata, lineWriter, ctx->opts.printFull);
+			}
 		}
 	}
 

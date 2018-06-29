@@ -7,6 +7,9 @@ void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context> *ex
 {
 	LineWriter lineWriter(GetStdHandle(STD_OUTPUT_HANDLE), GetConsoleOutputCP(), 1024, Log::win32errfunc);
 
+	lineWriter.reset();
+	lineWriter.append(dirToEnum->fullDirname.str, dirToEnum->fullDirname.len);
+
 	EnumDir(
 		dirToEnum->fullDirname.str, 
 		dirToEnum->fullDirname.len,

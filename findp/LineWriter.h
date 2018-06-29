@@ -9,8 +9,11 @@ public:
 
 	BOOL append(LPCWSTR text, DWORD cchWideChar);
 	BOOL appendf(LPCWSTR format, ...);
-	BOOL appendv(LPCWSTR format, va_list args);
+	void setLength(WORD len)	{ _lenBytes = len;   }
+	DWORD getLength()			{ return _lenBytes;  }
+	void reset()				{ _lenBytes = 0;	 }
 	BOOL write();
+	BOOL writeAndReset();
 
 private:
 
@@ -22,6 +25,8 @@ private:
 	DWORD	_lenBytes;
 	DWORD	_capacityBytes;
 
+	BOOL internal_write(bool resetBuffer);
+	BOOL appendv(LPCWSTR format, va_list args);
 	BOOL ensureAppend(DWORD lenToAppend);
 	BOOL ensureCapacity(DWORD capacityNeeded);
 };

@@ -30,6 +30,13 @@ struct Extensions
 	}
 };
 
+enum EmitType
+{
+	Files,
+	Dirs,
+	Both
+};
+
 struct Options
 {
 	LPWSTR rootDir;
@@ -40,6 +47,8 @@ struct Options
 	int maxDepth;
 	int ThreadsToUse;
 	bool SumUpExtensions;
+	bool printFull;
+	EmitType emit;
 };
 
 struct Context
@@ -63,7 +72,7 @@ typedef struct _DirEntryC {
 
 void ProcessDirectory(DirEntryC *item, ParallelExec<DirEntryC, Context> *executor, Context *ctx);
 void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *lineWriter);
-void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter);
+void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter, bool printFull);
 void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize);
 void WriteExtensions(LPCWSTR filename, const Extensions *ext);
 DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir);
