@@ -70,7 +70,19 @@ BOOL LineWriter::appendf(LPCWSTR format, ...)
 	return rc;
 }
 
+BOOL LineWriter::appendUTF8BOM()
+{
+	BOOL ok = ensureAppend(3);
 
+	if (ok)
+	{
+		_buf[_lenBytes++] = 0xEF;
+		_buf[_lenBytes++] = 0xBB;
+		_buf[_lenBytes++] = 0xBF;
+	}
+
+	return ok;
+}
 
 BOOL LineWriter::appendv(LPCWSTR format, va_list args)
 {
@@ -113,26 +125,24 @@ BOOL LineWriter::internal_write(bool resetBuffer)
 	return ok;
 }
 
-BOOL LineWriter::ensureAppend(DWORD lenToAppend)
+BOOL LineWriter::ensureAppend(DWORD bytesToAppend)
 {
 	DWORD bytesLeft = _capacityBytes - _lenBytes;
 
-	if ( bytesLeft >= lenToAppend )
+	if ( bytesLeft >= bytesToAppend )
 	{
 		return TRUE;
 	}
 
-	return ensureCapacity(bytesLeft + lenToAppend);
+	return ensureCapacity(bytesLeft + bytesToAppend);
 }
 
-BOOL LineWriter::ensureCapacity(DWORD capacityNeeded)
+BOOL LineWriter::ensureCapacity(DWORD bytesCapacityNeeded)
 {
-	//Log::Instance()->dbg(L"LineWriter::ensureCapacity - capacityNeeded [%u], _capacityBytes [%u]");
-
-	if (capacityNeeded > _capacityBytes)
+	if (bytesCapacityNeeded > _capacityBytes)
 	{
 		DWORD newCapBytes = _capacityBytes * 4;
-		DWORD diffBytes = capacityNeeded - _capacityBytes;
+		DWORD diffBytes = bytesCapacityNeeded - _capacityBytes;
 
 		newCapBytes = max(newCapBytes, diffBytes);
 

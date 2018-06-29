@@ -43,6 +43,7 @@ void WriteExtensions(LPCWSTR filename, const Extensions *ext)
 
 	LineWriter utf8writer(fp, CP_UTF8, 1024, Log::win32errfunc);
 
+	utf8writer.appendUTF8BOM();
 	WriteExtensions(ext, &utf8writer);
 	CloseHandle(fp);
 
