@@ -14,6 +14,7 @@
 #include "..\findp\Log.h"
 #include "..\findp\MikeHash.h"
 #include "..\findp\utils.h"
+#include "..\findp\LineWriter.h"
 
 #include "..\findp\IConcurrentQueue.h"
 #include "..\findp\IOCPQueueImpl.h"
