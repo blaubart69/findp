@@ -28,7 +28,7 @@ private:
 	DWORD	_lenBytes;
 	DWORD	_capacityBytes;
 
-	BOOL internal_write(bool resetBuffer);
+	BOOL internal_write();
 	BOOL appendv(LPCWSTR format, va_list args);
 	BOOL ensureAppend(DWORD lenToAppend);
 	BOOL ensureCapacity(DWORD capacityNeeded);

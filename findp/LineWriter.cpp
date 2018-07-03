@@ -93,15 +93,17 @@ BOOL LineWriter::appendv(LPCWSTR format, va_list args)
 
 BOOL LineWriter::writeAndReset()
 {
-	return internal_write(true);
+	BOOL rc = internal_write();
+	this->reset();
+	return rc;
 }
 
 BOOL LineWriter::write()
 {
-	return internal_write(false);
+	return internal_write();
 }
 
-BOOL LineWriter::internal_write(bool resetBuffer)
+BOOL LineWriter::internal_write()
 {
 	BOOL ok = WriteFile(
 		_filehandle
@@ -112,13 +114,9 @@ BOOL LineWriter::internal_write(bool resetBuffer)
 
 	if (!ok)
 	{
-		if (_winErrFunc) _winErrFunc(L"WriteFile", L"LineWriter::write()");
-	}
-	else
-	{
-		if (resetBuffer)
+		if (_winErrFunc)
 		{
-			this->reset();
+			_winErrFunc(L"WriteFile", L"LineWriter::write()");
 		}
 	}
 
