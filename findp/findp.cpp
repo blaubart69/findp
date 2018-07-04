@@ -10,7 +10,8 @@ void printProgress(const ParallelExec<DirEntryC, Context>* executor);
 bool CheckIfDirectory(LPCWSTR dirname);
 
 
-int wmain(int argc, wchar_t *argv[])
+//int wmain(int argc, wchar_t *argv[])
+int beeMain(int argc, wchar_t *argv[])
 {
 	logger = Log::Instance();
 	logger->setLevel(2);

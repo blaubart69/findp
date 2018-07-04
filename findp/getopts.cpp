@@ -68,11 +68,11 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 
 	 if (tmpEmitType != NULL)
 	 {
-		 switch ( LOWORD(CharUpperW((LPWSTR)tmpEmitType[0])) )
+		 switch ( LOWORD(CharLowerW((LPWSTR)tmpEmitType[0])) )
 		 {
-		 case L'D': opts->emit = EmitType::Dirs; break;
-		 case L'B': opts->emit = EmitType::Both; break;
-		 case L'F': opts->emit = EmitType::Files; break;
+		 case L'd': opts->emit = EmitType::Dirs; break;
+		 case L'b': opts->emit = EmitType::Both; break;
+		 case L'f': opts->emit = EmitType::Files; break;
 		 }
 	 }
 
@@ -87,7 +87,7 @@ void PrintUsage(void)
 		L"\n-e ... group extensions and calc the sum of the filesizes. write to .\\exts.txt (UTF-8)"
 		L"\n-p ... show progress"
 		L"\n-j ... follow directory junctions"
-		L"\n-t {F|D|B}          ... emit what  (files|directory|both) default: files"
+		L"\n-t {f|d|b}          ... emit what  (files|directory|both) default: files"
 		L"\n-m {pattern}		... substring to match within filename. case insensitive"
 		L"\n-d {depth}          ... how many directory to go down"
 		L"\n-x {numberThreads}	... threads to start for parallel enumerations"
