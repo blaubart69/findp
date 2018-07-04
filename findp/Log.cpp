@@ -2,91 +2,95 @@
 
 Log* Log::_instance = nullptr;
 
-void bee_vprintf(LPCWSTR prefix, const WCHAR* format, va_list args, bool newline)
+Log::Log (int level)
+	: _level(level)
 {
-	WCHAR buffer[1024];
-
-	int prefixlen = prefix == NULL ? 0 : lstrlen(prefix);
-	if (prefixlen > 0)
-	{
-		lstrcpy(buffer, prefix);
-	}
-
-	int written = wvsprintfW(buffer + prefixlen, format, args);
-	int lenToPrint = prefixlen + written;
-
-	if (newline)
-	{
-		lstrcpy(buffer + prefixlen + written, L"\n");
-		lenToPrint += 1;
-	}
-
-	DWORD charsWritten;
-	//WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, lenToPrint, &charsWritten, NULL);
-	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), buffer, lenToPrint, &charsWritten, NULL);
+	_lineWriter = new LineWriter(
+		  GetStdHandle(STD_ERROR_HANDLE)
+		, GetConsoleOutputCP()
+		, 1024
+		, Log::win32errfunc);
 }
 
-void bee_printf(LPCWSTR prefix, const WCHAR* format, ...)
+void Log::writeLogLine(WCHAR prefix, const WCHAR* format, va_list args)
 {
-	va_list args;
-	va_start(args, format);
-	bee_vprintf(prefix, format, args, false);
-	va_end(args);
+	_lineWriter->reset();
+
+	switch (prefix)
+	{
+	case L'D': _lineWriter->append(L"D: ", 3); break;
+	case L'W': _lineWriter->append(L"W: ", 3); break;
+	case L'I': _lineWriter->append(L"I: ", 3); break;
+	case L'E': _lineWriter->append(L"E: ", 3); break;
+	default:   _lineWriter->append(L"?: ", 3); break;
+	}
+
+	_lineWriter->appendv(format, args);
+	_lineWriter->append(L"\r\n", 2);
+	_lineWriter->write();
 }
-void Log::dbg(const WCHAR* format, ...) const
+
+
+void Log::dbg(const WCHAR* format, ...) 
 {
 	if (_level < 3) return;
 
 	va_list args;
 	va_start(args, format);
-	bee_vprintf(L"D: ", format, args, true);
+	writeLogLine(L'D', format, args);
 	va_end(args);
 }
-void Log::inf(const WCHAR* format, ...) const
+void Log::inf(const WCHAR* format, ...) 
 {
 	if (_level < 2) return;
 	va_list args;
 	va_start(args, format);
-	bee_vprintf(L"I: ", format, args, true);
+	writeLogLine(L'I', format, args);
 	va_end(args);
 }
-void Log::wrn(const WCHAR* format, ...) const
+void Log::wrn(const WCHAR* format, ...) 
 {
 	if (_level < 1) return;
 	va_list args;
 	va_start(args, format);
-	bee_vprintf(L"W: ", format, args, true);
+	writeLogLine(L'W', format, args);
 	va_end(args);
 }
-void Log::err(const WCHAR* format, ...) const
+void Log::err(const WCHAR* format, ...) 
 {
 	va_list args;
 	va_start(args, format);
-	bee_vprintf(L"E: ", format, args, true);
+	writeLogLine(L'E', format, args);
 	va_end(args);
 }
 
-void Log::write(const WCHAR * format, ...) const
+void Log::write(const WCHAR * format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	bee_vprintf(NULL, format, args, false);
-	va_end(args);
-}
-void Log::writeLine(const WCHAR * format, ...) const
-{
-	va_list args;
-	va_start(args, format);
-	bee_vprintf(NULL, format, args, true);
+	_lineWriter->reset();
+	_lineWriter->appendf(format, args);
+	_lineWriter->write();
 	va_end(args);
 }
 
-void Log::win32err(LPCWSTR Apiname) const
+void Log::writeLine(const WCHAR * format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	_lineWriter->reset();
+	_lineWriter->appendf(format, args);
+	_lineWriter->append(L"\r\n", 2);
+	_lineWriter->write();
+	va_end(args);
+}
+
+void Log::win32err(LPCWSTR Apiname) 
 {
 	win32err(Apiname, L"");
 }
 
-void Log::win32err(LPCWSTR Apiname, LPCWSTR param) const
+void Log::win32err(LPCWSTR Apiname, LPCWSTR param) 
 {
 	const DWORD LastErr = GetLastError();
 
@@ -103,10 +107,15 @@ void Log::win32err(LPCWSTR Apiname, LPCWSTR param) const
 		, 0
 		, NULL)) == 0)
 	{
-		bee_printf(L"E-Win32API: ", L"Lasterror: 0x%x, Api: %ls", GetLastError(), L"FormatMessage");
+		_lineWriter->reset();
+		_lineWriter->appendf(L"E-Win32API: Lasterror: 0x%x, Api: %ls\n", GetLastError(), L"FormatMessage");
+		_lineWriter->write();
 		lpWindowsErrorText = L"!!! no error message available since FormatMessage failed !!!";
 	}
-	bee_printf(L"E-Win32API: ", L"Lasterror: 0X%X, Api: %ls, Msg: %ls, param: %ls\n", LastErr, Apiname, lpWindowsErrorText, param);
+
+	_lineWriter->reset();
+	_lineWriter->appendf(L"E-Win32API: Lasterror: 0X%X, Api: %ls, Msg: %ls, param: %ls\n", LastErr, Apiname, lpWindowsErrorText, param);
+	_lineWriter->write();
 
 	if (rcFormatMsg == 0)
 	{
