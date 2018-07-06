@@ -25,6 +25,11 @@ public:
 	void write    (const WCHAR * format, ...);
 	void writeLine(const WCHAR * format, ...);
 
+	void resetBuffer();
+	void append(LPCWSTR text, DWORD cchWideChar);
+	void appendf(const WCHAR * format, ...);
+	void writeBuffer();
+
 	static void win32errfunc(LPCWSTR Apiname, LPCWSTR param);
 
 private:

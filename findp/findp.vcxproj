@@ -97,7 +97,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;advapi32.lib;Shlwapi.lib;ucrtd.lib;vcruntimed.lib;msvcrtd.lib</AdditionalDependencies>
       <Profile>true</Profile>
       <GenerateMapFile>true</GenerateMapFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
@@ -119,7 +119,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;advapi32.lib;Shlwapi.lib;ucrtd.lib;vcruntimed.lib;msvcrtd.lib</AdditionalDependencies>
       <Profile>true</Profile>
       <GenerateMapFile>true</GenerateMapFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
@@ -149,7 +149,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;advapi32.lib;Shlwapi.lib;libucrt.lib;vcruntime.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;advapi32.lib;Shlwapi.lib;libucrt.lib;libvcruntime.lib;libcmt.lib</AdditionalDependencies>
       <Profile>true</Profile>
       <GenerateMapFile>true</GenerateMapFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
@@ -179,7 +179,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;advapi32.lib;Shlwapi.lib;libucrt.lib;vcruntime.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;advapi32.lib;Shlwapi.lib;libucrt.lib;libvcruntime.lib;libcmt.lib</AdditionalDependencies>
       <Profile>true</Profile>
       <GenerateMapFile>true</GenerateMapFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
@@ -204,10 +204,14 @@
     <ClCompile Include="beeLib.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CommandLineToArgv2.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="LineWriter.cpp" />
     <ClCompile Include="findp.cpp" />

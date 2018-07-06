@@ -69,7 +69,7 @@ void Log::write(const WCHAR * format, ...)
 	va_list args;
 	va_start(args, format);
 	_lineWriter->reset();
-	_lineWriter->appendf(format, args);
+	_lineWriter->appendv(format, args);
 	_lineWriter->write();
 	va_end(args);
 }
@@ -79,10 +79,33 @@ void Log::writeLine(const WCHAR * format, ...)
 	va_list args;
 	va_start(args, format);
 	_lineWriter->reset();
-	_lineWriter->appendf(format, args);
+	_lineWriter->appendv(format, args);
 	_lineWriter->append(L"\r\n", 2);
 	_lineWriter->write();
 	va_end(args);
+}
+
+void Log::resetBuffer()
+{
+	_lineWriter->reset();
+}
+
+void Log::append(LPCWSTR text, DWORD cchWideChar)
+{
+	_lineWriter->append(text, cchWideChar);
+}
+
+void Log::appendf(const WCHAR* format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	_lineWriter->appendv(format, args);
+	va_end(args);
+}
+
+void Log::writeBuffer()
+{
+	_lineWriter->write();
 }
 
 void Log::win32err(LPCWSTR Apiname) 

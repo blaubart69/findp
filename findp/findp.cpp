@@ -76,23 +76,25 @@ void printStats(Stats *stats, bool printMatched)
 {
 	WCHAR humanSize[32];
 
-	logger->write(
-	   L"\ndirs/files/filesize"
-	   L"\t%I64d/%I64d/%s",
+	logger->resetBuffer();
+	logger->appendf(
+	   L"dirs/files/filesize"
+	   L"\t%ld/%ld/%s",
 		stats->dirs,
 		stats->files,
 		StrFormatByteSizeW(stats->sumFileSize, humanSize, 32));
 
 	if (printMatched)
 	{
-		logger->write(
+		logger->appendf(
 			L" | matched files/filesize"
-			L" %I64d/%s",
+			L" %ld/%s",
 			stats->filesMatched,
 			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32));
 	}
 
-	logger->write(L"\n");
+	logger->append(L"\r\n",2);
+	logger->writeBuffer();
 }
 
 bool CheckIfDirectory(LPCWSTR dirname)
