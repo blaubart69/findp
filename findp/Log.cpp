@@ -2,34 +2,12 @@
 
 Log* Log::_instance = nullptr;
 
-Log::Log (int level)
+Log::Log (int level, HANDLE outHandle, UINT codepage)
 	: _level(level)
+	, _outHandle(outHandle)
+	, _codepage(codepage)
 {
-	_lineWriter = new LineWriter(
-		  GetStdHandle(STD_ERROR_HANDLE)
-		, GetConsoleOutputCP()
-		, 1024
-		, Log::win32errfunc);
 }
-
-void Log::writeLogLine(WCHAR prefix, const WCHAR* format, va_list args)
-{
-	_lineWriter->reset();
-
-	switch (prefix)
-	{
-	case L'D': _lineWriter->append(L"D: ", 3); break;
-	case L'W': _lineWriter->append(L"W: ", 3); break;
-	case L'I': _lineWriter->append(L"I: ", 3); break;
-	case L'E': _lineWriter->append(L"E: ", 3); break;
-	default:   _lineWriter->append(L"?: ", 3); break;
-	}
-
-	_lineWriter->appendv(format, args);
-	_lineWriter->append(L"\r\n", 2);
-	_lineWriter->write();
-}
-
 
 void Log::dbg(const WCHAR* format, ...) 
 {
@@ -37,7 +15,7 @@ void Log::dbg(const WCHAR* format, ...)
 
 	va_list args;
 	va_start(args, format);
-	writeLogLine(L'D', format, args);
+	writeLogLine(L'D', format, args, true);
 	va_end(args);
 }
 void Log::inf(const WCHAR* format, ...) 
@@ -45,7 +23,7 @@ void Log::inf(const WCHAR* format, ...)
 	if (_level < 2) return;
 	va_list args;
 	va_start(args, format);
-	writeLogLine(L'I', format, args);
+	writeLogLine(L'I', format, args, true);
 	va_end(args);
 }
 void Log::wrn(const WCHAR* format, ...) 
@@ -53,14 +31,14 @@ void Log::wrn(const WCHAR* format, ...)
 	if (_level < 1) return;
 	va_list args;
 	va_start(args, format);
-	writeLogLine(L'W', format, args);
+	writeLogLine(L'W', format, args, true);
 	va_end(args);
 }
 void Log::err(const WCHAR* format, ...) 
 {
 	va_list args;
 	va_start(args, format);
-	writeLogLine(L'E', format, args);
+	writeLogLine(L'E', format, args, true);
 	va_end(args);
 }
 
@@ -68,9 +46,7 @@ void Log::write(const WCHAR * format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	_lineWriter->reset();
-	_lineWriter->appendv(format, args);
-	_lineWriter->write();
+	writeLogLine(format, args, false);
 	va_end(args);
 }
 
@@ -78,34 +54,8 @@ void Log::writeLine(const WCHAR * format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	_lineWriter->reset();
-	_lineWriter->appendv(format, args);
-	_lineWriter->append(L"\r\n", 2);
-	_lineWriter->write();
+	writeLogLine(format, args, true);
 	va_end(args);
-}
-
-void Log::resetBuffer()
-{
-	_lineWriter->reset();
-}
-
-void Log::append(LPCWSTR text, DWORD cchWideChar)
-{
-	_lineWriter->append(text, cchWideChar);
-}
-
-void Log::appendf(const WCHAR* format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	_lineWriter->appendv(format, args);
-	va_end(args);
-}
-
-void Log::writeBuffer()
-{
-	_lineWriter->write();
 }
 
 void Log::win32err(LPCWSTR Apiname) 
@@ -130,15 +80,11 @@ void Log::win32err(LPCWSTR Apiname, LPCWSTR param)
 		, 0
 		, NULL)) == 0)
 	{
-		_lineWriter->reset();
-		_lineWriter->appendf(L"E-Win32API: Lasterror: 0x%x, Api: %ls\n", GetLastError(), L"FormatMessage");
-		_lineWriter->write();
+		writeLine(L"E-Win32API: Lasterror: 0x%x, Api: %ls", GetLastError(), L"FormatMessage");
 		lpWindowsErrorText = L"!!! no error message available since FormatMessage failed !!!";
 	}
 
-	_lineWriter->reset();
-	_lineWriter->appendf(L"E-Win32API: Lasterror: 0X%X, Api: %ls, Msg: %ls, param: %ls\n", LastErr, Apiname, lpWindowsErrorText, param);
-	_lineWriter->write();
+	writeLine(L"E-Win32API: Lasterror: 0X%X, Api: %ls, Msg: %ls, param: %ls", LastErr, Apiname, lpWindowsErrorText, param);
 
 	if (rcFormatMsg == 0)
 	{
@@ -149,5 +95,86 @@ void Log::win32err(LPCWSTR Apiname, LPCWSTR param)
 void Log::win32errfunc(LPCWSTR Apiname, LPCWSTR param)
 {
 	Log::Instance()->win32err(Apiname, param);
+}
+//
+// ----- PRIVATE -----
+//
+void Log::writeLogLine(const WCHAR* format, va_list args, bool appendNewLine)
+{
+	writeLogLine(L'\0', format, args, appendNewLine);
+}
+void Log::writeLogLine(WCHAR prefix, const WCHAR* format, va_list args, bool appendNewLine)
+{
+	WCHAR buf[1024];
+	int prefixLen;
+
+	if (prefix == L'\0')
+	{
+		prefixLen = 0;
+	}
+	else
+	{
+		prefixLen = 3;
+		buf[0] = prefix;
+		buf[1] = L':';
+		buf[2] = L' ';
+	}
+
+	const int writtenChars = wvsprintfW(prefixLen + buf, format, args);
+
+	int suffixLen;
+	if (appendNewLine)
+	{
+		suffixLen = 2;
+		buf[prefixLen + writtenChars + 0] = L'\r';
+		buf[prefixLen + writtenChars + 1] = L'\n';
+	}
+	else
+	{
+		suffixLen = 0;
+	}
+
+	writeTextCodepage(buf, prefixLen + writtenChars + suffixLen);
+}
+
+BOOL Log::writeTextCodepage(const WCHAR* text, const DWORD cchWideChar)
+{
+	CHAR writeBuffer[2048];
+
+	int bytesWritten = convertLineToCopepage(text, cchWideChar, writeBuffer, sizeof(writeBuffer));
+	if (bytesWritten == 0)
+	{
+		// bad
+		return FALSE;
+	}
+
+	BOOL ok = WriteFile(
+		_outHandle
+		, writeBuffer
+		, bytesWritten
+		, NULL
+		, NULL);
+
+	if (!ok)
+	{
+		this->win32err(L"WriteFile", L"Log::writeTextCodepage");
+	}
+
+	return ok;
+}
+
+int Log::convertLineToCopepage(const WCHAR* text, const DWORD cchWideChar, LPSTR outBuffer, DWORD outBufferSize)
+{
+	const int bytesWritten = WideCharToMultiByte(
+		_codepage
+		, 0								// dwFlags [in]
+		, text							// lpWideCharStr [in]
+		, cchWideChar					// cchWideChar [in]
+		, outBuffer						// lpMultiByteStr [out, optional]
+		, outBufferSize					// cbMultiByte [in]
+		, NULL							// lpDefaultChar[in, optional]
+		, NULL);
+
+	return bytesWritten;
 }
 

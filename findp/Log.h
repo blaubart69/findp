@@ -7,7 +7,7 @@ public:
 	{
 		if (Log::_instance == nullptr)
 		{
-			_instance = new Log(2);
+			_instance = new Log(2, GetStdHandle(STD_ERROR_HANDLE), GetConsoleOutputCP());
 		}
 		return _instance;
 	};
@@ -25,21 +25,20 @@ public:
 	void write    (const WCHAR * format, ...);
 	void writeLine(const WCHAR * format, ...);
 
-	void resetBuffer();
-	void append(LPCWSTR text, DWORD cchWideChar);
-	void appendf(const WCHAR * format, ...);
-	void writeBuffer();
-
 	static void win32errfunc(LPCWSTR Apiname, LPCWSTR param);
 
 private:
 	static Log * _instance;
 	
-	int _level;
-	LineWriter	*_lineWriter;
+		  int		_level;
+	const HANDLE	_outHandle;
+	const UINT		_codepage;
 
-	Log(int level);
-	void writeLogLine(WCHAR prefix, const WCHAR* format, va_list args);
+	Log(int level, HANDLE outHandle, UINT codepage);
+	void writeLogLine(const WCHAR* format, va_list args, bool appendNewLine);
+	void writeLogLine(WCHAR prefix, const WCHAR* format, va_list args, bool appendNewLine);
+	int convertLineToCopepage(const WCHAR* text, const DWORD cchWideChar, LPSTR outBuffer, DWORD outBufferSize);
+	BOOL writeTextCodepage(const WCHAR* text, const DWORD cchWideChar);
 
 public:
 	Log(Log const&) = delete;
