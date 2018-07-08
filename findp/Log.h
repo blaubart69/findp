@@ -7,32 +7,38 @@ public:
 	{
 		if (Log::_instance == nullptr)
 		{
-			_instance = new Log(2);
+			_instance = new Log(2, GetStdHandle(STD_ERROR_HANDLE), GetConsoleOutputCP());
 		}
 		return _instance;
 	};
 
 	void setLevel(int level) { _level = level; }
 
-	void dbg(const WCHAR* format, ...) const;
-	void inf(const WCHAR* format, ...) const;
-	void wrn(const WCHAR* format, ...) const;
-	void err(const WCHAR* format, ...) const;
+	void dbg(const WCHAR* format, ...);
+	void inf(const WCHAR* format, ...);
+	void wrn(const WCHAR* format, ...);
+	void err(const WCHAR* format, ...);
 
-	void write(const WCHAR* format, ...) const;
-	void writeLine(const WCHAR * format, ...) const;
+	void win32err(LPCWSTR Apiname);
+	void win32err(LPCWSTR Apiname, LPCWSTR param);
 
-	void win32err(LPCWSTR Apiname) const;
-	void win32err(LPCWSTR Apiname, LPCWSTR param) const;
+	void write    (const WCHAR * format, ...);
+	void writeLine(const WCHAR * format, ...);
 
 	static void win32errfunc(LPCWSTR Apiname, LPCWSTR param);
 
 private:
 	static Log * _instance;
+	
+		  int		_level;
+	const HANDLE	_outHandle;
+	const UINT		_codepage;
 
-	int _level;
-
-	Log(int level) : _level(level)  {};
+	Log(int level, HANDLE outHandle, UINT codepage);
+	void writeLogLine(const WCHAR* format, va_list args, bool appendNewLine);
+	void writeLogLine(WCHAR prefix, const WCHAR* format, va_list args, bool appendNewLine);
+	int convertLineToCopepage(const WCHAR* text, const DWORD cchWideChar, LPSTR outBuffer, DWORD outBufferSize);
+	BOOL writeTextCodepage(const WCHAR* text, const DWORD cchWideChar);
 
 public:
 	Log(Log const&) = delete;

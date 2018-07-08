@@ -4,14 +4,15 @@
 #define STRICT
 #include <windows.h>
 
+#undef RtlMoveMemory
+__declspec(dllimport) void __stdcall RtlMoveMemory(void *dst, const void *src, size_t len);
+
 typedef struct _SLIST {
 	struct _SLIST *Nxt;
 	__declspec(align(64)) volatile  LONGLONG       Val;
 	DWORD          Len;
 	WCHAR          Key[1]; // for the \0
 } SLIST;
-
-//typedef DWORD (*pfHashFunction)(const WCHAR *str, DWORD *len);
 
 typedef struct _HT {
 	DWORD Entries;
@@ -31,12 +32,10 @@ typedef void(*KeyValCallback)(LPWSTR Key, LONGLONG Val, LPVOID context);
 
 HT*		MikeHT_Init		(DWORD Entries);
 DWORD	MikeHT_Free		(HT *ht);
+
 BOOL	MikeHT_Insert	(HT *ht, LPWSTR Key, LONGLONG Val);
 BOOL    MikeHT_Get		(HT *ht, LPCWSTR Key, LONGLONG *Val);
 DWORD   MikeHT_ForEach  (HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPVOID context);
-
-//DWORD	MikeHT_HashValueSimple	(const WCHAR *str, DWORD *len);
-//DWORD	MikeHT_hash_djb2		(const WCHAR *str, DWORD *len);
 
 #ifdef __cplusplus
 }

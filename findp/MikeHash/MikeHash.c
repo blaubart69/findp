@@ -175,7 +175,7 @@ BOOL MikeHT_Insert( HT *ht, LPWSTR Key, LONGLONG Val ) {
                      , 0
                      , sizeof( *pNew ) + KeyLen * sizeof( WCHAR ));
 
-        memcpy( pNew->Key, Key, ( KeyLen + 1 ) * sizeof( WCHAR ));
+        MoveMemory( pNew->Key, Key, ( KeyLen + 1 ) * sizeof( WCHAR ));
         pNew->Val = Val;
         pNew->Len = KeyLen;
         pNew->Nxt = pOld;

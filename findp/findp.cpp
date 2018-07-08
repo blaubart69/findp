@@ -10,7 +10,8 @@ void printProgress(const ParallelExec<DirEntryC, Context>* executor);
 bool CheckIfDirectory(LPCWSTR dirname);
 
 
-int wmain(int argc, wchar_t *argv[])
+//int wmain(int argc, wchar_t *argv[])
+int beeMain(int argc, wchar_t *argv[])
 {
 	logger = Log::Instance();
 	logger->setLevel(2);
@@ -76,8 +77,8 @@ void printStats(Stats *stats, bool printMatched)
 	WCHAR humanSize[32];
 
 	logger->write(
-	   L"\ndirs/files/filesize"
-	   L"\t%I64d/%I64d/%s",
+	   L"dirs/files/filesize"
+	   L"\t%I64u/%I64u/%s",
 		stats->dirs,
 		stats->files,
 		StrFormatByteSizeW(stats->sumFileSize, humanSize, 32));
@@ -86,12 +87,12 @@ void printStats(Stats *stats, bool printMatched)
 	{
 		logger->write(
 			L" | matched files/filesize"
-			L" %I64d/%s",
+			L" %I64u/%s",
 			stats->filesMatched,
 			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32));
 	}
 
-	logger->write(L"\n");
+	logger->writeLine(L"");
 }
 
 bool CheckIfDirectory(LPCWSTR dirname)

@@ -16,6 +16,8 @@
 #include <Shlwapi.h>
 #include <memory>
 
+#include "beeLib.h"
+
 #include "utils.h"
 #include "LineWriter.h"
 #include "Log.h"
