@@ -79,7 +79,7 @@ void printStats(Stats *stats, bool printMatched)
 	logger->resetBuffer();
 	logger->appendf(
 	   L"dirs/files/filesize"
-	   L"\t%ld/%ld/%s",
+	   L"\t%I64u/%I64u/%s",
 		stats->dirs,
 		stats->files,
 		StrFormatByteSizeW(stats->sumFileSize, humanSize, 32));
@@ -88,7 +88,7 @@ void printStats(Stats *stats, bool printMatched)
 	{
 		logger->appendf(
 			L" | matched files/filesize"
-			L" %ld/%s",
+			L" %I64u/%s",
 			stats->filesMatched,
 			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32));
 	}

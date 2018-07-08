@@ -12,7 +12,7 @@ public:
 	BOOL appendv(LPCWSTR format, va_list args);
 	BOOL appendUTF8BOM();
 
-	void setLength(WORD len)	{ _lenBytes = len;   }
+	void setLength(DWORD len)	{ _lenBytes = len;   }
 	DWORD getLength()			{ return _lenBytes;  }
 	void reset()				{ _lenBytes = 0;	 }
 
