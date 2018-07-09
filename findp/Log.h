@@ -37,7 +37,6 @@ private:
 	Log(int level, HANDLE outHandle, UINT codepage);
 	void writeLogLine(const WCHAR* format, va_list args, bool appendNewLine);
 	void writeLogLine(WCHAR prefix, const WCHAR* format, va_list args, bool appendNewLine);
-	int convertLineToCopepage(const WCHAR* text, const DWORD cchWideChar, LPSTR outBuffer, DWORD outBufferSize);
 	BOOL writeTextCodepage(const WCHAR* text, const DWORD cchWideChar);
 
 public:

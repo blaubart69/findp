@@ -141,10 +141,10 @@ BOOL Log::writeTextCodepage(const WCHAR* text, const DWORD cchWideChar)
 {
 	CHAR writeBuffer[2048];
 
-	int bytesWritten = convertLineToCopepage(text, cchWideChar, writeBuffer, sizeof(writeBuffer));
+	int bytesWritten = convertToMultiByte(_codepage, text, cchWideChar, writeBuffer, sizeof(writeBuffer));
 	if (bytesWritten == 0)
 	{
-		// bad
+		this->win32err(L"WideCharToMultiByte", L"Log::writeTextCodepage(convertToMultiByte)");
 		return FALSE;
 	}
 
@@ -157,24 +157,11 @@ BOOL Log::writeTextCodepage(const WCHAR* text, const DWORD cchWideChar)
 
 	if (!ok)
 	{
-		this->win32err(L"WriteFile", L"Log::writeTextCodepage");
+		this->win32err(L"WriteFile", L"Log::writeTextCodepage(WriteFile)");
 	}
 
 	return ok;
 }
 
-int Log::convertLineToCopepage(const WCHAR* text, const DWORD cchWideChar, LPSTR outBuffer, DWORD outBufferSize)
-{
-	const int bytesWritten = WideCharToMultiByte(
-		_codepage
-		, 0								// dwFlags [in]
-		, text							// lpWideCharStr [in]
-		, cchWideChar					// cchWideChar [in]
-		, outBuffer						// lpMultiByteStr [out, optional]
-		, outBufferSize					// cbMultiByte [in]
-		, NULL							// lpDefaultChar[in, optional]
-		, NULL);
 
-	return bytesWritten;
-}
 

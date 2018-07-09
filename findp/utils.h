@@ -6,5 +6,5 @@ BOOL IsDotDir(LPCWSTR cFileName, const DWORD dwFileAttributes);
 bool isDirectory(const DWORD dwFileAttributes);
 bool isFile(const DWORD dwFileAttributes);
 void ReadKey();
-int WideCharToUTF8(LPCWSTR text, DWORD cchWideChar, LPSTR lpUTF8Str, int cbUTF8SizeBytes);
+int convertToMultiByte(const UINT codepage, const WCHAR* text, const DWORD cchWideChar, LPSTR outBuffer, DWORD outBufferSize);
 void WriteUTF8f(HANDLE fp, LPCWSTR format, ...);

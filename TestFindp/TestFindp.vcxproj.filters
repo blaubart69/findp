@@ -30,5 +30,8 @@
     <Object Include="..\findp\x64\Debug\stdafx.obj">
       <Filter>obj</Filter>
     </Object>
+    <Object Include="..\findp\x64\Debug\utils.obj">
+      <Filter>obj</Filter>
+    </Object>
   </ItemGroup>
 </Project>

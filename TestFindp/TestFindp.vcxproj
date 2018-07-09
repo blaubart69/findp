@@ -59,6 +59,7 @@
     <Object Include="..\findp\x64\Debug\MikeHash.obj" />
     <Object Include="..\findp\x64\Debug\ProcessExtension.obj" />
     <Object Include="..\findp\x64\Debug\stdafx.obj" />
+    <Object Include="..\findp\x64\Debug\utils.obj" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

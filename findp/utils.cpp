@@ -14,6 +14,21 @@ int WideCharToUTF8(LPCWSTR text, DWORD cchWideChar, LPSTR lpUTF8Str, int cbUTF8S
 			, NULL);			// lpUsedDefaultChar[out, optional]
 }
 
+int convertToMultiByte(const UINT codepage, const WCHAR* text, const DWORD cchWideChar, LPSTR outBuffer, DWORD outBufferSize)
+{
+	const int bytesWritten = WideCharToMultiByte(
+		codepage
+		, 0								// dwFlags [in]
+		, text							// lpWideCharStr [in]
+		, cchWideChar					// cchWideChar [in]
+		, outBuffer						// lpMultiByteStr [out, optional]
+		, outBufferSize					// cbMultiByte [in]
+		, NULL							// lpDefaultChar[in, optional]
+		, NULL);
+
+	return bytesWritten;
+}
+/*
 int CalcUTF8sizeBytes(LPCWSTR text, DWORD len)
 {
 	return WideCharToUTF8(text, len, NULL, 0);
@@ -40,7 +55,7 @@ void WriteUTF8f(HANDLE fp, LPCWSTR format, ...)
 		DWORD writtenToFile;
 		WriteFile(fp, utf8buffer, utf8bytes, &writtenToFile, NULL);
 	}
-}
+}*/
 //-------------------------------------------------------------------------------------------------
 BOOL IsDotDir(LPCWSTR cFileName, const DWORD dwFileAttributes) {
 //-------------------------------------------------------------------------------------------------
