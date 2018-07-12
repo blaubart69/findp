@@ -84,7 +84,7 @@ void Log::win32err(LPCWSTR Apiname, LPCWSTR param)
 		lpWindowsErrorText = L"!!! no error message available since FormatMessage failed !!!";
 	}
 
-	writeLine(L"E-Win32API: Lasterror: 0X%X, Api: %ls, Msg: %ls, param: %ls", LastErr, Apiname, lpWindowsErrorText, param);
+	writeLine(L"E-Win32API: Lasterror: 0x%X, Api: %ls, Msg: %ls, param: %ls", LastErr, Apiname, lpWindowsErrorText, param);
 
 	if (rcFormatMsg == 0)
 	{
