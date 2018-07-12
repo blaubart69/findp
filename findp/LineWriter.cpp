@@ -105,11 +105,12 @@ BOOL LineWriter::write()
 
 BOOL LineWriter::internal_write()
 {
+	DWORD written;
 	BOOL ok = WriteFile(
 		_filehandle
 		, _buf
 		, _lenBytes
-		, NULL
+		, &written
 		, NULL);
 
 	if (!ok)

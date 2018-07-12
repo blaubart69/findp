@@ -141,18 +141,19 @@ BOOL Log::writeTextCodepage(const WCHAR* text, const DWORD cchWideChar)
 {
 	CHAR writeBuffer[2048];
 
-	int bytesWritten = convertToMultiByte(_codepage, text, cchWideChar, writeBuffer, sizeof(writeBuffer));
-	if (bytesWritten == 0)
+	int numberMultiBytes = convertToMultiByte(_codepage, text, cchWideChar, writeBuffer, sizeof(writeBuffer));
+	if (numberMultiBytes == 0)
 	{
 		this->win32err(L"WideCharToMultiByte", L"Log::writeTextCodepage(convertToMultiByte)");
 		return FALSE;
 	}
 
+	DWORD numberBytesWritten;
 	BOOL ok = WriteFile(
 		_outHandle
 		, writeBuffer
-		, bytesWritten
-		, NULL
+		, numberMultiBytes
+		, &numberBytesWritten
 		, NULL);
 
 	if (!ok)
