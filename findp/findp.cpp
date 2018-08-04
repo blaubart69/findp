@@ -6,9 +6,8 @@
 Log* logger;
 
 void printStats(Stats *stats, bool printMatched);
-void printProgress(const ParallelExec<DirEntryC, Context>* executor);
+void printProgress(const ParallelExec<DirEntryC, Context, LineWriter>* executor);
 bool CheckIfDirectory(LPCWSTR dirname);
-
 
 //int wmain(int argc, wchar_t *argv[])
 int beeMain(int argc, wchar_t *argv[])
@@ -43,7 +42,14 @@ int beeMain(int argc, wchar_t *argv[])
 	}
 
 	auto queue    = IOCPQueueImpl<DirEntryC>(ctx.opts.ThreadsToUse);
-	auto executor = ParallelExec<DirEntryC, Context>(&queue, ProcessDirectory, &ctx, ctx.opts.ThreadsToUse);
+	auto executor = 
+		ParallelExec<DirEntryC, Context, LineWriter>(
+			&queue
+			, []() { return new LineWriter(GetStdHandle(STD_OUTPUT_HANDLE), GetConsoleOutputCP(), 512, Log::win32errfunc); }
+			, ProcessDirectory
+			, [](LineWriter* usedWriter) { delete usedWriter; }
+			, &ctx
+			, ctx.opts.ThreadsToUse);
 
 	executor.EnqueueWork( CreateDirEntryC(NULL, ctx.opts.rootDir) );
 	while (! executor.Wait(1000) )
@@ -64,7 +70,7 @@ int beeMain(int argc, wchar_t *argv[])
     return 0;
 }
 
-void printProgress(const ParallelExec<DirEntryC, Context>* executor)
+void printProgress(const ParallelExec<DirEntryC, Context, LineWriter>* executor)
 {
 	long queued, running, done;
 	executor->Stats(&queued, &running, &done);

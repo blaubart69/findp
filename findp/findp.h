@@ -70,7 +70,7 @@ typedef struct _DirEntryC {
 } DirEntryC;
 
 
-void ProcessDirectory(DirEntryC *item, ParallelExec<DirEntryC, Context> *executor, Context *ctx);
+void ProcessDirectory(DirEntryC *item, ParallelExec<DirEntryC, Context,LineWriter> *executor, Context *ctx, LineWriter*);
 void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *lineWriter);
 void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter, bool printFull);
 void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize);
