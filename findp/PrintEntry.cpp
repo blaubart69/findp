@@ -1,28 +1,28 @@
 #include "stdafx.h"
 
 BOOL ConvertFiletimeToLocalTime(const FILETIME *filetime, SYSTEMTIME *localTime);
-void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter);
+void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine);
 
-void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter, bool printFull)
+void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine, bool printFull)
 {
 	if (printFull)
 	{
-		PrintFullEntry(FullBaseDir, finddata, lineWriter);
+		PrintFullEntry(FullBaseDir, finddata, outputLine);
 	}
 	else
 	{
-		DWORD lastLength = lineWriter->getLength();
-		lineWriter->appendf(L"\\%s\r\n", finddata->cFileName);
-		lineWriter->write();
-		lineWriter->setLength(lastLength);
+		DWORD lastLength = outputLine->getByteLength();
+		outputLine->appendf(L"\\%s\r\n", finddata->cFileName);
+		outputLine->writeBuffer_keepBuffer();
+		outputLine->setByteLength(lastLength);
 	}
 }
 
-void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter)
+void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine)
 {
 	SYSTEMTIME localTime;
 
-	lineWriter->reset();
+	outputLine->reset();
 	if (ConvertFiletimeToLocalTime(&finddata->ftLastWriteTime, &localTime))
 	{
 		DWORD attrs = finddata->dwFileAttributes;
@@ -31,7 +31,7 @@ void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *li
 		li.HighPart = finddata->nFileSizeHigh;
 		li.LowPart  = finddata->nFileSizeLow;
 
-		lineWriter->appendf(
+		outputLine->appendf(
 			L"%04u-%02u-%02u %02u:%02u:%02u"
 			L"\t%c%c%c%c%c"
 			L"\t%12I64u"
@@ -46,9 +46,9 @@ void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *li
 			, li.QuadPart);
 	}
 
-	lineWriter->append(FullBaseDir->str, FullBaseDir->len);
-	lineWriter->appendf(L"\\%s\r\n", finddata->cFileName);
-	lineWriter->write();
+	outputLine->append(FullBaseDir->str, FullBaseDir->len);
+	outputLine->appendf(L"\\%s\r\n", finddata->cFileName);
+	outputLine->writeBuffer();
 }
 
 BOOL ConvertFiletimeToLocalTime(const FILETIME *filetime, SYSTEMTIME *localTime)

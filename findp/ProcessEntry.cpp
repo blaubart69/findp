@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
-
-void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *lineWriter)
+void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *outputLine)
 {
 	ULARGE_INTEGER li;
 	li.HighPart = finddata->nFileSizeHigh;
@@ -13,7 +12,6 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 		matched = StrStrIW(finddata->cFileName, ctx->opts.FilenameSubstringPattern) != NULL;
 		if (matched)
 		{
-			matched = true;
 			InterlockedIncrement64(&ctx->stats.filesMatched);
 			InterlockedAdd64(&ctx->stats.sumFileSizeMatched, li.QuadPart);
 		}
@@ -32,7 +30,7 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 				|| (ctx->opts.emit == EmitType::Files && isFile     (finddata->dwFileAttributes))
 				|| (ctx->opts.emit == EmitType::Dirs  && isDirectory(finddata->dwFileAttributes))  )
 			{
-				PrintEntry(FullBaseDir, finddata, lineWriter, ctx->opts.printFull);
+				PrintEntry(FullBaseDir, finddata, outputLine, ctx->opts.printFull);
 			}
 		}
 	}

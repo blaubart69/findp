@@ -5,15 +5,13 @@ void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out);
 
 void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context> *executor, Context *ctx)
 {
-	LineWriter lineWriter(GetStdHandle(STD_OUTPUT_HANDLE), GetConsoleOutputCP(), 1024, Log::win32errfunc);
-
-	lineWriter.reset();
-	lineWriter.append(dirToEnum->fullDirname.str, dirToEnum->fullDirname.len);
+	LineWriter outputLine(GetStdHandle(STD_OUTPUT_HANDLE), GetConsoleOutputCP(), 512, Log::win32errfunc);
+	outputLine.append(dirToEnum->fullDirname.str, dirToEnum->fullDirname.len);
 
 	EnumDir(
 		dirToEnum->fullDirname.str, 
 		dirToEnum->fullDirname.len,
-		[dirToEnum, executor, ctx, &lineWriter](WIN32_FIND_DATA *finddata)
+		[dirToEnum, executor, ctx, &outputLine](WIN32_FIND_DATA *finddata)
 		{
 			if ( isDirectory(finddata->dwFileAttributes) )
 			{
@@ -34,7 +32,7 @@ void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context> *ex
 				li.LowPart  = finddata->nFileSizeLow;
 				InterlockedAdd64(&(ctx->stats.sumFileSize), li.QuadPart);
 			}
-			ProcessEntry(&dirToEnum->fullDirname, finddata, ctx, &lineWriter);
+			ProcessEntry(&dirToEnum->fullDirname, finddata, ctx, &outputLine);
 		});
 
 	HeapFree(GetProcessHeap(), 0, dirToEnum);

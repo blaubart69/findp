@@ -3,33 +3,27 @@
 class LineWriter
 {
 public:
-	LineWriter() = delete;
 	LineWriter(HANDLE filehandle, UINT codepage, DWORD initialSize, pfWin32Err WinErrFunc);
 	~LineWriter();
 
-	BOOL append(LPCWSTR text, DWORD cchWideChar);
-	BOOL appendf(LPCWSTR format, ...);
-	BOOL appendv(LPCWSTR format, va_list args);
 	BOOL appendUTF8BOM();
 
-	void setLength(DWORD len)	{ _lenBytes = len;   }
-	DWORD getLength()			{ return _lenBytes;  }
-	void reset()				{ _lenBytes = 0;	 }
+	BOOL append(LPCWSTR text, DWORD cchWideChar);
+	BOOL appendf(LPCWSTR format, ...);
 
-	BOOL write();
-	BOOL writeAndReset();
+	BOOL writeBuffer();
+	BOOL writeBuffer_keepBuffer();
+	BOOL writef(LPCWSTR format, ...);
+
+	void  setByteLength(DWORD len)	{ _builder->setByteLength(len); }
+	DWORD getByteLength()			{ return _builder->getByteLength(); }
+	void  reset()					{ _builder->reset(); }
 
 private:
 
 	const pfWin32Err	_winErrFunc;
 	const HANDLE 		_filehandle;
-	const UINT			_codepage;
+	StringBuilder*	    _builder;
 
-	LPSTR	_buf;
-	DWORD	_lenBytes;
-	DWORD	_capacityBytes;
-
-	BOOL internal_write();
-	BOOL ensureAppend(DWORD lenToAppend);
-	BOOL ensureCapacity(DWORD capacityNeeded);
+	BOOL write_buffer_to_filestream();
 };

@@ -19,6 +19,7 @@
 #include "beeLib.h"
 
 #include "utils.h"
+#include "StringBuilder.h"
 #include "LineWriter.h"
 #include "Log.h"
 #include "MikeHash.h"

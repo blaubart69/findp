@@ -48,10 +48,13 @@
     <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LineWriter.h">
+    <ClInclude Include="beeLib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="beeLib.h">
+    <ClInclude Include="StringBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LineWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,13 +95,16 @@
     <ClCompile Include="utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LineWriter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CommandLineToArgv2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="beeLib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StringBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LineWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

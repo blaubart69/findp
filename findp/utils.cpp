@@ -28,34 +28,7 @@ int convertToMultiByte(const UINT codepage, const WCHAR* text, const DWORD cchWi
 
 	return bytesWritten;
 }
-/*
-int CalcUTF8sizeBytes(LPCWSTR text, DWORD len)
-{
-	return WideCharToUTF8(text, len, NULL, 0);
-}
 
-void WriteUTF8f(HANDLE fp, LPCWSTR format, ...)
-{
-	WCHAR buffer[1024];
-
-	va_list args;
-	va_start(args, format);
-	int written = wvsprintfW(buffer, format, args);
-	va_end(args);
-
-	CHAR utf8buffer[1024];
-
-	int utf8bytes = WideCharToUTF8(buffer, written, utf8buffer, sizeof(utf8buffer));
-	if (utf8bytes == 0)
-	{
-		Log::Instance()->win32err(L"WideCharToMultiByte", buffer);
-	}
-	else
-	{
-		DWORD writtenToFile;
-		WriteFile(fp, utf8buffer, utf8bytes, &writtenToFile, NULL);
-	}
-}*/
 //-------------------------------------------------------------------------------------------------
 BOOL IsDotDir(LPCWSTR cFileName, const DWORD dwFileAttributes) {
 //-------------------------------------------------------------------------------------------------
