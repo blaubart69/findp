@@ -7,7 +7,7 @@ public:
 
 	typedef void (*WorkFunc)		(T* item, ParallelExec<T,C> *executor, C* context);
 
-	ParallelExec(std::unique_ptr< IConcurrentQueue<T> > &&queueToUse, WorkFunc workFunc, C* context, int maxThreads);
+	ParallelExec(IConcurrentQueue<T> *queueToUse, WorkFunc workFunc, C* context, int maxThreads);
 	~ParallelExec();
 
 	void EnqueueWork(const T* item);
@@ -23,7 +23,7 @@ private:
 
 	volatile bool _canceled;
 
-	std::unique_ptr< IConcurrentQueue<T> > _queue;
+	IConcurrentQueue<T>*  _queue;
 	WorkFunc _workFunc;
 	C*	_context;
 	HANDLE	_hasFinished;
@@ -35,9 +35,9 @@ private:
 };
 
 template<typename T, typename C>
-ParallelExec<T, C>::ParallelExec(std::unique_ptr< IConcurrentQueue<T> > &&queueToUse, WorkFunc workFunc, C* context, int maxThreads)
-	: _queue(std::move(queueToUse))
+ParallelExec<T, C>::ParallelExec(IConcurrentQueue<T> *queueToUse, WorkFunc workFunc, C* context, int maxThreads)
 {
+	_queue = queueToUse;
 	_workFunc = workFunc;
 	_itemCount = _running = _done = 0;
 	_canceled = false;

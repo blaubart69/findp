@@ -14,7 +14,6 @@
 // TODO: reference additional headers your program requires here
 
 #include <Shlwapi.h>
-#include <memory>
 
 #include "beeLib.h"
 

@@ -42,15 +42,15 @@ int beeMain(int argc, wchar_t *argv[])
 		logger->wrn(L"could not set privilege SE_BACKUP_NAME");
 	}
 
-	auto queue    = std::make_unique< IOCPQueueImpl<DirEntryC> >(ctx.opts.ThreadsToUse);
-	auto executor = std::make_unique< ParallelExec<DirEntryC, Context> >(std::move(queue), ProcessDirectory, &ctx, ctx.opts.ThreadsToUse);
+	auto queue    = IOCPQueueImpl<DirEntryC>(ctx.opts.ThreadsToUse);
+	auto executor = ParallelExec<DirEntryC, Context>(&queue, ProcessDirectory, &ctx, ctx.opts.ThreadsToUse);
 
-	executor->EnqueueWork( CreateDirEntryC(NULL, ctx.opts.rootDir) );
-	while (! executor->Wait(1000) )
+	executor.EnqueueWork( CreateDirEntryC(NULL, ctx.opts.rootDir) );
+	while (! executor.Wait(1000) )
 	{
 		if (ctx.opts.progress)
 		{
-			printProgress(executor.get());
+			printProgress(&executor);
 		}
 	}
 
