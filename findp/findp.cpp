@@ -41,6 +41,17 @@ int beeMain(int argc, wchar_t *argv[])
 		logger->wrn(L"could not set privilege SE_BACKUP_NAME");
 	}
 
+	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (GetFileType(hStdOut) == FILE_TYPE_DISK)
+	{
+		if (GetConsoleOutputCP() == CP_UTF8)
+		{
+			char UTF8BOM[] = { 0xEF, 0xBB, 0xBF };
+			DWORD written;
+			WriteFile(hStdOut, UTF8BOM, 3, &written, NULL);
+		}
+	}
+
 	auto queue    = IOCPQueueImpl<DirEntryC>(ctx.opts.ThreadsToUse);
 	auto executor = 
 		ParallelExec<DirEntryC, Context, LineWriter>(
