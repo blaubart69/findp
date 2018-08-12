@@ -18,19 +18,49 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Object Include="..\findp\x64\Debug\MikeHash.obj">
+    <Object Include="..\findp\x64\Debug\WriteExtensionToFile.obj">
       <Filter>obj</Filter>
     </Object>
-    <Object Include="..\findp\x64\Debug\ProcessExtension.obj">
+    <Object Include="..\findp\x64\Debug\utils.obj">
       <Filter>obj</Filter>
     </Object>
-    <Object Include="..\findp\x64\Debug\Log.obj">
+    <Object Include="..\findp\x64\Debug\TrySetPrivilege.obj">
       <Filter>obj</Filter>
     </Object>
     <Object Include="..\findp\x64\Debug\stdafx.obj">
       <Filter>obj</Filter>
     </Object>
-    <Object Include="..\findp\x64\Debug\utils.obj">
+    <Object Include="..\findp\x64\Debug\ProcessExtension.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\ProcessEntry.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\ProcessDirectory.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\PrintEntry.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\MikeHash.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\Log.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\LineWriter.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\getopts.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\findp.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\CommandLineToArgv2.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\StringBuilder.obj">
       <Filter>obj</Filter>
     </Object>
   </ItemGroup>

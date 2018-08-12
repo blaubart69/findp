@@ -52,6 +52,11 @@ bool isFile(const DWORD dwFileAttributes)
 	return !isDirectory(dwFileAttributes);
 }
 
+bool GetSearchFilterFromDir(LPWSTR str, const size_t strlen, LPWSTR *filter)
+{
+	return true;
+}
+
 void ReadKey()
 {
 	INPUT_RECORD buffer[64];

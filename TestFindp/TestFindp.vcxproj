@@ -55,11 +55,21 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Object Include="..\findp\x64\Debug\CommandLineToArgv2.obj" />
+    <Object Include="..\findp\x64\Debug\findp.obj" />
+    <Object Include="..\findp\x64\Debug\getopts.obj" />
+    <Object Include="..\findp\x64\Debug\LineWriter.obj" />
     <Object Include="..\findp\x64\Debug\Log.obj" />
     <Object Include="..\findp\x64\Debug\MikeHash.obj" />
+    <Object Include="..\findp\x64\Debug\PrintEntry.obj" />
+    <Object Include="..\findp\x64\Debug\ProcessDirectory.obj" />
+    <Object Include="..\findp\x64\Debug\ProcessEntry.obj" />
     <Object Include="..\findp\x64\Debug\ProcessExtension.obj" />
     <Object Include="..\findp\x64\Debug\stdafx.obj" />
+    <Object Include="..\findp\x64\Debug\StringBuilder.obj" />
+    <Object Include="..\findp\x64\Debug\TrySetPrivilege.obj" />
     <Object Include="..\findp\x64\Debug\utils.obj" />
+    <Object Include="..\findp\x64\Debug\WriteExtensionToFile.obj" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -80,6 +90,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -96,6 +107,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
