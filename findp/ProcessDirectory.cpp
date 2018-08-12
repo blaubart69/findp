@@ -9,9 +9,10 @@ void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context, Lin
 	outputLine->append(dirToEnum->fullDirname.str, dirToEnum->fullDirname.len);
 
 	EnumDir(
-		dirToEnum->fullDirname.str, 
-		dirToEnum->fullDirname.len,
-		[dirToEnum, executor, ctx, &outputLine](WIN32_FIND_DATA *finddata)
+		  dirToEnum->fullDirname.str
+		, dirToEnum->fullDirname.len
+		, FindExInfoBasic
+		, [dirToEnum, executor, ctx, &outputLine](WIN32_FIND_DATA *finddata)
 		{
 			if ( isDirectory(finddata->dwFileAttributes) )
 			{
