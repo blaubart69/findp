@@ -44,6 +44,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TestProcessExtension.cpp" />
+    <ClCompile Include="TestSearchFilterTerm.cpp" />
     <ClCompile Include="TestToUpper.cpp" />
   </ItemGroup>
   <ItemGroup>

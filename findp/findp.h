@@ -40,6 +40,8 @@ enum EmitType
 struct Options
 {
 	LPWSTR rootDir;
+	LPCWSTR filter;
+	size_t lenFilter;
 	LPCWSTR FilenameSubstringPattern;
 	bool sum;
 	bool progress;
@@ -75,7 +77,7 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter, bool printFull);
 void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize);
 void WriteExtensions(LPCWSTR filename, const Extensions *ext);
-DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir);
+DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir, const DWORD filterLen);
 int getopts(int argc, wchar_t *argv[], Options* opts);
 BOOL TryToSetPrivilege(LPCWSTR szPrivilege, BOOL bEnablePrivilege);
 

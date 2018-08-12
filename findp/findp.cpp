@@ -22,19 +22,15 @@ int beeMain(int argc, wchar_t *argv[])
 		return rc;
 	}
 
-	if (!CheckIfDirectory(ctx.opts.rootDir))
+	if (GetSearchFilterFromDir(ctx.opts.rootDir, lstrlen(ctx.opts.rootDir), &ctx.opts.filter))
 	{
-		return 4;
+		ctx.opts.lenFilter = lstrlen(ctx.opts.filter);
 	}
-
-	int l = lstrlen(ctx.opts.rootDir);
-
-	int lastCharIdx = l - 1;
-	if (l > 1 && ctx.opts.rootDir[lastCharIdx] == L'\\')
+	else
 	{
-		ctx.opts.rootDir[lastCharIdx] = L'\0';
+		ctx.opts.filter = L"*";
+		ctx.opts.lenFilter = 1;
 	}
-
 
 	if (!TryToSetPrivilege(SE_BACKUP_NAME, TRUE))
 	{
@@ -51,7 +47,7 @@ int beeMain(int argc, wchar_t *argv[])
 			, &ctx
 			, ctx.opts.ThreadsToUse);
 
-	executor.EnqueueWork( CreateDirEntryC(NULL, ctx.opts.rootDir) );
+	executor.EnqueueWork( CreateDirEntryC(NULL, ctx.opts.rootDir, ctx.opts.lenFilter) );
 	while (! executor.Wait(1000) )
 	{
 		if (ctx.opts.progress)

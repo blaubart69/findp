@@ -11,6 +11,7 @@ void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context, Lin
 	EnumDir(
 		dirToEnum->fullDirname.str, 
 		dirToEnum->fullDirname.len,
+		ctx->opts.filter,
 		[dirToEnum, executor, ctx, &outputLine](WIN32_FIND_DATA *finddata)
 		{
 			if ( isDirectory(finddata->dwFileAttributes) )
@@ -19,7 +20,7 @@ void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context, Lin
 
 				if (EnterDir(finddata->dwFileAttributes, ctx->opts.followJunctions, dirToEnum->depth, ctx->opts.maxDepth))
 				{
-					DirEntryC* newEntry = CreateDirEntryC(dirToEnum, finddata->cFileName);
+					DirEntryC* newEntry = CreateDirEntryC(dirToEnum, finddata->cFileName, ctx->opts.lenFilter);
 					executor->EnqueueWork(newEntry);
 				}
 			}
@@ -62,7 +63,7 @@ bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int m
 
 }
 
-DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir)
+DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir, const DWORD filterLen)
 {
 	DWORD newFullDirLen = 
 		  (parent == NULL ? 0 : parent->fullDirname.len + 1 ) // +1 == \ in between 
@@ -71,7 +72,8 @@ DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir)
 	DWORD sizeToAlloc =
 		  sizeof(DirEntryC)
 		+ (		newFullDirLen 
-			+	  2		// to append "\*" for searching 
+			+	1			// to append "\"
+			+	filterLen	// to append filter pattern
 		  ) * sizeof(WCHAR);
 
 	DirEntryC* newEntry;

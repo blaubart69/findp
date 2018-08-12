@@ -52,9 +52,37 @@ bool isFile(const DWORD dwFileAttributes)
 	return !isDirectory(dwFileAttributes);
 }
 
-bool GetSearchFilterFromDir(LPWSTR str, const size_t strlen, LPWSTR *filter)
+bool GetSearchFilterFromDir(LPWSTR str, const size_t strlen, LPCWSTR *filter)
 {
-	return true;
+	*filter = nullptr;
+
+	bool foundWildcards = false;
+	WCHAR *pos = str + strlen;
+
+	do
+	{
+		--pos;
+		if (*pos == L'*' || *pos == L'?')
+		{
+			foundWildcards = true;
+		}
+	} while (pos > str && *pos != L'\\');
+
+	if (foundWildcards)
+	{
+		if (*pos == L'\\')
+		{
+			*pos = L'\0';	// overwrite "\"
+			*filter = pos + 1;
+		}
+		else
+		{
+			*filter = pos;
+		}
+		
+	}
+
+	return foundWildcards;
 }
 
 void ReadKey()

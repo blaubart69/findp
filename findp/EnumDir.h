@@ -1,22 +1,24 @@
 #pragma once
 
 template<typename finddataCallback>
-void EnumDir(LPWSTR fulldir, DWORD fulldirLength, finddataCallback OnDirEntry)
+void EnumDir(LPWSTR dir, DWORD dirLen, LPCWSTR filterPattern, finddataCallback OnDirEntry)
 {
 	HANDLE hSearch;
 	DWORD  dwError = NO_ERROR;
 	WIN32_FIND_DATA FindBuffer;
 
-	lstrcpy(fulldir + fulldirLength, L"\\*");
-	hSearch = FindFirstFile(fulldir, &FindBuffer);
-	fulldir[fulldirLength] = L'\0';
+	lstrcpy(dir + dirLen    , L"\\");
+	lstrcpy(dir + dirLen + 1, filterPattern);
+	hSearch = FindFirstFile(dir, &FindBuffer);
 
 	if (hSearch == INVALID_HANDLE_VALUE)
 	{
 		dwError = GetLastError();
-		Log::Instance()->win32err(L"FindFirstFile", fulldir);
+		Log::Instance()->win32err(L"FindFirstFile", dir);
 		return;
 	}
+
+	dir[dirLen] = L'\0';
 
 	do
 	{
@@ -33,13 +35,12 @@ void EnumDir(LPWSTR fulldir, DWORD fulldirLength, finddataCallback OnDirEntry)
 
 	if (dwError != ERROR_NO_MORE_FILES)
 	{
-		Log::Instance()->win32err(L"FindNextFile", fulldir);
+		Log::Instance()->win32err(L"FindNextFile", dir);
 	}
 
 	if (hSearch != INVALID_HANDLE_VALUE)
 	{
 		FindClose(hSearch);
 	}
-
 }
 
