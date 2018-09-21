@@ -74,8 +74,7 @@ int beeMain(int argc, wchar_t *argv[])
 	printStats(&ctx.stats, ctx.opts.FilenameSubstringPattern != NULL);
 	if (ctx.opts.SumUpExtensions)
 	{
-		LPCWSTR extFilename = L".\\exts.txt";
-		WriteExtensions(extFilename, &ctx.ext);
+		WriteExtensions(ctx.opts.ExtsFilename, &ctx.ext);
 	}
 
     return 0;

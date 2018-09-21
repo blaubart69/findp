@@ -47,6 +47,7 @@ struct Options
 	int maxDepth;
 	int ThreadsToUse;
 	bool SumUpExtensions;
+	LPCWSTR ExtsFilename;
 	bool printFull;
 	EmitType emit;
 };

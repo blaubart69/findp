@@ -16,6 +16,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	 opts->FilenameSubstringPattern = NULL;
 	 opts->ThreadsToUse = 32;
 	 opts->SumUpExtensions = false;
+	 opts->ExtsFilename = NULL;
 	 opts->rootDir = NULL;
 	 opts->printFull = false;
 	 opts->emit = EmitType::Files;
@@ -33,7 +34,20 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 				 case L's': opts->sum = true;				break;
 				 case L'p': opts->progress = true;			break;
 				 case L'j': opts->followJunctions   = true;	break;
-				 case L'e': opts->SumUpExtensions	= true;	break;
+				 case L'e': 
+					 opts->SumUpExtensions	= true;	
+					 if (i + 1 < argc)
+					 {
+						 if (argv[i + 1][0] != L'-')
+						 {
+							 opts->ExtsFilename = argv[++i];
+						 }
+						 else
+						 {
+							 opts->ExtsFilename = L".\\exts.txt";
+						 }
+					 }
+					 break;
 				 case L'f': opts->printFull			= true;	break;
 				 case L'v': Log::Instance()->setLevel(3);	break;
 				 case L't': if ( i+1 < argc) tmpEmitType = argv[++i];								   break;
@@ -84,7 +98,7 @@ void PrintUsage(void)
 		L"usage: findp.exe [OPTIONS] {directory}"
 		L"\n-f              ... print date, attributes, filesize, fullname"
 		L"\n-s              ... sum dirs, files, filesize. don't print filenames"
-		L"\n-e              ... group extensions and calc the sum of the filesizes. write to .\\exts.txt (UTF-8)"
+		L"\n-e [filename]   ... group extensions sum(filesizes), sum(files). default filename: .\\exts.txt (UTF-8)"
 		L"\n-p              ... show progress"
 		L"\n-j              ... follow directory junctions"
 		L"\n-v              ... verbose/debug"
