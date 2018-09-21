@@ -37,6 +37,6 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 
 	if (ctx->opts.SumUpExtensions && isFile(finddata->dwFileAttributes) )
 	{
-		ProcessExtension(&ctx->ext, finddata->cFileName, li.QuadPart);
+		ProcessExtension(ctx->ext, finddata->cFileName, li.QuadPart);
 	}
 }

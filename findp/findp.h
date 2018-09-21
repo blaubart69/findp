@@ -2,23 +2,21 @@
 
 struct Stats
 {
-	__declspec(align(64)) volatile LONGLONG files = 0;
-	__declspec(align(64)) volatile LONGLONG filesMatched = 0;
-	__declspec(align(64)) volatile LONGLONG dirs = 0;
-	__declspec(align(64)) volatile LONGLONG sumFileSize = 0;
-	__declspec(align(64)) volatile LONGLONG sumFileSizeMatched = 0;
-	__declspec(align(64)) volatile LONGLONG enumDone = 0;
+	__declspec(align(8)) volatile LONGLONG files = 0;
+	__declspec(align(8)) volatile LONGLONG filesMatched = 0;
+	__declspec(align(8)) volatile LONGLONG dirs = 0;
+	__declspec(align(8)) volatile LONGLONG sumFileSize = 0;
+	__declspec(align(8)) volatile LONGLONG sumFileSizeMatched = 0;
+	__declspec(align(8)) volatile LONGLONG enumDone = 0;
 };
 
 struct Extensions
 {
-	//__declspec(align(64)) volatile LONGLONG noExtSum = 0;
-	//std::unordered_map<std::wstring, LONGLONG> exts;
 	HT* extsHashtable;
 
-	Extensions()
+	Extensions(DWORD HastableSize)
 	{
-		DWORD HastableSize = 65537;
+		//DWORD HastableSize = 65537;
 		extsHashtable = MikeHT_Init(HastableSize);
 		Log::Instance()->dbg(L"extension hashtable init with %d array size", HastableSize);
 	}
@@ -56,7 +54,7 @@ struct Context
 {
 	Stats	stats;
 	Options opts;
-	Extensions ext;
+	Extensions* ext;
 };
 
 typedef struct _LSTR

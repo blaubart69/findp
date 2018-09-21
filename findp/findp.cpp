@@ -27,6 +27,11 @@ int beeMain(int argc, wchar_t *argv[])
 		return 4;
 	}
 
+	if (ctx.opts.SumUpExtensions)
+	{
+		ctx.ext = new Extensions(16411);
+	}
+
 	int l = lstrlen(ctx.opts.rootDir);
 
 	int lastCharIdx = l - 1;
@@ -74,7 +79,8 @@ int beeMain(int argc, wchar_t *argv[])
 	printStats(&ctx.stats, ctx.opts.FilenameSubstringPattern != NULL);
 	if (ctx.opts.SumUpExtensions)
 	{
-		WriteExtensions(ctx.opts.ExtsFilename, &ctx.ext);
+		WriteExtensions(ctx.opts.ExtsFilename, ctx.ext);
+		delete ctx.ext;
 	}
 
     return 0;

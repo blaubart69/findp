@@ -14,9 +14,9 @@ void WriteExtensions(const Extensions *ext, LineWriter* writer)
 		&stats,
 		writer);
 
-	Log::Instance()->dbg(L"Hash: items/arraysize/arrayplaces filled/longest SLIST\t%ld/%ld/%ld/%ld",
-		itemCount,
+	Log::Instance()->dbg(L"Hash: arraysize/items/arrayplaces filled/longest SLIST\t%ld/%ld/%ld/%ld",
 		ext->extsHashtable->Entries,
+		itemCount,
 		stats.ArrayItems,
 		stats.LongestList);
 }
