@@ -61,9 +61,8 @@ BOOL LineWriter::writef(LPCWSTR format, ...)
 
 	if (rc)
 	{
-		rc = write_buffer_to_filestream();
+		rc = writeBuffer();
 	}
-	
 
 	return rc;
 }

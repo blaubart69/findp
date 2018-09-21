@@ -63,7 +63,7 @@ static SLIST* FindInList(SLIST *p, LPCWSTR Key, const DWORD KeyLen) {
 
 	while (p != NULL) {
 
-		if (p->Len != KeyLen) {
+		if (p->cchKeyLen != KeyLen) {
 			; // no match
 		}
 		//else if (memcmp(p->Key, Key, KeyLen * sizeof(WCHAR)) != 0) {
@@ -106,9 +106,9 @@ DWORD MikeHT_ForEach(HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPV
 		DWORD ListCount = 0;
 		for ( SLIST* elem = ht->Table[i]; elem != NULL; elem=elem->Nxt)
 		{
-			ItemCount++;
-			ListCount++;
-			KeyValCallback(elem->Key, elem->Val, context);
+			++ItemCount;
+			++ListCount;
+			KeyValCallback(elem->Key, elem->Sum, elem->Count, context);
 		}
 
 		if (stats != NULL)
@@ -137,7 +137,7 @@ BOOL MikeHT_Get(HT *ht, LPCWSTR Key, LONGLONG *Val) {
 	}
 	else
 	{
-		*Val = p->Val;
+		*Val = p->Sum;
 		found = TRUE;
 	}
 
@@ -161,11 +161,12 @@ BOOL MikeHT_Insert( HT *ht, LPWSTR Key, LONGLONG Val ) {
 
         pOld = pNew = ht->Table[ idx ];
 
-		pNew = FindInList(pNew, Key, KeyLen);
+		pNew = FindInList(pNew, Key, KeyLen);	
 		if (pNew != NULL)
 		{
 			// found
-			InterlockedAdd64(&pNew->Val, Val);
+			InterlockedAdd64(&pNew->Sum, Val);
+			InterlockedIncrement64(&pNew->Count);
 			return FALSE;
 		}
 
@@ -176,8 +177,9 @@ BOOL MikeHT_Insert( HT *ht, LPWSTR Key, LONGLONG Val ) {
                      , sizeof( *pNew ) + KeyLen * sizeof( WCHAR ));
 
         MoveMemory( pNew->Key, Key, ( KeyLen + 1 ) * sizeof( WCHAR ));
-        pNew->Val = Val;
-        pNew->Len = KeyLen;
+        pNew->Sum = Val;
+		pNew->Count = 1;
+        pNew->cchKeyLen = KeyLen;
         pNew->Nxt = pOld;
 
         // insert

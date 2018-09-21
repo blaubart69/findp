@@ -9,8 +9,9 @@ __declspec(dllimport) void __stdcall RtlMoveMemory(void *dst, const void *src, s
 
 typedef struct _SLIST {
 	struct _SLIST *Nxt;
-	__declspec(align(64)) volatile  LONGLONG       Val;
-	DWORD          Len;
+	__declspec(align(64)) volatile  LONGLONG       Sum;
+	__declspec(align(64)) volatile  LONGLONG       Count;
+	DWORD          cchKeyLen;
 	WCHAR          Key[1]; // for the \0
 } SLIST;
 
@@ -28,7 +29,7 @@ typedef struct _HT_STATS {
 extern "C" {
 #endif
 
-typedef void(*KeyValCallback)(LPWSTR Key, LONGLONG Val, LPVOID context);
+typedef void(*KeyValCallback)(LPWSTR Key, LONGLONG Sum, LONGLONG Count, LPVOID context);
 
 HT*		MikeHT_Init		(DWORD Entries);
 DWORD	MikeHT_Free		(HT *ht);

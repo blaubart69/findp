@@ -6,10 +6,10 @@ void WriteExtensions(const Extensions *ext, LineWriter* writer)
 	HT_STATS stats;
 	DWORD itemCount = MikeHT_ForEach(
 		ext->extsHashtable,
-		[](LPWSTR key, LONGLONG val, LPVOID context)
+		[](LPWSTR key, LONGLONG Sum, LONGLONG Count, LPVOID context)
 		{
 		    LineWriter* u8writer = (LineWriter*)context;
-			u8writer->writef(L"%I64u\t%s\r\n", val, key);
+			u8writer->writef(L"%I64u\t%I64u\t%s\r\n", Count, Sum, key);
 		},
 		&stats,
 		writer);
@@ -46,5 +46,5 @@ void WriteExtensions(LPCWSTR filename, const Extensions *ext)
 	WriteExtensions(ext, &utf8writer);
 	CloseHandle(fp);
 
-	Log::Instance()->inf(L"extensions have been written to file %s", filename);
+	Log::Instance()->inf(L"Extensions: 3 columns TAB separated: (CountFiles | SumFilesize | Extension). written to file %s.", filename);
 }
