@@ -30,7 +30,7 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 				|| (ctx->opts.emit == EmitType::Files && isFile     (finddata->dwFileAttributes))
 				|| (ctx->opts.emit == EmitType::Dirs  && isDirectory(finddata->dwFileAttributes))  )
 			{
-				PrintEntry(FullBaseDir, finddata, outputLine, ctx->opts.printFull);
+				PrintEntry(FullBaseDir, finddata, outputLine, ctx->opts.printFull, ctx->opts.printOwner);
 			}
 		}
 	}

@@ -1,13 +1,26 @@
 #include "stdafx.h"
 
 BOOL ConvertFiletimeToLocalTime(const FILETIME *filetime, SYSTEMTIME *localTime);
-void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine);
+void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine, bool printOwner, LPCWSTR owner);
 
-void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine, bool printFull)
+void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine, bool printFull, bool printOwner)
 {
+	WCHAR owner[128];
+
+	if (printOwner)
+	{
+		WCHAR filename[256];
+
+		wsprintfW(filename, L"%s\\%s", FullBaseDir->str, finddata->cFileName);
+		if (!GetOwner(filename, owner, sizeof(owner)))
+		{
+			StrCpyW(owner, L"n/a");
+		}
+	}
+
 	if (printFull)
 	{
-		PrintFullEntry(FullBaseDir, finddata, outputLine);
+		PrintFullEntry(FullBaseDir, finddata, outputLine, printOwner, owner);
 	}
 	else
 	{
@@ -18,7 +31,7 @@ void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *output
 	}
 }
 
-void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine)
+void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine, bool printOwner, LPCWSTR owner)
 {
 	SYSTEMTIME localTime;
 
@@ -36,7 +49,7 @@ void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *ou
 			L"\t%c%c%c%c%c%c%c"
 			L"\t%12I64u"
 			L"\t",
-			localTime.wYear, localTime.wMonth, localTime.wDay
+			  localTime.wYear, localTime.wMonth, localTime.wDay
 			, localTime.wHour, localTime.wMinute, localTime.wSecond
 			, ((attrs & FILE_ATTRIBUTE_ARCHIVE)    != 0) ? L'A' : L'-'
 			, ((attrs & FILE_ATTRIBUTE_SYSTEM)     != 0) ? L'S' : L'-'
@@ -46,6 +59,11 @@ void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *ou
 			, ((attrs & FILE_ATTRIBUTE_ENCRYPTED)  != 0) ? L'E' : L'-'
 			, ((attrs & FILE_ATTRIBUTE_COMPRESSED) != 0) ? L'C' : L'-'
 			, li.QuadPart);
+	}
+
+	if (printOwner)
+	{
+		outputLine->appendf(L"%s\t", owner);
 	}
 
 	outputLine->append(FullBaseDir->str, FullBaseDir->len);

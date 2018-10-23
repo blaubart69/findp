@@ -47,6 +47,7 @@ struct Options
 	bool SumUpExtensions;
 	LPCWSTR ExtsFilename;
 	bool printFull;
+	bool printOwner;
 	EmitType emit;
 };
 
@@ -71,10 +72,11 @@ typedef struct _DirEntryC {
 
 void ProcessDirectory(DirEntryC *item, ParallelExec<DirEntryC, Context,LineWriter> *executor, Context *ctx, LineWriter*);
 void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *lineWriter);
-void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter, bool printFull);
+void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter, bool printFull, bool printOwner);
 void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize);
 void WriteExtensions(LPCWSTR filename, const Extensions *ext);
 DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir);
 int getopts(int argc, wchar_t *argv[], Options* opts);
 BOOL TryToSetPrivilege(LPCWSTR szPrivilege, BOOL bEnablePrivilege);
+bool GetOwner(LPCWSTR filename, LPWSTR owner, size_t ownersize);
 

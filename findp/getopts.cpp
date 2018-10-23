@@ -19,6 +19,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	 opts->ExtsFilename = NULL;
 	 opts->rootDir = NULL;
 	 opts->printFull = false;
+	 opts->printOwner = false;
 	 opts->emit = EmitType::Files;
 
 	 bool showHelp = false;
@@ -48,7 +49,8 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 						 }
 					 }
 					 break;
-				 case L'f': opts->printFull			= true;	break;
+				 case L'f': opts->printFull	 = true;		break;
+				 case L'o': opts->printOwner = true;		break;
 				 case L'v': Log::Instance()->setLevel(3);	break;
 				 case L't': if ( i+1 < argc) tmpEmitType = argv[++i];								   break;
 				 case L'm': if ( i+1 < argc) opts->FilenameSubstringPattern = argv[++i];			   break;
