@@ -33,16 +33,18 @@ void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *ou
 
 		outputLine->appendf(
 			L"%04u-%02u-%02u %02u:%02u:%02u"
-			L"\t%c%c%c%c%c"
+			L"\t%c%c%c%c%c%c%c"
 			L"\t%12I64u"
 			L"\t",
 			localTime.wYear, localTime.wMonth, localTime.wDay
 			, localTime.wHour, localTime.wMinute, localTime.wSecond
-			, ((attrs & FILE_ATTRIBUTE_ARCHIVE)   != 0) ? L'A' : L'-'
-			, ((attrs & FILE_ATTRIBUTE_SYSTEM)    != 0) ? L'S' : L'-'
-			, ((attrs & FILE_ATTRIBUTE_HIDDEN)    != 0) ? L'H' : L'-'
-			, ((attrs & FILE_ATTRIBUTE_READONLY)  != 0) ? L'R' : L'-'
-			, ((attrs & FILE_ATTRIBUTE_DIRECTORY) != 0) ? L'D' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_ARCHIVE)    != 0) ? L'A' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_SYSTEM)     != 0) ? L'S' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_HIDDEN)     != 0) ? L'H' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_READONLY)   != 0) ? L'R' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_DIRECTORY)  != 0) ? L'D' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_ENCRYPTED)  != 0) ? L'E' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_COMPRESSED) != 0) ? L'C' : L'-'
 			, li.QuadPart);
 	}
 
