@@ -14,7 +14,7 @@ void WriteExtensions(const Extensions *ext, LineWriter* writer)
 		&stats,
 		writer);
 
-	Log::Instance()->dbg(L"Hash: arraysize/items/arrayplaces filled/longest SLIST\t%ld/%ld/%ld/%ld",
+	Log::Instance()->dbg(L"Hash: arraysize / items / arrayplaces filled / longest SLIST -- %ld / %ld / %ld / %ld",
 		ext->extsHashtable->Entries,
 		itemCount,
 		stats.ArrayItems,
@@ -46,5 +46,5 @@ void WriteExtensions(LPCWSTR filename, const Extensions *ext)
 	WriteExtensions(ext, &utf8writer);
 	CloseHandle(fp);
 
-	Log::Instance()->inf(L"Extensions: 3 columns TAB separated: (CountFiles | SumFilesize | Extension). written to file %s.", filename);
+	Log::Instance()->inf(L"Extensions: 3 columns TAB separated (UTF8-BOM): (CountFiles | SumFilesize | Extension). written to file %s.", filename);
 }
