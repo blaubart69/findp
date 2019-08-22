@@ -22,6 +22,11 @@ int beeMain(int argc, wchar_t *argv[])
 		return rc;
 	}
 
+	if (!TryToSetPrivilege(SE_BACKUP_NAME, TRUE))
+	{
+		logger->wrn(L"could not set privilege SE_BACKUP_NAME");
+	}
+
 	if (!CheckIfDirectory(ctx.opts.rootDir))
 	{
 		return 4;
@@ -38,12 +43,6 @@ int beeMain(int argc, wchar_t *argv[])
 	if (l > 1 && ctx.opts.rootDir[lastCharIdx] == L'\\')
 	{
 		ctx.opts.rootDir[lastCharIdx] = L'\0';
-	}
-
-
-	if (!TryToSetPrivilege(SE_BACKUP_NAME, TRUE))
-	{
-		logger->wrn(L"could not set privilege SE_BACKUP_NAME");
 	}
 
 	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
