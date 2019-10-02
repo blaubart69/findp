@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *outputLine)
+BOOL ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *outputLine)
 {
 	ULARGE_INTEGER li;
 	li.HighPart = finddata->nFileSizeHigh;
@@ -21,6 +21,7 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 		matched = true;
 	}
 
+	BOOL ok = TRUE;
 	if (!ctx->opts.sum)
 	{
 		if (    ctx->opts.FilenameSubstringPattern == NULL
@@ -30,7 +31,7 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 				|| (ctx->opts.emit == EmitType::Files && isFile     (finddata->dwFileAttributes))
 				|| (ctx->opts.emit == EmitType::Dirs  && isDirectory(finddata->dwFileAttributes))  )
 			{
-				PrintEntry(FullBaseDir, finddata, outputLine, ctx->opts.printFull, ctx->opts.printOwner);
+				ok = PrintEntry(FullBaseDir, finddata, outputLine, ctx->opts.printFull, ctx->opts.printOwner);
 			}
 		}
 	}
@@ -39,4 +40,5 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 	{
 		ProcessExtension(ctx->ext, finddata->cFileName, li.QuadPart);
 	}
+	return ok;
 }

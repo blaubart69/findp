@@ -1,9 +1,9 @@
 #include "stdafx.h"
 
 BOOL ConvertFiletimeToLocalTime(const FILETIME *filetime, SYSTEMTIME *localTime);
-void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine, bool printOwner, LPCWSTR owner);
+BOOL PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine, bool printOwner, LPCWSTR owner);
 
-void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine, bool printFull, bool printOwner)
+BOOL PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine, bool printFull, bool printOwner)
 {
 	WCHAR owner[128];
 
@@ -18,20 +18,22 @@ void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *output
 		}
 	}
 
+	BOOL ok;
 	if (printFull)
 	{
-		PrintFullEntry(FullBaseDir, finddata, outputLine, printOwner, owner);
+		ok = PrintFullEntry(FullBaseDir, finddata, outputLine, printOwner, owner);
 	}
 	else
 	{
 		DWORD lastLength = outputLine->getByteLength();
 		outputLine->appendf(L"\\%s\r\n", finddata->cFileName);
-		outputLine->writeBuffer_keepBuffer();
+		ok = outputLine->writeBuffer_keepBuffer();
 		outputLine->setByteLength(lastLength);
 	}
+	return ok;
 }
 
-void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine, bool printOwner, LPCWSTR owner)
+BOOL PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *outputLine, bool printOwner, LPCWSTR owner)
 {
 	SYSTEMTIME localTime;
 
@@ -66,9 +68,9 @@ void PrintFullEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *ou
 		outputLine->appendf(L"%s\t", owner);
 	}
 
-	outputLine->append(FullBaseDir->str, FullBaseDir->len);
-	outputLine->appendf(L"\\%s\r\n", finddata->cFileName);
-	outputLine->writeBuffer();
+			outputLine->append(FullBaseDir->str, FullBaseDir->len);
+			outputLine->appendf(L"\\%s\r\n", finddata->cFileName);
+	return	outputLine->writeBuffer();
 }
 
 BOOL ConvertFiletimeToLocalTime(const FILETIME *filetime, SYSTEMTIME *localTime)

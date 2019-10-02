@@ -70,9 +70,9 @@ typedef struct _DirEntryC {
 } DirEntryC;
 
 
-void ProcessDirectory(DirEntryC *item, ParallelExec<DirEntryC, Context,LineWriter> *executor, Context *ctx, LineWriter*);
-void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *lineWriter);
-void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter, bool printFull, bool printOwner);
+BOOL ProcessDirectory(DirEntryC *item, ParallelExec<DirEntryC, Context,LineWriter> *executor, Context *ctx, LineWriter*);
+BOOL ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *lineWriter);
+BOOL PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter, bool printFull, bool printOwner);
 void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize);
 void WriteExtensions(LPCWSTR filename, const Extensions *ext);
 DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir);

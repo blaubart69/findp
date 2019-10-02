@@ -3,12 +3,12 @@
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth);
 void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out);
 
-void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context, LineWriter> *executor, Context *ctx, LineWriter *outputLine)
+BOOL ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context, LineWriter> *executor, Context *ctx, LineWriter *outputLine)
 {
 	outputLine->reset();
 	outputLine->append(dirToEnum->fullDirname.str, dirToEnum->fullDirname.len);
 
-	EnumDir(
+	BOOL ok = EnumDir(
 		  dirToEnum->fullDirname.str
 		, dirToEnum->fullDirname.len
 		, FindExInfoBasic
@@ -33,10 +33,13 @@ void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context, Lin
 				li.LowPart  = finddata->nFileSizeLow;
 				InterlockedAdd64(&(ctx->stats.sumFileSize), li.QuadPart);
 			}
-			ProcessEntry(&dirToEnum->fullDirname, finddata, ctx, outputLine);
+			// TRUE to go on with enumeartion, FALSE to cancel
+			return ProcessEntry(&dirToEnum->fullDirname, finddata, ctx, outputLine);
 		});
 
 	HeapFree(GetProcessHeap(), 0, dirToEnum);
+
+	return ok;
 }
 
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth)

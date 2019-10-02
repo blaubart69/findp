@@ -1,7 +1,7 @@
 #pragma once
 
 template<typename finddataCallback>
-void EnumDir(LPWSTR fulldir, DWORD fulldirLength, FINDEX_INFO_LEVELS infoLevels, finddataCallback OnDirEntry)
+BOOL EnumDir(LPWSTR fulldir, DWORD fulldirLength, FINDEX_INFO_LEVELS infoLevels, finddataCallback OnDirEntry)
 {
 	HANDLE hSearch;
 	DWORD  dwError = NO_ERROR;
@@ -23,23 +23,24 @@ void EnumDir(LPWSTR fulldir, DWORD fulldirLength, FINDEX_INFO_LEVELS infoLevels,
 	{
 		dwError = GetLastError();
 		Log::Instance()->win32err(L"FindFirstFile", fulldir);
-		return;
+		return FALSE;
 	}
 
+	BOOL goOnWithEnum = TRUE;
 	do
 	{
 		if (!IsDotDir(FindBuffer.cFileName, FindBuffer.dwFileAttributes))
 		{
-			OnDirEntry(&FindBuffer);
+			goOnWithEnum = OnDirEntry(&FindBuffer);
 		}
 
-		if (!FindNextFile(hSearch, &FindBuffer))
+		if (goOnWithEnum && !FindNextFile(hSearch, &FindBuffer))
 		{
 			dwError = GetLastError();
 		}
-	} while (dwError != ERROR_NO_MORE_FILES);
+	} while (goOnWithEnum && dwError != ERROR_NO_MORE_FILES);
 
-	if (dwError != ERROR_NO_MORE_FILES)
+	if (goOnWithEnum && dwError != ERROR_NO_MORE_FILES)
 	{
 		Log::Instance()->win32err(L"FindNextFile", fulldir);
 	}
@@ -49,5 +50,6 @@ void EnumDir(LPWSTR fulldir, DWORD fulldirLength, FINDEX_INFO_LEVELS infoLevels,
 		FindClose(hSearch);
 	}
 
+	return goOnWithEnum; // FALSE means enumeration has been canceled
 }
 
