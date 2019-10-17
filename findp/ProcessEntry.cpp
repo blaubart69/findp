@@ -7,7 +7,7 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 	li.LowPart  = finddata->nFileSizeLow;
 
 	bool matched;
-	if ( ctx->opts.FilenameSubstringPattern != NULL && isFile(finddata->dwFileAttributes) )
+	if ( ctx->opts.FilenameSubstringPattern != NULL )
 	{
 		matched = StrStrIW(finddata->cFileName, ctx->opts.FilenameSubstringPattern) != NULL;
 		if (matched)
@@ -24,7 +24,7 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 	if (!ctx->opts.sum)
 	{
 		if (    ctx->opts.FilenameSubstringPattern == NULL
-			|| (ctx->opts.FilenameSubstringPattern != NULL && matched && isFile(finddata->dwFileAttributes)))
+			|| (ctx->opts.FilenameSubstringPattern != NULL && matched ))
 		{
 			if (   (ctx->opts.emit == EmitType::Both)
 				|| (ctx->opts.emit == EmitType::Files && isFile     (finddata->dwFileAttributes))
