@@ -98,7 +98,8 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 void PrintUsage(void)
 {
 	Log::Instance()->inf(
-		L"usage: findp.exe [OPTIONS] {directory}"
+		  L"v1.0.1"
+		L"\nusage: findp.exe [OPTIONS] {directory}"
 		L"\nOptions:"
 		L"\n  -f              ... print date, attributes, filesize, fullname"
 		L"\n  -o              ... print owner when used with -f"
@@ -109,7 +110,7 @@ void PrintUsage(void)
 		L"\n  -v              ... verbose/debug"
 		L"\n  -h              ... show this help"
 		L"\n  -t {f|d|b}      ... emit what  (files|directory|both) default: files"
-		L"\n  -m {pattern}	  ... substring to match within filename. case insensitive"
+		L"\n  -m {pattern}	  ... substring to match within name. case insensitive. Not in full path."
 		L"\n  -d {depth}      ... how many directories to go down"
 		L"\n  -x {threads}	  ... threads to start for parallel enumerations"
 		L"\n"
