@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-void PrintUsage(void);
+void PrintUsage(int);
 
 WCHAR g_dotDir[2];
 
@@ -40,10 +40,6 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 						 {
 							 opts->ExtsFilename = argv[++i];
 						 }
-						 else
-						 {
-							 opts->ExtsFilename = L".\\exts.txt";
-						 }
 					 }
 					 break;
 				 case L'f': opts->printFull	 = true;		break;
@@ -63,7 +59,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 
 	 if (showHelp)
 	 {
-		 PrintUsage();
+		 PrintUsage(opts->ThreadsToUse);
 		 return 4;
 	 }
 
@@ -95,7 +91,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 
 	 return 0;
 }
-void PrintUsage(void)
+void PrintUsage(int threadsToUse)
 {
 	Log::Instance()->inf(
 		  L"v1.0.1"
@@ -104,7 +100,7 @@ void PrintUsage(void)
 		L"\n  -f              ... print date, attributes, filesize, fullname"
 		L"\n  -o              ... print owner when used with -f"
 		L"\n  -s              ... sum dirs, files, filesize. don't print filenames"
-		L"\n  -e [filename]   ... group extensions sum(filesizes), sum(files). default filename: .\\exts.txt (UTF-8)"
+		L"\n  -e [filename]   ... group extensions. 3 columns TAB separated: CountFiles | SumFilesize | Extension (UTF-8)"
 		L"\n  -p              ... show progress"
 		L"\n  -j              ... follow directory junctions"
 		L"\n  -v              ... verbose/debug"
@@ -112,12 +108,12 @@ void PrintUsage(void)
 		L"\n  -t {f|d|b}      ... emit what  (files|directory|both) default: files"
 		L"\n  -m {pattern}	  ... substring to match within name. case insensitive. Not in full path."
 		L"\n  -d {depth}      ... how many directories to go down"
-		L"\n  -x {threads}	  ... threads to start for parallel enumerations"
+		L"\n  -x {threads}	  ... threads to start for parallel enumerations. default: %d"
 		L"\n"
 		L"\nprepend   \\\\?\\   if you want to have long path support."
 		L"\nSamples:"
 		L"\n"
 		L"\n          \\\\?\\UNC\\{server}\\{share} for network paths"
 		L"\nfindp.exe \\\\?\\c:\\windows"
-	);
+	, threadsToUse);
 }

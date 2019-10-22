@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 
-void WriteExtensions(const Extensions *ext, LineWriter* writer)
+void WriteExtensionsItems(const Extensions *ext, LineWriter* writer)
 {
 	HT_STATS stats;
 	DWORD itemCount = MikeHT_ForEach(
@@ -25,15 +25,21 @@ void WriteExtensions(LPCWSTR filename, const Extensions *ext)
 {
 	HANDLE fp;
 
-	fp = CreateFileW(
-		filename
-		, GENERIC_WRITE
-		, FILE_SHARE_READ
-		, NULL
-		, CREATE_ALWAYS
-		, FILE_ATTRIBUTE_NORMAL
-		, NULL);
-
+	if (filename == NULL)
+	{
+		fp = GetStdHandle(STD_OUTPUT_HANDLE);
+	}
+	else
+	{
+		fp = CreateFileW(
+			filename
+			, GENERIC_WRITE
+			, FILE_SHARE_READ
+			, NULL
+			, CREATE_ALWAYS
+			, FILE_ATTRIBUTE_NORMAL
+			, NULL);
+	}
 	if (fp == INVALID_HANDLE_VALUE)
 	{
 		Log::Instance()->win32err(L"CreateFileW", filename);
@@ -42,9 +48,17 @@ void WriteExtensions(LPCWSTR filename, const Extensions *ext)
 
 	LineWriter utf8writer(fp, CP_UTF8, 1024, Log::win32errfunc);
 
-	utf8writer.appendUTF8BOM();
-	WriteExtensions(ext, &utf8writer);
-	CloseHandle(fp);
+	if (filename != NULL)
+	{
+		utf8writer.appendUTF8BOM();
+	}
+	
+	WriteExtensionsItems(ext, &utf8writer);
+	
+	if (filename != NULL)
+	{
+		CloseHandle(fp);
+	}
 
 	Log::Instance()->inf(L"Extensions: 3 columns TAB separated (UTF8-BOM): (CountFiles | SumFilesize | Extension). written to file %s.", filename);
 }
