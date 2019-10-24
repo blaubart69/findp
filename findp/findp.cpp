@@ -98,18 +98,18 @@ void printStats(Stats *stats, bool printMatched)
 	WCHAR humanSize[32];
 
 	logger->write(
-	   L"dirs/files/filesize"
-	   L"\t%I64u/%I64u/%s",
+	   L"dirs, files, filesize, humansize\t%I64u %I64u %I64u %s",
 		stats->dirs,
 		stats->files,
+		stats->sumFileSize,
 		StrFormatByteSizeW(stats->sumFileSize, humanSize, 32));
 
 	if (printMatched)
 	{
 		logger->write(
-			L" | matched files/filesize"
-			L" %I64u/%s",
+			L" | matched files, filesize, humansize\t%I64u %I64u %s",
 			stats->filesMatched,
+			stats->sumFileSizeMatched,
 			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32));
 	}
 
