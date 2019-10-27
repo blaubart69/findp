@@ -7,7 +7,8 @@ Lots of speedup when scanning shares via network.
 + search filename by substring
 + group and sum by extension
 
-```usage: findp.exe [OPTIONS] {directory}
+```
+usage: findp.exe [OPTIONS] {directory}
 Options:
   -f              ... print date, attributes, filesize, fullname
   -o              ... print owner when used with -f
@@ -26,4 +27,5 @@ prepend   \\?\   if you want to have long path support.
 Samples:
 
           \\?\UNC\{server}\{share} for network paths
-findp.exe \\?\c:\windows```
+findp.exe \\?\c:\windows
+```
