@@ -9,6 +9,7 @@ void EnumDir(LPWSTR fulldir, DWORD fulldirLength, FINDEX_INFO_LEVELS infoLevels,
 
 	lstrcpy(fulldir + fulldirLength, L"\\*");
 	
+#ifdef _M_AMD64 
 	hSearch = FindFirstFileEx(
 		fulldir
 		, infoLevels
@@ -16,6 +17,16 @@ void EnumDir(LPWSTR fulldir, DWORD fulldirLength, FINDEX_INFO_LEVELS infoLevels,
 		, FindExSearchNameMatch
 		, NULL
 		, FIND_FIRST_EX_LARGE_FETCH);
+#else
+	hSearch = FindFirstFileEx(
+		fulldir
+		, infoLevels
+		, &FindBuffer
+		, FindExSearchNameMatch
+		, NULL
+		, 0);
+#endif // _M_AMD64 
+
 
 	fulldir[fulldirLength] = L'\0';
 
