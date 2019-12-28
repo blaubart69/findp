@@ -55,6 +55,8 @@ struct Options
 	EmitType emit;
 	LPWSTR extToSearch;
 	int extToSearchLen;
+	FINDEX_INFO_LEVELS findex_info_level;
+	DWORD			   findex_dwAdditionalFlags;
 };
 
 struct Context

@@ -11,7 +11,8 @@ void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context, Lin
 	EnumDir(
 		  dirToEnum->fullDirname.str
 		, dirToEnum->fullDirname.len
-		, FindExInfoBasic
+		, ctx->opts.findex_info_level
+		, ctx->opts.findex_dwAdditionalFlags
 		, [dirToEnum, executor, ctx, &outputLine](WIN32_FIND_DATA *finddata)
 		{
 			if ( isDirectory(finddata->dwFileAttributes) )

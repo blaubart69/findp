@@ -1,7 +1,12 @@
 #pragma once
 
 template<typename finddataCallback>
-void EnumDir(LPWSTR fulldir, DWORD fulldirLength, FINDEX_INFO_LEVELS infoLevels, finddataCallback OnDirEntry)
+void EnumDir(
+	LPWSTR fulldir, 
+	DWORD fulldirLength, 
+	FINDEX_INFO_LEVELS infoLevels, 
+	DWORD findex_dwAdditionalFlags, 
+	finddataCallback OnDirEntry)
 {
 	HANDLE hSearch;
 	DWORD  dwError = NO_ERROR;
@@ -9,24 +14,13 @@ void EnumDir(LPWSTR fulldir, DWORD fulldirLength, FINDEX_INFO_LEVELS infoLevels,
 
 	lstrcpy(fulldir + fulldirLength, L"\\*");
 	
-#ifdef _M_AMD64 
-	hSearch = FindFirstFileEx(
+	hSearch = FindFirstFileExW(
 		fulldir
 		, infoLevels
 		, &FindBuffer
 		, FindExSearchNameMatch
 		, NULL
-		, FIND_FIRST_EX_LARGE_FETCH);
-#else
-	hSearch = FindFirstFileEx(
-		fulldir
-		, infoLevels
-		, &FindBuffer
-		, FindExSearchNameMatch
-		, NULL
-		, 0);
-#endif // _M_AMD64 
-
+		, findex_dwAdditionalFlags);
 
 	fulldir[fulldirLength] = L'\0';
 
