@@ -14,6 +14,10 @@ struct Extensions
 {
 	HT* extsHashtable;
 
+	Extensions() : Extensions(17)
+	{
+	}
+
 	Extensions(DWORD HastableSize)
 	{
 		//DWORD HastableSize = 65537;
@@ -49,6 +53,8 @@ struct Options
 	bool printFull;
 	bool printOwner;
 	EmitType emit;
+	LPWSTR extToSearch;
+	int extToSearchLen;
 };
 
 struct Context

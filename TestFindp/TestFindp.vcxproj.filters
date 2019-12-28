@@ -5,6 +5,7 @@
     <ClCompile Include="TestMikeHash.cpp" />
     <ClCompile Include="TestProcessExtension.cpp" />
     <ClCompile Include="TestToUpper.cpp" />
+    <ClCompile Include="TestEndsWiths.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -39,9 +40,6 @@
     <Object Include="..\findp\x64\Debug\ProcessDirectory.obj">
       <Filter>obj</Filter>
     </Object>
-    <Object Include="..\findp\x64\Debug\PrintEntry.obj">
-      <Filter>obj</Filter>
-    </Object>
     <Object Include="..\findp\x64\Debug\MikeHash.obj">
       <Filter>obj</Filter>
     </Object>
@@ -61,6 +59,12 @@
       <Filter>obj</Filter>
     </Object>
     <Object Include="..\findp\x64\Debug\StringBuilder.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\PrintEntry.obj">
+      <Filter>obj</Filter>
+    </Object>
+    <Object Include="..\findp\x64\Debug\owner.obj">
       <Filter>obj</Filter>
     </Object>
   </ItemGroup>

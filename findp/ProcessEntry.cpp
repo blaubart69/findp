@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+
 void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *outputLine)
 {
 	ULARGE_INTEGER li;
@@ -7,24 +8,36 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 	li.LowPart  = finddata->nFileSizeLow;
 
 	bool matched;
-	if ( ctx->opts.FilenameSubstringPattern != NULL )
+	if (   ctx->opts.FilenameSubstringPattern	== NULL
+		&& ctx->opts.extToSearch				== NULL)
 	{
-		matched = StrStrIW(finddata->cFileName, ctx->opts.FilenameSubstringPattern) != NULL;
-		if (matched)
-		{
-			InterlockedIncrement64(&ctx->stats.filesMatched);
-			InterlockedAdd64(&ctx->stats.sumFileSizeMatched, li.QuadPart);
-		}
+		matched = true;
 	}
 	else
 	{
-		matched = true;
+		matched = false;
+
+		if (ctx->opts.FilenameSubstringPattern != NULL)
+		{
+			matched |= StrStrIW(finddata->cFileName, ctx->opts.FilenameSubstringPattern) != NULL;
+		}
+		if (ctx->opts.extToSearch != NULL && ! matched)
+		{
+			int filenameLen = lstrlenW(finddata->cFileName);
+			matched |= endsWith(finddata->cFileName,	filenameLen, 
+								 ctx->opts.extToSearch, ctx->opts.extToSearchLen);
+		}
+	}
+
+	if (matched)
+	{
+		InterlockedIncrement64(&ctx->stats.filesMatched);
+		InterlockedAdd64(&ctx->stats.sumFileSizeMatched, li.QuadPart);
 	}
 
 	if (!ctx->opts.sum)
 	{
-		if (    ctx->opts.FilenameSubstringPattern == NULL
-			|| (ctx->opts.FilenameSubstringPattern != NULL && matched ))
+		if ( matched )
 		{
 			if (   (ctx->opts.emit == EmitType::Both)
 				|| (ctx->opts.emit == EmitType::Files && isFile     (finddata->dwFileAttributes))
@@ -40,3 +53,4 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 		ProcessExtension(ctx->ext, finddata->cFileName, li.QuadPart);
 	}
 }
+

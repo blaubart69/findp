@@ -68,7 +68,7 @@ TEST(MikeHashTable, TraverseTable) {
 	MikeHT_Insert(ht, L"doc", 3);
 	MikeHT_Insert(ht, L"doc", 4);
 
-	DWORD itemCount = MikeHT_ForEach(ht, [](LPWSTR Key, LONGLONG Val, auto ctx) {}, NULL, NULL);
+	DWORD itemCount = MikeHT_ForEach(ht, [](LPWSTR Key, LONGLONG Val, auto count, auto ctx) {}, NULL, NULL);
 	EXPECT_EQ(2, itemCount);
 
 	MikeHT_Free(ht);
@@ -85,7 +85,7 @@ TEST(MikeHashTable, TraverseTable_3_items) {
 	MikeHT_Insert(ht, L"doc", 4);
 	MikeHT_Insert(ht, L"docxl", 4);
 
-	DWORD itemCount = MikeHT_ForEach(ht, [](LPWSTR Key, LONGLONG Val, auto ctx) {}, NULL, NULL);
+	DWORD itemCount = MikeHT_ForEach(ht, [](LPWSTR Key, LONGLONG Val, auto count, auto ctx) {}, NULL, NULL);
 	EXPECT_EQ(3, itemCount);
 
 	MikeHT_Free(ht);
