@@ -19,7 +19,7 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 
 		if (ctx->opts.FilenameSubstringPattern != NULL)
 		{
-			matched |= StrStrIW(finddata->cFileName, ctx->opts.FilenameSubstringPattern) != NULL;
+			matched = StrStrIW(finddata->cFileName, ctx->opts.FilenameSubstringPattern) != NULL;
 		}
 		if (ctx->opts.extToSearch != NULL && ! matched)
 		{
@@ -32,7 +32,7 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 	if (matched)
 	{
 		InterlockedIncrement64(&ctx->stats.filesMatched);
-		InterlockedAdd64(&ctx->stats.sumFileSizeMatched, li.QuadPart);
+		InterlockedAdd64      (&ctx->stats.sumFileSizeMatched, li.QuadPart);
 	}
 
 	if (!ctx->opts.sum)

@@ -111,7 +111,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 void PrintUsage(int threadsToUse)
 {
 	Log::Instance()->inf(
-		  L"v1.0.4"
+		  L"v1.0.5"
 		L"\nusage: findp.exe [OPTIONS] {directory}"
 		L"\nOptions:"
 		L"\n  -f              ... print date, attributes, filesize, fullname"

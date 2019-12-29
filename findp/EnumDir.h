@@ -27,7 +27,7 @@ void EnumDir(
 	if (hSearch == INVALID_HANDLE_VALUE)
 	{
 		dwError = GetLastError();
-		Log::Instance()->win32err(L"FindFirstFile", fulldir);
+		Log::Instance()->win32err(L"FindFirstFileExW", fulldir);
 		return;
 	}
 
@@ -53,6 +53,5 @@ void EnumDir(
 	{
 		FindClose(hSearch);
 	}
-
 }
 

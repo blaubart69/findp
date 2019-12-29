@@ -78,7 +78,9 @@ int beeMain(int argc, wchar_t *argv[])
 		}
 	}
 
-	printStats(&ctx.stats, ctx.opts.FilenameSubstringPattern != NULL);
+	bool printMatched = ctx.opts.FilenameSubstringPattern != NULL || ctx.opts.extToSearch != NULL;
+	printStats(&ctx.stats, printMatched);
+	
 	if (ctx.opts.SumUpExtensions)
 	{
 		WriteExtensions(ctx.opts.ExtsFilename, ctx.ext);
@@ -100,7 +102,7 @@ void printStats(Stats *stats, bool printMatched)
 {
 	WCHAR humanSize[32];
 
-	logger->write(
+	logger->writeLine(
 	   L"dirs, files, filesize, humansize\t%I64u %I64u %I64u %s",
 		stats->dirs,
 		stats->files,
@@ -109,14 +111,12 @@ void printStats(Stats *stats, bool printMatched)
 
 	if (printMatched)
 	{
-		logger->write(
-			L" | matched files, filesize, humansize\t%I64u %I64u %s",
+		logger->writeLine(
+			L"matched files, filesize, humansize\t%I64u %I64u %s",
 			stats->filesMatched,
 			stats->sumFileSizeMatched,
 			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32));
 	}
-
-	logger->writeLine(L"");
 }
 
 bool CheckIfDirectory(LPCWSTR dirname)
