@@ -48,7 +48,7 @@ struct Options
 	bool followJunctions;
 	int maxDepth;
 	int ThreadsToUse;
-	bool SumUpExtensions;
+	bool GroupExtensions;
 	LPCWSTR ExtsFilename;
 	bool printFull;
 	bool printOwner;

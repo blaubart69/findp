@@ -12,7 +12,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	opts->followJunctions = false;
 	opts->FilenameSubstringPattern = NULL;
 	opts->ThreadsToUse = 32;
-	opts->SumUpExtensions = false;
+	opts->GroupExtensions = false;
 	opts->ExtsFilename = NULL;
 	opts->rootDir = NULL;
 	opts->printFull = false;
@@ -53,7 +53,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 					}
 					break;
 				 case L'e':
-					 opts->SumUpExtensions = true;
+					 opts->GroupExtensions = true;
 					 if (i + 1 < argc)
 					 {
 						 if (argv[i + 1][0] != L'-')

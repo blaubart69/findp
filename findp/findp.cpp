@@ -35,7 +35,7 @@ int beeMain(int argc, wchar_t *argv[])
 		return 4;
 	}
 
-	if (ctx.opts.SumUpExtensions)
+	if (ctx.opts.GroupExtensions)
 	{
 		ctx.ext = new Extensions(16411);
 	}
@@ -81,7 +81,7 @@ int beeMain(int argc, wchar_t *argv[])
 	bool printMatched = ctx.opts.FilenameSubstringPattern != NULL || ctx.opts.extToSearch != NULL;
 	printStats(&ctx.stats, printMatched);
 	
-	if (ctx.opts.SumUpExtensions)
+	if (ctx.opts.GroupExtensions)
 	{
 		WriteExtensions(ctx.opts.ExtsFilename, ctx.ext);
 		delete ctx.ext;
