@@ -102,17 +102,18 @@ void printStats(Stats *stats, bool printMatched)
 {
 	WCHAR humanSize[32];
 
-	logger->writeLine(
-	   L"dirs, files, filesize, humansize\t%I64u %I64u %I64u %s",
-		stats->dirs,
+	LPCWSTR seenf    = L"seen    files, filesize, humansize, dirs\t%6I64u %12I64u %s %I64u";
+	LPCWSTR matchedf = L"matched files, filesize, humansize      \t%6I64u %12I64u %s";
+
+	logger->writeLine(seenf,
 		stats->files,
 		stats->sumFileSize,
-		StrFormatByteSizeW(stats->sumFileSize, humanSize, 32));
+		StrFormatByteSizeW(stats->sumFileSize, humanSize, 32),
+		stats->dirs);
 
 	if (printMatched)
 	{
-		logger->writeLine(
-			L"matched files, filesize, humansize\t%I64u %I64u %s",
+		logger->writeLine(matchedf,
 			stats->filesMatched,
 			stats->sumFileSizeMatched,
 			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32));
