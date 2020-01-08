@@ -4,7 +4,8 @@ directory enumeration in parallel
 Start FindFirstFile in multiple threads to speed up enumeration.
 Lots of speedup when scanning shares via network.
 
-+ search filename by substring
++ match filename by substring
++ match by extension
 + group and sum by extension
 
 ```
@@ -20,12 +21,12 @@ Options:
   -h              ... show this help
   -t {f|d|b}      ... emit what  (files|directory|both) default: files
   -m {pattern}    ... substring to match within name. case insensitive. Not in full path.
+  -x {extension}  ... extension to matvh
   -d {depth}      ... how many directories to go down
-  -x {threads}    ... threads to start for parallel enumerations. default: 32
+  -z {threads}    ... threads to start for parallel enumerations. default: 32
 
 prepend   \\?\   if you want to have long path support.
 Samples:
 
           \\?\UNC\{server}\{share} for network paths
-findp.exe \\?\c:\windows
-```
+findp.exe \\?\c:\windows```

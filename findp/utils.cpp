@@ -72,3 +72,38 @@ void ReadKey()
 		}
 	} while (true);
 }
+
+bool endsWith(LPCWSTR string, int cchStringLen, LPCWSTR endToMatch, int cchEndLen)
+{
+	if (cchEndLen > cchStringLen)
+	{
+		return false;
+	}
+
+	int idxToStartCompare = cchStringLen - cchEndLen;
+
+	int cmp = CompareStringW(
+		NULL							//lpLocalName
+		, NORM_IGNORECASE				// dwCmpFlags
+		, &(string[idxToStartCompare])	// lpString1
+		, cchEndLen						// cchCount1
+		, endToMatch					// lpString2
+		, cchEndLen						// cchCount2
+	);
+
+	if (cmp == 0)
+	{
+		Log::win32errfunc(L"CompareStringW", string);
+		return false;
+	}
+
+	return cmp == CSTR_EQUAL;
+}
+bool endsWith(LPCWSTR string, LPCWSTR endToMatch)
+{
+	return endsWith(
+		  string
+		, lstrlenW(string)
+		, endToMatch
+		, lstrlenW(endToMatch));
+}

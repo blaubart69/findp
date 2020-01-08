@@ -1,7 +1,12 @@
 #pragma once
 
 template<typename finddataCallback>
-void EnumDir(LPWSTR fulldir, DWORD fulldirLength, FINDEX_INFO_LEVELS infoLevels, finddataCallback OnDirEntry)
+void EnumDir(
+	LPWSTR fulldir, 
+	DWORD fulldirLength, 
+	FINDEX_INFO_LEVELS infoLevels, 
+	DWORD findex_dwAdditionalFlags, 
+	finddataCallback OnDirEntry)
 {
 	HANDLE hSearch;
 	DWORD  dwError = NO_ERROR;
@@ -9,20 +14,20 @@ void EnumDir(LPWSTR fulldir, DWORD fulldirLength, FINDEX_INFO_LEVELS infoLevels,
 
 	lstrcpy(fulldir + fulldirLength, L"\\*");
 	
-	hSearch = FindFirstFileEx(
+	hSearch = FindFirstFileExW(
 		fulldir
 		, infoLevels
 		, &FindBuffer
 		, FindExSearchNameMatch
 		, NULL
-		, FIND_FIRST_EX_LARGE_FETCH);
+		, findex_dwAdditionalFlags);
 
 	fulldir[fulldirLength] = L'\0';
 
 	if (hSearch == INVALID_HANDLE_VALUE)
 	{
 		dwError = GetLastError();
-		Log::Instance()->win32err(L"FindFirstFile", fulldir);
+		Log::Instance()->win32err(L"FindFirstFileExW", fulldir);
 		return;
 	}
 
@@ -48,6 +53,5 @@ void EnumDir(LPWSTR fulldir, DWORD fulldirLength, FINDEX_INFO_LEVELS infoLevels,
 	{
 		FindClose(hSearch);
 	}
-
 }
 

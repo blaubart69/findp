@@ -14,6 +14,10 @@ struct Extensions
 {
 	HT* extsHashtable;
 
+	Extensions() : Extensions(17)
+	{
+	}
+
 	Extensions(DWORD HastableSize)
 	{
 		//DWORD HastableSize = 65537;
@@ -44,11 +48,15 @@ struct Options
 	bool followJunctions;
 	int maxDepth;
 	int ThreadsToUse;
-	bool SumUpExtensions;
+	bool GroupExtensions;
 	LPCWSTR ExtsFilename;
 	bool printFull;
 	bool printOwner;
 	EmitType emit;
+	LPWSTR extToSearch;
+	int extToSearchLen;
+	FINDEX_INFO_LEVELS findex_info_level;
+	DWORD			   findex_dwAdditionalFlags;
 };
 
 struct Context

@@ -36,6 +36,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="TestEndsWiths.cpp" />
     <ClCompile Include="TestMikeHash.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -61,6 +62,7 @@
     <Object Include="..\findp\x64\Debug\LineWriter.obj" />
     <Object Include="..\findp\x64\Debug\Log.obj" />
     <Object Include="..\findp\x64\Debug\MikeHash.obj" />
+    <Object Include="..\findp\x64\Debug\owner.obj" />
     <Object Include="..\findp\x64\Debug\PrintEntry.obj" />
     <Object Include="..\findp\x64\Debug\ProcessDirectory.obj" />
     <Object Include="..\findp\x64\Debug\ProcessEntry.obj" />

@@ -8,6 +8,7 @@ Log* logger;
 void printStats(Stats *stats, bool printMatched);
 void printProgress(const ParallelExec<DirEntryC, Context, LineWriter>* executor);
 bool CheckIfDirectory(LPCWSTR dirname);
+void GetFindExParametersForWindowsVersions(FINDEX_INFO_LEVELS* findex_info_level, DWORD* findex_dwAdditionalFlags);
 
 //int wmain(int argc, wchar_t *argv[])
 int beeMain(int argc, wchar_t *argv[])
@@ -22,9 +23,11 @@ int beeMain(int argc, wchar_t *argv[])
 		return rc;
 	}
 
+	GetFindExParametersForWindowsVersions(&ctx.opts.findex_info_level, &ctx.opts.findex_dwAdditionalFlags);
+
 	if (!TryToSetPrivilege(SE_BACKUP_NAME, TRUE))
 	{
-		logger->wrn(L"could not set privilege SE_BACKUP_NAME");
+		logger->dbg(L"could not set privilege SE_BACKUP_NAME");
 	}
 
 	if (!CheckIfDirectory(ctx.opts.rootDir))
@@ -32,7 +35,7 @@ int beeMain(int argc, wchar_t *argv[])
 		return 4;
 	}
 
-	if (ctx.opts.SumUpExtensions)
+	if (ctx.opts.GroupExtensions)
 	{
 		ctx.ext = new Extensions(16411);
 	}
@@ -75,8 +78,10 @@ int beeMain(int argc, wchar_t *argv[])
 		}
 	}
 
-	printStats(&ctx.stats, ctx.opts.FilenameSubstringPattern != NULL);
-	if (ctx.opts.SumUpExtensions)
+	bool printMatched = ctx.opts.FilenameSubstringPattern != NULL || ctx.opts.extToSearch != NULL;
+	printStats(&ctx.stats, printMatched);
+	
+	if (ctx.opts.GroupExtensions)
 	{
 		WriteExtensions(ctx.opts.ExtsFilename, ctx.ext);
 		delete ctx.ext;
@@ -97,23 +102,22 @@ void printStats(Stats *stats, bool printMatched)
 {
 	WCHAR humanSize[32];
 
-	logger->write(
-	   L"dirs, files, filesize, humansize\t%I64u %I64u %I64u %s",
-		stats->dirs,
+	LPCWSTR seenf    = L"seen    files, filesize, humansize, dirs\t%6I64u %12I64u %s %I64u";
+	LPCWSTR matchedf = L"matched files, filesize, humansize      \t%6I64u %12I64u %s";
+
+	logger->writeLine(seenf,
 		stats->files,
 		stats->sumFileSize,
-		StrFormatByteSizeW(stats->sumFileSize, humanSize, 32));
+		StrFormatByteSizeW(stats->sumFileSize, humanSize, 32),
+		stats->dirs);
 
 	if (printMatched)
 	{
-		logger->write(
-			L" | matched files, filesize, humansize\t%I64u %I64u %s",
+		logger->writeLine(matchedf,
 			stats->filesMatched,
 			stats->sumFileSizeMatched,
 			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32));
 	}
-
-	logger->writeLine(L"");
 }
 
 bool CheckIfDirectory(LPCWSTR dirname)
@@ -139,4 +143,60 @@ bool CheckIfDirectory(LPCWSTR dirname)
 	}
 
 	return rc;
+}
+/*
+Windows 8.1					6.3*
+Windows Server 2012 R2		6.3*
+Windows 8					6.2
+Windows Server 2012			6.2
+Windows 7					6.1
+Windows Server 2008 R2		6.1
+Windows Server 2008			6.0
+Windows Vista				6.0
+Windows Server 2003 R2		5.2
+Windows Server 2003			5.2
+Windows XP 64-Bit Edition	5.2
+Windows XP					5.1
+Windows 2000				5.0
+*/
+
+extern "C" {
+
+	#undef RtlFillMemory
+	__declspec(dllimport) VOID __stdcall RtlFillMemory(
+		_Out_ VOID UNALIGNED* Destination,
+		_In_  SIZE_T         Length,
+		_In_  UCHAR          Fill
+	);
+}
+
+void GetFindExParametersForWindowsVersions(FINDEX_INFO_LEVELS* findex_info_level, DWORD* findex_dwAdditionalFlags)
+{
+	OSVERSIONINFO osvi;
+
+	//ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+	RtlFillMemory(&osvi, sizeof(OSVERSIONINFO), 0);
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+	GetVersionEx(&osvi);
+
+	BOOL bIsWindows7orLater =
+	   ( (osvi.dwMajorVersion >  6) ||
+	   ( (osvi.dwMajorVersion == 6) && (osvi.dwMinorVersion >= 1) ));
+
+	logger->dbg(L"Windows version is %d.%d (%d)",
+		osvi.dwMajorVersion,
+		osvi.dwMinorVersion,
+		osvi.dwBuildNumber);
+
+	if ( bIsWindows7orLater )
+	{
+		*findex_info_level        = FindExInfoBasic;
+		*findex_dwAdditionalFlags = FIND_FIRST_EX_LARGE_FETCH;
+	}
+	else
+	{
+		*findex_info_level        = FindExInfoStandard;
+		*findex_dwAdditionalFlags = 0;
+	}
 }
