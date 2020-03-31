@@ -8,6 +8,7 @@ struct Stats
 	__declspec(align(8)) volatile LONGLONG sumFileSize = 0;
 	__declspec(align(8)) volatile LONGLONG sumFileSizeMatched = 0;
 	__declspec(align(8)) volatile LONGLONG enumDone = 0;
+	__declspec(align(8)) volatile LONGLONG errAccessDenied = 0;
 };
 
 struct Extensions

@@ -8,7 +8,7 @@ void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context, Lin
 	outputLine->reset();
 	outputLine->append(dirToEnum->fullDirname.str, dirToEnum->fullDirname.len);
 
-	EnumDir(
+	DWORD errEnumDir = EnumDir(
 		  dirToEnum->fullDirname.str
 		, dirToEnum->fullDirname.len
 		, ctx->opts.findex_info_level
@@ -36,6 +36,11 @@ void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context, Lin
 			}
 			ProcessEntry(&dirToEnum->fullDirname, finddata, ctx, outputLine);
 		});
+
+	if (errEnumDir == ERROR_ACCESS_DENIED)
+	{
+		InterlockedIncrement64(&ctx->stats.errAccessDenied);
+	}
 
 	HeapFree(GetProcessHeap(), 0, dirToEnum);
 }

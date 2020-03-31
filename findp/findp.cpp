@@ -118,6 +118,11 @@ void printStats(Stats *stats, bool printMatched)
 			stats->sumFileSizeMatched,
 			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32));
 	}
+
+	if (stats->errAccessDenied > 0)
+	{
+		logger->writeLine(L"FindFirstFileEx access denied:\t%I64u", stats->errAccessDenied);
+	}
 }
 
 bool CheckIfDirectory(LPCWSTR dirname)
