@@ -46,7 +46,7 @@ void WriteExtensions(LPCWSTR filename, const Extensions *ext)
 		return;
 	}
 
-	LineWriter utf8writer(fp, CP_UTF8, 1024, Log::win32errfunc);
+	LineWriter utf8writer(fp, 1024, Log::win32errfunc);
 
 	if (filename != NULL)
 	{

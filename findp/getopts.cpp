@@ -11,7 +11,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	opts->maxDepth = -1;
 	opts->followJunctions = false;
 	opts->FilenameSubstringPattern = NULL;
-	opts->ThreadsToUse = 32;
+	opts->ThreadsToUse = 16;
 	opts->GroupExtensions = false;
 	opts->ExtsFilename = NULL;
 	opts->rootDir = NULL;
@@ -20,6 +20,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	opts->emit = EmitType::Files;
 	opts->extToSearch = NULL;
 	opts->extToSearchLen = -1;
+	opts->quoteFilename = false;
 
 	 bool showHelp = false;
 	 LPCWSTR tmpEmitType = NULL;
@@ -36,6 +37,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 				 case L'j': opts->followJunctions   = true;	break;
 				 case L'f': opts->printFull	 = true;		break;
 				 case L'o': opts->printOwner = true;		break;
+				 case L'q': opts->quoteFilename = true;		break;
 				 case L'v': Log::Instance()->setLevel(3);	break;
 				 case L't': if ( i+1 < argc) tmpEmitType = argv[++i];								   break;
 				 case L'm': if ( i+1 < argc) opts->FilenameSubstringPattern = argv[++i];			   break;
@@ -111,22 +113,23 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 void PrintUsage(int threadsToUse)
 {
 	Log::Instance()->inf(
-		  L"v1.0.6"
+		  L"v1.0.7"
 		L"\nusage: findp.exe [OPTIONS] {directory}"
 		L"\nOptions:"
 		L"\n  -f              ... print date, attributes, filesize, fullname"
+		L"\n  -q              ... enclose filename in double quotes"
 		L"\n  -o              ... print owner when used with -f"
 		L"\n  -s              ... sum dirs, files, filesize. don't print filenames"
 		L"\n  -e [filename]   ... group extensions. 3 columns TAB separated: CountFiles | SumFilesize | Extension (UTF-8)"
 		L"\n  -p              ... show progress"
 		L"\n  -j              ... follow directory junctions"
 		L"\n  -v              ... verbose/debug"
-		L"\n  -h              ... show this help"
 		L"\n  -t {f|d|b}      ... emit what  (files|directory|both) default: files"
 		L"\n  -m {pattern}	  ... substring to match within name. case insensitive. Not in full path."
 		L"\n  -x {extension}  ... extension to match"
 		L"\n  -d {depth}      ... how many directories to go down"
 		L"\n  -z {threads}	  ... threads to start for parallel enumerations. default: %d"
+		L"\n  -h              ... show this help"
 		L"\n"
 		L"\nprepend   \\\\?\\   if you want to have long path support."
 		L"\nSamples:"

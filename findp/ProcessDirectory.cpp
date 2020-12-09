@@ -6,6 +6,10 @@ void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out);
 void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context, LineWriter> *executor, Context *ctx, LineWriter *outputLine)
 {
 	outputLine->reset();
+	if (ctx->opts.quoteFilename && !ctx->opts.printFull)
+	{
+		outputLine->append(L"\"", 1);
+	}
 	outputLine->append(dirToEnum->fullDirname.str, dirToEnum->fullDirname.len);
 
 	DWORD errEnumDir = EnumDir(

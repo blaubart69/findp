@@ -1,10 +1,21 @@
 #include "stdafx.h"
 
-LineWriter::LineWriter(HANDLE filehandle, UINT codepage, DWORD initialSize, pfWin32Err WinErrFunc)
+LineWriter::LineWriter(HANDLE filehandle, DWORD initialSize, pfWin32Err WinErrFunc)
 	:		_filehandle(filehandle)
 		,	_winErrFunc(WinErrFunc)
 {
-	_builder = new StringBuilder(codepage, initialSize, WinErrFunc);
+	UINT codepageToUse;
+
+	if (GetFileType(filehandle) == FILE_TYPE_DISK)
+	{
+		codepageToUse = CP_UTF8;
+	}
+	else
+	{
+		codepageToUse = GetConsoleOutputCP();
+	}
+
+	_builder = new StringBuilder(codepageToUse, initialSize, WinErrFunc);
 }
 
 LineWriter::~LineWriter()

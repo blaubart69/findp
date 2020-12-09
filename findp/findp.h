@@ -56,6 +56,7 @@ struct Options
 	EmitType emit;
 	LPWSTR extToSearch;
 	int extToSearchLen;
+	bool quoteFilename;
 	FINDEX_INFO_LEVELS findex_info_level;
 	DWORD			   findex_dwAdditionalFlags;
 };
@@ -81,7 +82,7 @@ typedef struct _DirEntryC {
 
 void ProcessDirectory(DirEntryC *item, ParallelExec<DirEntryC, Context,LineWriter> *executor, Context *ctx, LineWriter*);
 void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *lineWriter);
-void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter, bool printFull, bool printOwner);
+void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter, bool printFull, bool printOwner, bool printQuoted);
 void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize);
 void WriteExtensions(LPCWSTR filename, const Extensions *ext);
 DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir);

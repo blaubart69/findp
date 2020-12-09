@@ -51,19 +51,16 @@ int beeMain(int argc, wchar_t *argv[])
 	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (GetFileType(hStdOut) == FILE_TYPE_DISK)
 	{
-		if (GetConsoleOutputCP() == CP_UTF8)
-		{
-			char UTF8BOM[] = { 0xEF, 0xBB, 0xBF };
-			DWORD written;
-			WriteFile(hStdOut, UTF8BOM, 3, &written, NULL);
-		}
+		char UTF8BOM[] = { 0xEF, 0xBB, 0xBF };
+		DWORD written;
+		WriteFile(hStdOut, UTF8BOM, 3, &written, NULL);
 	}
 
 	auto queue    = IOCPQueueImpl<DirEntryC>(ctx.opts.ThreadsToUse);
 	auto executor = 
 		ParallelExec<DirEntryC, Context, LineWriter>(
 			&queue
-			, []() { return new LineWriter(GetStdHandle(STD_OUTPUT_HANDLE), GetConsoleOutputCP(), 512, Log::win32errfunc); }
+			, []() { return new LineWriter(GetStdHandle(STD_OUTPUT_HANDLE), 512, Log::win32errfunc); }
 			, ProcessDirectory
 			, [](LineWriter* usedWriter) { delete usedWriter; }
 			, &ctx

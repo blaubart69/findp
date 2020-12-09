@@ -3,7 +3,7 @@
 class LineWriter
 {
 public:
-	LineWriter(HANDLE filehandle, UINT codepage, DWORD initialSize, pfWin32Err WinErrFunc);
+	LineWriter(HANDLE filehandle, DWORD initialSize, pfWin32Err WinErrFunc);
 	~LineWriter();
 
 	BOOL appendUTF8BOM();
