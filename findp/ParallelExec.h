@@ -1,5 +1,7 @@
 #pragma once
 
+#include "IConcurrentQueue.h"
+
 template<typename T, typename C, typename TLS>
 class ParallelExec
 {

@@ -1,9 +1,10 @@
 #include "stdafx.h"
 
-bool GetOwner(LPCWSTR filename, LPWSTR owner, size_t ownersize)
-{
-	Log* log = Log::Instance();
+#include "LastError.h"
+#include "beewstring.h"
 
+bee::LastError& GetOwner(LPCWSTR filename, bee::wstring* owner, bee::LastError* lastErr)
+{
 	DWORD lenNeeded;
 	BOOL ok;
 
@@ -18,8 +19,8 @@ bool GetOwner(LPCWSTR filename, LPWSTR owner, size_t ownersize)
 	{
 		if (GetLastError() != ERROR_INSUFFICIENT_BUFFER )
 		{
-			log->win32errfunc(L"GetFileSecurityW(call for size)", filename);
-			return false;
+			lastErr->set("GetFileSecurityW(call for size)");
+			return *lastErr;
 		}
 	}
 
@@ -36,17 +37,17 @@ bool GetOwner(LPCWSTR filename, LPWSTR owner, size_t ownersize)
 	);
 	if (!ok)
 	{
-		log->win32errfunc(L"GetFileSecurityW(second call)", filename);
+		lastErr->set("GetFileSecurityW(second call)", filename);
 		LocalFree(pSecDesc);
-		return false;
+		return *lastErr;
 	}
 
 	ok = IsValidSecurityDescriptor(pSecDesc);
 	if (!ok)
 	{
 		LocalFree(pSecDesc);
-		log->win32errfunc(L"IsValidSecurityDescriptor", filename);
-		return false;
+		lastErr->set("IsValidSecurityDescriptor", filename);
+		return *lastErr;
 	}
 
 	PSID psid;
@@ -55,16 +56,16 @@ bool GetOwner(LPCWSTR filename, LPWSTR owner, size_t ownersize)
 	if (!ok)
 	{
 		LocalFree(pSecDesc);
-		log->win32errfunc(L"GetSecurityDescriptorOwner", filename);
-		return false;
+		lastErr->set("GetSecurityDescriptorOwner", filename);
+		return *lastErr;
 	}
 
 	ok = IsValidSid(psid);
 	if (!ok)
 	{
 		LocalFree(pSecDesc);
-		log->err(L"SID is not valid");
-		return false;
+		lastErr->set("SID is not valid");
+		return *lastErr;
 	}
 
 	WCHAR Name[128];
@@ -87,13 +88,13 @@ bool GetOwner(LPCWSTR filename, LPWSTR owner, size_t ownersize)
 	if (!ok)
 	{
 		LocalFree(pSecDesc);
-		log->win32errfunc(L"LookupAccountSidW", filename);
-		return false;
+		lastErr->set("LookupAccountSidW", filename);
+		return *lastErr;
 	}
 	
-	wsprintfW(owner, L"%s\\%s", ReferencedDomainName, Name);
+	owner->sprintf(L"%s\\%s", ReferencedDomainName, Name);
 
 	LocalFree(pSecDesc);
 
-	return ok;
+	return *lastErr;
 }

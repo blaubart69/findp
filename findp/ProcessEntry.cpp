@@ -1,12 +1,95 @@
 #include "stdafx.h"
 
+#include "beewstring.h"
+#include "utils.h"
+#include "findp.h"
 
-void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *outputLine)
+bee::LastError& GetOwner(LPCWSTR filename, bee::wstring* owner, bee::LastError* lastErr);
+
+bee::LastError& ConvertFiletimeToLocalTime(const FILETIME* filetime, SYSTEMTIME* localTime, bee::LastError* lastErr)
 {
-	ULARGE_INTEGER li;
-	li.HighPart = finddata->nFileSizeHigh;
-	li.LowPart  = finddata->nFileSizeLow;
+	SYSTEMTIME UTCSysTime;
+	if (!FileTimeToSystemTime(filetime, &UTCSysTime))
+	{
+		lastErr->set("FileTimeToSystemTime");
+	}
+	else if (!SystemTimeToTzSpecificLocalTime(NULL, &UTCSysTime, localTime))
+	{
+		lastErr->set("FileTimeToSystemTime");
+	}
 
+	return *lastErr;
+}
+
+void Append_Time_Attributes_Size(nt::FILE_DIRECTORY_INFORMATION* finddata, bee::wstring* outBuffer, bee::LastError* lastErr)
+{
+	SYSTEMTIME localTime;
+
+	if (ConvertFiletimeToLocalTime((FILETIME*)&(finddata->LastWriteTime), &localTime, lastErr).failed())
+	{
+		lastErr->print();
+	}
+	else
+	{
+		DWORD attrs = finddata->FileAttributes;
+
+		outBuffer->appendf(
+			L"%04u-%02u-%02u %02u:%02u:%02u"
+			L"\t%c%c%c%c%c%c%c"
+			L"\t%12I64u"
+			L"\t",
+			localTime.wYear, localTime.wMonth, localTime.wDay
+			, localTime.wHour, localTime.wMinute, localTime.wSecond
+			, ((attrs & FILE_ATTRIBUTE_ARCHIVE) != 0) ? L'A' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_SYSTEM) != 0) ? L'S' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_HIDDEN) != 0) ? L'H' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_READONLY) != 0) ? L'R' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_DIRECTORY) != 0) ? L'D' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_ENCRYPTED) != 0) ? L'E' : L'-'
+			, ((attrs & FILE_ATTRIBUTE_COMPRESSED) != 0) ? L'C' : L'-'
+			, finddata->EndOfFile.QuadPart);
+	}
+}
+
+bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, bee::wstring* outBuffer, bool printFull, bool printOwner, bool printQuoted, bee::LastError* lastErr)
+{
+	
+	if (printFull)
+	{
+		Append_Time_Attributes_Size(finddata, outBuffer, lastErr);
+
+		if (printOwner)
+		{
+			bee::wstring owner;
+
+			bee::wstring tmpFullfilename;
+			tmpFullfilename.assign(FullBaseDir);
+			tmpFullfilename.push_back(L'\\');
+			tmpFullfilename.append(finddata->FileName, finddata->FileNameLength / sizeof(WCHAR));
+
+			if (GetOwner(tmpFullfilename.c_str(), &owner, lastErr).failed())
+			{
+				owner.assign(L"n/a");
+			}
+
+			outBuffer->push_back(L'\t');
+			outBuffer->append(owner);
+			outBuffer->push_back(L'\t');
+		}
+	}
+
+	outBuffer->append(FullBaseDir);
+	outBuffer->push_back(L'\\');
+	outBuffer->append(finddata->FileName, finddata->FileNameLength / sizeof(WCHAR));
+	outBuffer->appendW(L"\r\n");
+	
+	return *lastErr;
+	
+}
+
+
+void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, Context* ctx, bee::wstring* outBuffer, bee::LastError* lastErr)
+{
 	bool matched;
 	if (   ctx->opts.FilenameSubstringPattern	== NULL
 		&& ctx->opts.extToSearch				== NULL)
@@ -19,12 +102,12 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 
 		if (ctx->opts.FilenameSubstringPattern != NULL)
 		{
-			matched = StrStrIW(finddata->cFileName, ctx->opts.FilenameSubstringPattern) != NULL;
+			matched = StrStrIW(finddata->FileName, ctx->opts.FilenameSubstringPattern) != NULL;
 		}
 		if (ctx->opts.extToSearch != NULL && ! matched)
 		{
-			int filenameLen = lstrlenW(finddata->cFileName);
-			matched |= endsWith(finddata->cFileName,	filenameLen, 
+			int filenameLen = lstrlenW(finddata->FileName);
+			matched |= endsWith(finddata->FileName,	filenameLen, 
 								 ctx->opts.extToSearch, ctx->opts.extToSearchLen);
 		}
 	}
@@ -32,7 +115,7 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 	if (matched)
 	{
 		InterlockedIncrement64(&ctx->stats.filesMatched);
-		InterlockedAdd64      (&ctx->stats.sumFileSizeMatched, li.QuadPart);
+		InterlockedAdd64      (&ctx->stats.sumFileSizeMatched, finddata->EndOfFile.QuadPart);
 	}
 
 	if (!ctx->opts.sum)
@@ -40,17 +123,17 @@ void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, Li
 		if ( matched )
 		{
 			if (   (ctx->opts.emit == EmitType::Both)
-				|| (ctx->opts.emit == EmitType::Files && isFile     (finddata->dwFileAttributes))
-				|| (ctx->opts.emit == EmitType::Dirs  && isDirectory(finddata->dwFileAttributes))  )
+				|| (ctx->opts.emit == EmitType::Files && isFile     (finddata->FileAttributes))
+				|| (ctx->opts.emit == EmitType::Dirs  && isDirectory(finddata->FileAttributes))  )
 			{
-				PrintEntry(FullBaseDir, finddata, outputLine, ctx->opts.printFull, ctx->opts.printOwner, ctx->opts.quoteFilename);
+				PrintEntry(FullBaseDir, finddata, outBuffer, ctx->opts.printFull, ctx->opts.printOwner, ctx->opts.quoteFilename, lastErr);
 			}
 		}
 	}
 
-	if (ctx->opts.GroupExtensions && isFile(finddata->dwFileAttributes) )
+	if (ctx->opts.GroupExtensions && isFile(finddata->FileAttributes) )
 	{
-		ProcessExtension(ctx->ext, finddata->cFileName, li.QuadPart);
+		ProcessExtension(ctx->ext, finddata->FileName, finddata->EndOfFile.QuadPart);
 	}
 }
 

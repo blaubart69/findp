@@ -93,7 +93,8 @@ bool endsWith(LPCWSTR string, int cchStringLen, LPCWSTR endToMatch, int cchEndLe
 
 	if (cmp == 0)
 	{
-		Log::win32errfunc(L"CompareStringW", string);
+		// TODO
+		//Log::win32errfunc(L"CompareStringW", string);
 		return false;
 	}
 

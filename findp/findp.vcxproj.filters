@@ -33,16 +33,10 @@
     <ClInclude Include="IOCPQueueImpl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Log.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="findp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MikeHash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnumDir.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils.h">
@@ -51,10 +45,22 @@
     <ClInclude Include="beeLib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StringBuilder.h">
+    <ClInclude Include="NtEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LineWriter.h">
+    <ClInclude Include="nt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="beevector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="beewstring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LastError.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Write.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -63,9 +69,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="findp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="getopts.cpp">
@@ -80,9 +83,6 @@
     <ClCompile Include="TrySetPrivilege.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PrintEntry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ProcessExtension.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -95,19 +95,16 @@
     <ClCompile Include="utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CommandLineToArgv2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="beeLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StringBuilder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LineWriter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="owner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LastError.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Write.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

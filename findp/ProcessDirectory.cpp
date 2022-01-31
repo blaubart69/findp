@@ -1,52 +1,84 @@
 #include "stdafx.h"
 
+#include "nt.h"
+#include "NtEnum.h"
+#include "findp.h"
+#include "ParallelExec.h"
+#include "utils.h"
+#include "beewstring.h"
+#include "LastError.h"
+
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth);
-void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out);
+//void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out);
 
-void ProcessDirectory(DirEntryC *dirToEnum, ParallelExec<DirEntryC, Context, LineWriter> *executor, Context *ctx, LineWriter *outputLine)
+void ProcessDirectory(DirectoryToProcess *dirToEnum, ParallelExec<DirectoryToProcess, Context, TLS> *executor, Context *ctx, TLS *tls)
 {
-	outputLine->reset();
-	if (ctx->opts.quoteFilename && !ctx->opts.printFull)
-	{
-		outputLine->append(L"\"", 1);
-	}
-	outputLine->append(dirToEnum->fullDirname.str, dirToEnum->fullDirname.len);
+	nt::NTSTATUS ntstatus;
 
-	DWORD errEnumDir = EnumDir(
-		  dirToEnum->fullDirname.str
-		, dirToEnum->fullDirname.len
-		, ctx->opts.findex_info_level
-		, ctx->opts.findex_dwAdditionalFlags
-		, [dirToEnum, executor, ctx, &outputLine](WIN32_FIND_DATA *finddata)
+	HANDLE hDirectory;
+	if ( ! NT_SUCCESS(ntstatus = openSubDir(
+		&hDirectory
+		, dirToEnum->parentHandle == nullptr ? nullptr : dirToEnum->parentHandle->handle
+		, dirToEnum->directoryToEnum.data()
+		, dirToEnum->directoryToEnum.length() * sizeof(WCHAR))))
+	{
+		// TODO
+	}
+	else
+	{
+		auto currentDirectoryHandle = std::make_shared<SafeHandle>(hDirectory);
+		auto currentFullDir         = std::make_shared<bee::wstring>();
+
+		if (dirToEnum->parentDirectory == nullptr)
 		{
-			if ( isDirectory(finddata->dwFileAttributes) )
-			{
-				InterlockedIncrement64(&(ctx->stats.dirs));
+			currentFullDir->assign(dirToEnum->directoryToEnum);
+		}
+		else
+		{
+			currentFullDir->assign( *(dirToEnum->parentDirectory) );
+			currentFullDir->push_back(L'\\');
+			currentFullDir->append(dirToEnum->directoryToEnum);
+		}
 
-				if (EnterDir(finddata->dwFileAttributes, ctx->opts.followJunctions, dirToEnum->depth, ctx->opts.maxDepth))
+		bee::LastError lastErr;
+
+		DWORD errEnumDir = NtEnumDirectory(
+			  hDirectory
+			, tls->findBuffer.data()
+			, tls->findBuffer.size()
+			, [&](nt::FILE_DIRECTORY_INFORMATION* finddata)
+			{
+				if (isDirectory(finddata->FileAttributes))
 				{
-					DirEntryC* newEntry = CreateDirEntryC(dirToEnum, finddata->cFileName);
-					executor->EnqueueWork(newEntry);
+					InterlockedIncrement64(&(ctx->stats.dirs));
+
+					if (EnterDir(finddata->FileAttributes, ctx->opts.followJunctions, dirToEnum->depth, ctx->opts.maxDepth))
+					{
+						executor->EnqueueWork(
+							new DirectoryToProcess(
+								  currentDirectoryHandle
+								, currentFullDir
+								, &(finddata->FileName[0])
+								, (size_t)finddata->FileNameLength
+								, dirToEnum->depth + 1
+								));
+					}
 				}
-			}
-			else
-			{
-				InterlockedIncrement64(&(ctx->stats.files));
+				else // FILE
+				{
+					InterlockedIncrement64(&(ctx->stats.files));
+					InterlockedAdd64(      &(ctx->stats.sumFileSize), finddata->EndOfFile.QuadPart);
+				}
+				ProcessEntry(*currentFullDir, finddata, ctx, &tls->outBuffer, &lastErr);
+			});
 
-				LARGE_INTEGER li;
-				li.HighPart = finddata->nFileSizeHigh;
-				li.LowPart  = finddata->nFileSizeLow;
-				InterlockedAdd64(&(ctx->stats.sumFileSize), li.QuadPart);
-			}
-			ProcessEntry(&dirToEnum->fullDirname, finddata, ctx, outputLine);
-		});
-
-	if (errEnumDir == ERROR_ACCESS_DENIED)
-	{
-		InterlockedIncrement64(&ctx->stats.errAccessDenied);
+		if (errEnumDir == ERROR_ACCESS_DENIED)
+		{
+			InterlockedIncrement64(&ctx->stats.errAccessDenied);
+		}
 	}
 
-	HeapFree(GetProcessHeap(), 0, dirToEnum);
+	delete dirToEnum;
 }
 
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth)
@@ -73,6 +105,7 @@ bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int m
 
 }
 
+/*
 DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir)
 {
 	DWORD newFullDirLen = 
@@ -110,3 +143,5 @@ void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out)
 	}
 	lstrcpy(out, toAppend);
 }
+
+*/

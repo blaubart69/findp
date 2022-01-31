@@ -5,6 +5,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <shellapi.h>
 
 #include "beeLib.h"
 
@@ -62,7 +63,7 @@ void rawmain(void)
 {
 	int argc;
 	LPTSTR* argv;
-	argv = CommandLineToArgv2(GetCommandLineW(), &argc);
+	argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
 	int Exitcode = beeMain(argc, argv);
 

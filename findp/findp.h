@@ -1,5 +1,11 @@
 #pragma once
 
+#include "beevector.h"
+#include "beewstring.h"
+#include "MikeHash.h"
+#include "LastError.h"
+#include "ParallelExec.h"
+
 struct Stats
 {
 	__declspec(align(8)) volatile LONGLONG files = 0;
@@ -23,13 +29,13 @@ struct Extensions
 	{
 		//DWORD HastableSize = 65537;
 		extsHashtable = MikeHT_Init(HastableSize);
-		Log::Instance()->dbg(L"extension hashtable init with %d array size", HastableSize);
+		//Log::Instance()->dbg(L"extension hashtable init with %d array size", HastableSize);
 	}
 
 	~Extensions()
 	{
 		DWORD numberElementsFreed = MikeHT_Free(extsHashtable);
-		Log::Instance()->dbg(L"extension hashtable free'd (%d elements)", numberElementsFreed);
+		//Log::Instance()->dbg(L"extension hashtable free'd (%d elements)", numberElementsFreed);
 	}
 };
 
@@ -42,7 +48,7 @@ enum EmitType
 
 struct Options
 {
-	LPWSTR rootDir;
+	LPCWSTR rootDir;
 	LPCWSTR FilenameSubstringPattern;
 	bool sum;
 	bool progress;
@@ -57,36 +63,79 @@ struct Options
 	LPWSTR extToSearch;
 	int extToSearchLen;
 	bool quoteFilename;
-	FINDEX_INFO_LEVELS findex_info_level;
-	DWORD			   findex_dwAdditionalFlags;
 };
 
 struct Context
 {
-	Stats	stats;
-	Options opts;
-	Extensions* ext;
+	Stats		 stats;
+	Options		 opts;
+	Extensions*  ext;
 };
 
+/*
 typedef struct _LSTR
 {
 	DWORD	len;
 	WCHAR	str[1];
 } LSTR;
+*/
 
-typedef struct _DirEntryC {
-	int		depth;
-	LSTR	fullDirname;
-} DirEntryC;
+class SafeHandle
+{
+public:
+	const HANDLE handle;
 
+	SafeHandle(HANDLE h) : handle(h) {};
+	~SafeHandle()
+	{
+		if (handle != nullptr)
+		{
+			CloseHandle(handle);
+		}
+	}
+};
 
-void ProcessDirectory(DirEntryC *item, ParallelExec<DirEntryC, Context,LineWriter> *executor, Context *ctx, LineWriter*);
-void ProcessEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, Context *ctx, LineWriter *lineWriter);
-void PrintEntry(LSTR *FullBaseDir, WIN32_FIND_DATA *finddata, LineWriter *lineWriter, bool printFull, bool printOwner, bool printQuoted);
+class DirectoryToProcess {
+public:
+	std::shared_ptr<SafeHandle>		parentHandle;
+	std::shared_ptr<bee::wstring>	parentDirectory;
+	bee::wstring					directoryToEnum;
+	int								depth;
+
+	DirectoryToProcess(
+		  const std::shared_ptr<SafeHandle>& parentHandle
+		, const std::shared_ptr<bee::wstring>& parentDirectory
+		, LPCWSTR directoryToEnum
+		, size_t  cbDirectoryToEnum
+		, int depth)
+
+		: depth(depth)
+		, parentHandle(parentHandle)
+		, parentDirectory(parentDirectory)
+		, directoryToEnum(directoryToEnum, cbDirectoryToEnum / sizeof(WCHAR) )
+	{
+	}
+};
+
+class TLS
+{
+public:
+	bee::vector<BYTE>		findBuffer;
+	bee::wstring			outBuffer;
+
+	TLS()
+	{
+		findBuffer.resize(32 * 1024);
+	}
+};
+
+void ProcessDirectory(DirectoryToProcess *item, ParallelExec<DirectoryToProcess, Context, TLS> *executor, Context *ctx, TLS*);
+void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, Context* ctx, bee::wstring* outBuffer, bee::LastError* lastErr);
+bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, bee::wstring* outBuffer, bool printFull, bool printOwner, bool printQuoted, bee::LastError* lastErr);
 void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize);
 void WriteExtensions(LPCWSTR filename, const Extensions *ext);
-DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir);
+//DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir);
 int getopts(int argc, wchar_t *argv[], Options* opts);
 BOOL TryToSetPrivilege(LPCWSTR szPrivilege, BOOL bEnablePrivilege);
-bool GetOwner(LPCWSTR filename, LPWSTR owner, size_t ownersize);
+bee::LastError& GetOwner(LPCWSTR filename, bee::wstring* owner, bee::LastError* lastErr);
 

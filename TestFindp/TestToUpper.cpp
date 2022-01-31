@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "..\findp\utils.h"
+
 TEST(TestUpper, TestString) {
 
 	WCHAR x[] = L"berni";

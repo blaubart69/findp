@@ -1,8 +1,11 @@
 #include "stdafx.h"
 
+#include "Write.h"
+#include "findp.h"
+
 void PrintUsage(int);
 
-WCHAR g_dotDir[2];
+//WCHAR g_dotDir[2];
 
 int getopts(int argc, wchar_t *argv[], Options* opts)
 {
@@ -38,7 +41,6 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 				 case L'f': opts->printFull	 = true;		break;
 				 case L'o': opts->printOwner = true;		break;
 				 case L'q': opts->quoteFilename = true;		break;
-				 case L'v': Log::Instance()->setLevel(3);	break;
 				 case L't': if ( i+1 < argc) tmpEmitType = argv[++i];								   break;
 				 case L'm': if ( i+1 < argc) opts->FilenameSubstringPattern = argv[++i];			   break;
 				 case L'd': if ( i+1 < argc) opts->maxDepth     = StrToInt((const wchar_t*)argv[++i]); break;
@@ -78,32 +80,13 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 		 return 4;
 	 }
 
-	 if (opts->rootDir == NULL)
-	 {
-		 /*
-		 Log::Instance()->err(L"no directory given");;
-		 PrintUsage();
-		 return 2;
-		 */
-		 lstrcpyW(g_dotDir, L".");
-		 opts->rootDir = g_dotDir;
-	 }
-
-	 if (opts->FilenameSubstringPattern != NULL)
-	 {
-		 Log::Instance()->dbg(L"pattern parsed: %s", opts->FilenameSubstringPattern);
-	 }
-	 if (opts->extToSearch != NULL)
-	 {
-		 Log::Instance()->dbg(L"extension to search, len: %s, %d", opts->extToSearch, opts->extToSearchLen);
-	 }
 
 	 if (tmpEmitType != NULL)
 	 {
 		 switch ( LOWORD(CharLowerW((LPWSTR)tmpEmitType[0])) )
 		 {
-		 case L'd': opts->emit = EmitType::Dirs; break;
-		 case L'b': opts->emit = EmitType::Both; break;
+		 case L'd': opts->emit = EmitType::Dirs;  break;
+		 case L'b': opts->emit = EmitType::Both;  break;
 		 case L'f': opts->emit = EmitType::Files; break;
 		 }
 	 }
@@ -112,8 +95,8 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 }
 void PrintUsage(int threadsToUse)
 {
-	Log::Instance()->inf(
-		  L"v1.0.7"
+	bee::Writer::Out().Write(
+		L"v2.0.0"
 		L"\nusage: findp.exe [OPTIONS] {directory}"
 		L"\nOptions:"
 		L"\n  -f              ... print date, attributes, filesize, fullname"
@@ -123,18 +106,16 @@ void PrintUsage(int threadsToUse)
 		L"\n  -e [filename]   ... group extensions. 3 columns TAB separated: CountFiles | SumFilesize | Extension (UTF-8)"
 		L"\n  -p              ... show progress"
 		L"\n  -j              ... follow directory junctions"
-		L"\n  -v              ... verbose/debug"
 		L"\n  -t {f|d|b}      ... emit what  (files|directory|both) default: files"
 		L"\n  -m {pattern}	  ... substring to match within name. case insensitive. Not in full path."
 		L"\n  -x {extension}  ... extension to match"
 		L"\n  -d {depth}      ... how many directories to go down"
-		L"\n  -z {threads}	  ... threads to start for parallel enumerations. default: %d"
+		L"\n  -z {threads}	  ... threads to start for parallel enumerations. default: 16"
 		L"\n  -h              ... show this help"
 		L"\n"
 		L"\nprepend   \\\\?\\   if you want to have long path support."
 		L"\nSamples:"
 		L"\n"
 		L"\n          \\\\?\\UNC\\{server}\\{share} for network paths"
-		L"\nfindp.exe \\\\?\\c:\\windows"
-	, threadsToUse);
+		L"\nfindp.exe \\\\?\\c:\\windows");
 }
