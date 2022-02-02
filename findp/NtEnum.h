@@ -61,13 +61,12 @@ nt::NTSTATUS openSubDir(PHANDLE hSubDir, HANDLE hParentDir, PWSTR filename, ULON
 
 	return NtOpenFile(
 		hSubDir
-		, GENERIC_READ // ACCESS_MASK
+		, FILE_LIST_DIRECTORY // ACCESS_MASK
 		, &oAttr
 		, &io_status_block
-		, FILE_SHARE_READ
+		, 0 // FILE_SHARE_READ
 		, FILE_DIRECTORY_FILE | FILE_OPEN_FOR_BACKUP_INTENT);
 }
-
 
 #define STATUS_SUCCESS                   ((nt::NTSTATUS)0x00000000L)    // ntsubauth
 #define STATUS_NO_MORE_FILES             ((nt::NTSTATUS)0x80000006L)

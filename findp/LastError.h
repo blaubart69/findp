@@ -83,6 +83,16 @@ namespace bee
 			return *this;
 		}
 
+		LastError& param_append(const bee::wstring& additionalInfo)
+		{
+			if (_param == nullptr)
+			{
+				_param = new wstring;
+			}
+			_param->append(additionalInfo);
+			return *this;
+		}
+
 		DWORD code(void) { return _rc; }
 		void print(void);
 	};

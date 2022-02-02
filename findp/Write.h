@@ -21,6 +21,7 @@ namespace bee
 		LastError* Write(const wstring& str, LastError* err);
 		void       Write(const wstring& str);
 		void	   Write(const wchar_t* format, ...);
+		void       WriteLine(const wstring& str);
 
 		static Writer& Out()
 		{

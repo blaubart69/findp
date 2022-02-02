@@ -9,7 +9,29 @@
 #include "LastError.h"
 #include "Write.h"
 
-bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth);
+bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth)
+{
+	bool enterDir = true;
+
+	if (maxDepth > -1)
+	{
+		if (currDepth + 1 > maxDepth)
+		{
+			return false;
+		}
+	}
+
+	if ((dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0)
+	{
+		if (!FollowJunctions)
+		{
+			enterDir = false;
+		}
+	}
+
+	return enterDir;
+
+}
 
 bee::LastError& OpenDirectoryHandle(DirectoryToProcess* dirToEnum, PHANDLE hDirectory, bee::LastError* err)
 {
@@ -17,8 +39,8 @@ bee::LastError& OpenDirectoryHandle(DirectoryToProcess* dirToEnum, PHANDLE hDire
 	{
 		if ((*hDirectory = CreateFileW(
 			dirToEnum->directory.c_str()
-			, GENERIC_READ
-			, FILE_SHARE_READ
+			, 0
+			, 0 // FILE_SHARE_READ
 			, NULL
 			, OPEN_EXISTING
 			, FILE_FLAG_BACKUP_SEMANTICS
@@ -45,18 +67,26 @@ bee::LastError& OpenDirectoryHandle(DirectoryToProcess* dirToEnum, PHANDLE hDire
 
 DWORD RunEnumeration(HANDLE hDirectory, DirectoryToProcess* dirToEnum, ParallelExec<DirectoryToProcess, Context, TLS>* executor, Context* ctx, TLS* tls)
 {
-	auto currentDirectoryHandle = std::make_shared<SafeHandle>(hDirectory);
-	auto currentFullDir         = std::make_shared<bee::wstring>();
+	std::shared_ptr<SafeHandle>   currentDirectoryHandle = std::make_shared<SafeHandle>(hDirectory);
+	std::shared_ptr<bee::wstring> currentFullDir; 
 
-	if (dirToEnum->parentDirectory == nullptr)
+	//if (!ctx->opts.sum)
 	{
-		currentFullDir->assign(dirToEnum->directory);
-	}
-	else
-	{
-		currentFullDir->assign(*dirToEnum->parentDirectory);
-		currentFullDir->push_back(L'\\');
-		currentFullDir->append(dirToEnum->directory);
+		currentFullDir = std::make_shared<bee::wstring>();
+		if (dirToEnum->parentDirectory == nullptr)
+		{
+			currentFullDir->assign(dirToEnum->directory);
+			if (currentFullDir->ends_with(L'\\'))
+			{
+				currentFullDir->resize(currentFullDir->length() - 1);
+			}
+		}
+		else
+		{
+			currentFullDir->assign(*dirToEnum->parentDirectory);
+			currentFullDir->push_back(L'\\');
+			currentFullDir->append(dirToEnum->directory);
+		}
 	}
 
 	bee::LastError lastErr;
@@ -118,6 +148,12 @@ void ProcessDirectory(DirectoryToProcess *dirToEnum, ParallelExec<DirectoryToPro
 		}
 		else
 		{
+			if (dirToEnum->parentDirectory != nullptr)
+			{
+				err.param_append(L" (");
+				err.param_append(*dirToEnum->parentDirectory);
+				err.param_append(L")");
+			}
 			err.print();
 		}
 	}
@@ -126,73 +162,14 @@ void ProcessDirectory(DirectoryToProcess *dirToEnum, ParallelExec<DirectoryToPro
 #ifdef _DEBUG
 		InterlockedIncrement64(&g_HandleOpen);
 #endif
-		RunEnumeration(hDirectory, dirToEnum, executor, ctx, tls);
+		DWORD rc;
+		if ((rc = RunEnumeration(hDirectory, dirToEnum, executor, ctx, tls)) != 0)
+		{
+			//bee::Writer::Out().Write(L"rc: %d NtQueryDirectoryFile\n", rc);
+			err.func("NtQueryDirectoryFile").rc(rc).print();
+		}
 	}
 
 	delete dirToEnum;
 }
 
-bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth)
-{
-	bool enterDir = true;
-
-	if (maxDepth > -1)
-	{
-		if (currDepth + 1 > maxDepth)
-		{
-			return false;
-		}
-	}
-
-	if ((dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0)
-	{
-		if (!FollowJunctions)
-		{
-			enterDir = false;
-		}
-	}
-
-	return enterDir;
-
-}
-
-/*
-DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir)
-{
-	DWORD newFullDirLen = 
-		  (parent == NULL ? 0 : parent->fullDirname.len + 1 ) // +1 == \ in between 
-		+ lstrlen(currentDir);
-
-	DWORD sizeToAlloc =
-		  sizeof(DirEntryC)
-		+ (		newFullDirLen 
-			+	  2		// to append "\*" for searching 
-		  ) * sizeof(WCHAR);
-
-	DirEntryC* newEntry;
-	if ((newEntry = (DirEntryC*)HeapAlloc(GetProcessHeap(), 0, sizeToAlloc)) == NULL)
-	{
-		Log::Instance()->win32err(L"HeapAlloc");
-	}
-	else
-	{
-		newEntry->depth				= parent == NULL ? 0 : parent->depth + 1;
-		newEntry->fullDirname.len	= newFullDirLen;
-		ConcatDirs(parent == NULL ? NULL : &parent->fullDirname, currentDir, newEntry->fullDirname.str);
-	}
-	return newEntry;
-}
-
-void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out)
-{
-	if (basedir != NULL)
-	{
-		lstrcpy(out, basedir->str);
-		out += basedir->len;
-		*out = L'\\';
-		out++;
-	}
-	lstrcpy(out, toAppend);
-}
-
-*/

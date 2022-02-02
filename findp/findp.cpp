@@ -44,8 +44,10 @@ int beeMain(int argc, wchar_t *argv[])
 {
 	int rc;
 
+#ifdef _DEBUG
 	g_HandleOpen = 0;
 	g_HandleClose = 0;
+#endif
 
 	Context ctx;
 	if ((rc = getopts(argc, argv, &ctx.opts)) != 0)
@@ -70,8 +72,6 @@ int beeMain(int argc, wchar_t *argv[])
 	{
 		ctx.ext = new Extensions(16411);
 	}
-
-	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	auto queue    = IOCPQueueImpl<DirectoryToProcess>(ctx.opts.ThreadsToUse);
 	auto executor = 

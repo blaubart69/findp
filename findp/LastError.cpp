@@ -10,8 +10,14 @@ namespace bee
 		wstring buf;
 		buf.appendW(L"E ");
 		buf.append_ll(_rc);
-		buf.push_back(L'\t'); buf.appendA(_func);
-		buf.push_back(L'\t'); buf.append(*_param);
+		if (_func != nullptr)
+		{
+			buf.push_back(L'\t').appendA(_func);
+		}
+		if (_param != nullptr)
+		{
+			buf.push_back(L'\t').append(*_param);
+		}
 		buf.push_back('\n');
 
 		LastError err;
