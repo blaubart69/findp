@@ -262,3 +262,4 @@ __pycache__/
 /ntdll_custom.lib
 /ntdll_custom.exp
 /ntdll_custom.def
+*.lib
