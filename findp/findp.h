@@ -99,20 +99,20 @@ class DirectoryToProcess {
 public:
 	std::shared_ptr<SafeHandle>		parentHandle;
 	std::shared_ptr<bee::wstring>	parentDirectory;
-	bee::wstring					directoryToEnum;
+	bee::wstring					directory;
 	int								depth;
 
 	DirectoryToProcess(
 		  const std::shared_ptr<SafeHandle>& parentHandle
 		, const std::shared_ptr<bee::wstring>& parentDirectory
-		, LPCWSTR directoryToEnum
+		, LPCWSTR directory
 		, size_t  cbDirectoryToEnum
 		, int depth)
 
 		: depth(depth)
 		, parentHandle(parentHandle)
 		, parentDirectory(parentDirectory)
-		, directoryToEnum(directoryToEnum, cbDirectoryToEnum / sizeof(WCHAR) )
+		, directory(directory, cbDirectoryToEnum / sizeof(WCHAR) )
 	{
 	}
 };

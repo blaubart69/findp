@@ -9,73 +9,107 @@
 #include "LastError.h"
 
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth);
-//void ConcatDirs(const LSTR *basedir, const LPCWSTR toAppend, LPWSTR out);
 
-void ProcessDirectory(DirectoryToProcess *dirToEnum, ParallelExec<DirectoryToProcess, Context, TLS> *executor, Context *ctx, TLS *tls)
+bee::LastError& OpenDirectoryHandle(DirectoryToProcess* dirToEnum, PHANDLE hDirectory, bee::LastError* err)
 {
-	nt::NTSTATUS ntstatus;
-
-	HANDLE hDirectory;
-	if ( ! NT_SUCCESS(ntstatus = openSubDir(
-		&hDirectory
-		, dirToEnum->parentHandle == nullptr ? nullptr : dirToEnum->parentHandle->handle
-		, dirToEnum->directoryToEnum.data()
-		, dirToEnum->directoryToEnum.length() * sizeof(WCHAR))))
+	if (dirToEnum->parentHandle == nullptr)
 	{
-		bee::LastError().func("NtOpenFile").rc_from_NTSTATUS(ntstatus).param(dirToEnum->directoryToEnum).print();
+		if ((*hDirectory = CreateFileW(
+			dirToEnum->directory.c_str()
+			, GENERIC_READ
+			, FILE_SHARE_READ
+			, NULL
+			, OPEN_EXISTING
+			, FILE_FLAG_BACKUP_SEMANTICS
+			, NULL)) == INVALID_HANDLE_VALUE)
+		{
+			err->func("CreateFileW").param(dirToEnum->directory);
+		}
 	}
 	else
 	{
-		auto currentDirectoryHandle = std::make_shared<SafeHandle>(hDirectory);
-		auto currentFullDir         = std::make_shared<bee::wstring>();
-
-		if (dirToEnum->parentDirectory == nullptr)
-		{
-			currentFullDir->assign(dirToEnum->directoryToEnum);
-		}
-		else
-		{
-			currentFullDir->assign( *(dirToEnum->parentDirectory) );
-			currentFullDir->push_back(L'\\');
-			currentFullDir->append(dirToEnum->directoryToEnum);
-		}
-
-		bee::LastError lastErr;
-
-		DWORD errEnumDir = NtEnumDirectory(
+		nt::NTSTATUS ntstatus;
+		if ( ! NT_SUCCESS(ntstatus = openSubDir(
 			  hDirectory
-			, tls->findBuffer.data()
-			, tls->findBuffer.size()
-			, [&](nt::FILE_DIRECTORY_INFORMATION* finddata)
+			, dirToEnum->parentHandle->handle
+			, dirToEnum->directory.data()
+			, dirToEnum->directory.length() * sizeof(WCHAR))))
+		{
+			err->func("NtOpenFile").rc_from_NTSTATUS(ntstatus).param(dirToEnum->directory);
+		}
+	}
+
+	return *err;
+}
+
+DWORD RunEnumeration(HANDLE hDirectory, DirectoryToProcess* dirToEnum, ParallelExec<DirectoryToProcess, Context, TLS>* executor, Context* ctx, TLS* tls)
+{
+	auto currentDirectoryHandle = std::make_shared<SafeHandle>(hDirectory);
+	auto currentFullDir         = std::make_shared<bee::wstring>();
+
+	if (dirToEnum->parentDirectory == nullptr)
+	{
+		currentFullDir->assign(dirToEnum->directory);
+	}
+	else
+	{
+		currentFullDir->assign(*dirToEnum->parentDirectory);
+		currentFullDir->push_back(L'\\');
+		currentFullDir->append(dirToEnum->directory);
+	}
+
+	bee::LastError lastErr;
+
+	return NtEnumDirectory(
+		hDirectory
+		, tls->findBuffer.data()
+		, tls->findBuffer.size()
+		, [&](nt::FILE_DIRECTORY_INFORMATION* finddata)
+	{
+		if (isDirectory(finddata->FileAttributes))
+		{
+			InterlockedIncrement64(&(ctx->stats.dirs));
+
+			if (EnterDir(finddata->FileAttributes, ctx->opts.followJunctions, dirToEnum->depth, ctx->opts.maxDepth))
 			{
-				if (isDirectory(finddata->FileAttributes))
-				{
-					InterlockedIncrement64(&(ctx->stats.dirs));
+				executor->EnqueueWork(
+					new DirectoryToProcess(
+						currentDirectoryHandle
+						, currentFullDir
+						, &(finddata->FileName[0])
+						, (size_t)finddata->FileNameLength
+						, dirToEnum->depth + 1
+					));
+			}
+		}
+		else // FILE
+		{
+			InterlockedIncrement64(&(ctx->stats.files));
+			InterlockedAdd64(&(ctx->stats.sumFileSize), finddata->EndOfFile.QuadPart);
+		}
+		ProcessEntry(*currentFullDir, finddata, ctx, &tls->outBuffer, &lastErr);
+	});
+}
 
-					if (EnterDir(finddata->FileAttributes, ctx->opts.followJunctions, dirToEnum->depth, ctx->opts.maxDepth))
-					{
-						executor->EnqueueWork(
-							new DirectoryToProcess(
-								  currentDirectoryHandle
-								, currentFullDir
-								, &(finddata->FileName[0])
-								, (size_t)finddata->FileNameLength
-								, dirToEnum->depth + 1
-								));
-					}
-				}
-				else // FILE
-				{
-					InterlockedIncrement64(&(ctx->stats.files));
-					InterlockedAdd64(      &(ctx->stats.sumFileSize), finddata->EndOfFile.QuadPart);
-				}
-				ProcessEntry(*currentFullDir, finddata, ctx, &tls->outBuffer, &lastErr);
-			});
+void ProcessDirectory(DirectoryToProcess *dirToEnum, ParallelExec<DirectoryToProcess, Context, TLS> *executor, Context *ctx, TLS *tls)
+{
+	bee::LastError err;
 
-		if (errEnumDir == ERROR_ACCESS_DENIED)
+	HANDLE hDirectory = nullptr;
+	if ( OpenDirectoryHandle(dirToEnum, &hDirectory, &err).failed() )
+	{
+		if (err.code() == ERROR_ACCESS_DENIED)
 		{
 			InterlockedIncrement64(&ctx->stats.errAccessDenied);
 		}
+		else
+		{
+			err.print();
+		}
+	}
+	else
+	{
+		RunEnumeration(hDirectory, dirToEnum, executor, ctx, tls);
 	}
 
 	delete dirToEnum;

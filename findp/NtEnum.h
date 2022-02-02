@@ -5,31 +5,7 @@
 
 #include "nt.h"
 
-//#include "beevector.h"
-//#include "beewstring.h"
-
-//typedef void (*EntryCallback)(const std::wstring& dir, size_t rootDirLen, FILE_DIRECTORY_INFORMATION* info);
-//typedef std::function<void(bee::wstring& dir, size_t rootDirLen, FILE_DIRECTORY_INFORMATION* info)> EntryCallback_t;
-
 #define FIND_BUF_LENGTH (16*1024)
-
-/*
-template<typename C>
-class NtEnum
-{
-public:
-    NtEnum(const C onEntry) : _pfnOnEntry(onEntry) {}
-	DWORD Run(bee::wstring& dir);
-
-private:
-	bee::wstring		    _dir;
-    size_t                  _rootDirLen;
-	const C	                _pfnOnEntry;
-	bee::vector< BYTE* >	_findBufs;
-
-	DWORD _internal_enum_recurse(const HANDLE hDir, const size_t depth);
-};
-*/
 
 template<class T, class C>
 void walk_NextEntryOffset_buffer(PVOID buf, size_t length, C onEntry)
@@ -62,67 +38,6 @@ bool isDotOrDotDot(const ULONG fileattributes, LPCWSTR filename, const ULONG cbL
 
 	return false;
 }
-
-template<class Fn>
-void walkDirectoryInformation(PVOID buf, size_t length, Fn onFindData)
-{
-	nt::FILE_DIRECTORY_INFORMATION* info = (nt::FILE_DIRECTORY_INFORMATION*)buf;
-
-	for (;;)
-	{
-		if (isDotOrDotDot(info->FileAttributes, info->FileName, info->FileNameLength))
-		{
-		}
-		else
-		{
-			onFindData(info);
-		}
-
-		if (info->NextEntryOffset == 0)
-		{
-			break;
-		}
-		else
-		{
-			info = (nt::FILE_DIRECTORY_INFORMATION*)((char*)info + info->NextEntryOffset);
-		}
-	}
-}
-
-/*
-template<typename C>
-DWORD NtEnum<C>::Run(bee::wstring& dir)
-{
-	DWORD rc = 0;
-
-	HANDLE hDir;
-	if ((hDir = CreateFileW(
-		dir.c_str()
-		, GENERIC_READ
-		, FILE_SHARE_READ
-		, NULL
-		, OPEN_EXISTING
-		, FILE_FLAG_BACKUP_SEMANTICS
-		, NULL)) == INVALID_HANDLE_VALUE)
-	{
-		rc = GetLastError();
-	}
-	else
-	{
-		if (dir.ends_with(L'\\'))
-		{
-			_dir.assign(dir.data(), dir.length() - 1);
-		}
-		else
-		{
-			_dir.assign(dir);
-		}
-		_rootDirLen = dir.length();
-		rc = _internal_enum_recurse(hDir, 0);
-	}
-	return rc;
-}
-*/
 
 //#include "C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\km\wdm.h"
 //#include "C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h"
@@ -205,21 +120,15 @@ DWORD NtEnumDirectory(
 		}
 		else
 		{
-			/*
-			walkDirectoryInformation(
-				buf
-				, io_status_block.Information
-				, [&](nt::FILE_DIRECTORY_INFORMATION* info)
-			{
-					pfnFileDirectoryInformation(info);
-			}); */
-
 			walk_NextEntryOffset_buffer<nt::FILE_DIRECTORY_INFORMATION>(
 				  buf
 				, io_status_block.Information, 
 				[&](nt::FILE_DIRECTORY_INFORMATION* info)
 				{
-					pfnFileDirectoryInformation(info);
+					if (!isDotOrDotDot(info->FileAttributes, info->FileName, info->FileNameLength))
+					{
+						pfnFileDirectoryInformation(info);
+					}
 				});
 		}
 	}

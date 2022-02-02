@@ -87,7 +87,6 @@ bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_I
 	
 }
 
-
 void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, Context* ctx, bee::wstring* outBuffer, bee::LastError* lastErr)
 {
 	bool matched;
@@ -102,12 +101,11 @@ void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATIO
 
 		if (ctx->opts.FilenameSubstringPattern != NULL)
 		{
-			matched = StrStrIW(finddata->FileName, ctx->opts.FilenameSubstringPattern) != NULL;
+			matched = StrStrNIW(finddata->FileName, ctx->opts.FilenameSubstringPattern, finddata->FileNameLength / sizeof(WCHAR)) != NULL;
 		}
 		if (ctx->opts.extToSearch != NULL && ! matched)
 		{
-			int filenameLen = lstrlenW(finddata->FileName);
-			matched |= endsWith(finddata->FileName,	filenameLen, 
+			matched |= endsWith(finddata->FileName,	finddata->FileNameLength / sizeof(WCHAR), 
 								 ctx->opts.extToSearch, ctx->opts.extToSearchLen);
 		}
 	}
