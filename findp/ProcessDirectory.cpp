@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "beewstring.h"
 #include "LastError.h"
+#include "Write.h"
 
 bool EnterDir(DWORD dwFileAttributes, bool FollowJunctions, int currDepth, int maxDepth);
 
@@ -59,8 +60,9 @@ DWORD RunEnumeration(HANDLE hDirectory, DirectoryToProcess* dirToEnum, ParallelE
 	}
 
 	bee::LastError lastErr;
+	tls->outBuffer.resize(0);
 
-	return NtEnumDirectory(
+	DWORD rc = NtEnumDirectory(
 		hDirectory
 		, tls->findBuffer.data()
 		, tls->findBuffer.size()
@@ -88,7 +90,19 @@ DWORD RunEnumeration(HANDLE hDirectory, DirectoryToProcess* dirToEnum, ParallelE
 			InterlockedAdd64(&(ctx->stats.sumFileSize), finddata->EndOfFile.QuadPart);
 		}
 		ProcessEntry(*currentFullDir, finddata, ctx, &tls->outBuffer, &lastErr);
+		if (tls->outBuffer.length() > 4096)
+		{
+			bee::Writer::Out().Write(tls->outBuffer);
+			tls->outBuffer.resize(0);
+		}
 	});
+
+	if (tls->outBuffer.length() > 0)
+	{
+		bee::Writer::Out().Write(tls->outBuffer);
+	}
+
+	return rc;
 }
 
 void ProcessDirectory(DirectoryToProcess *dirToEnum, ParallelExec<DirectoryToProcess, Context, TLS> *executor, Context *ctx, TLS *tls)
@@ -109,6 +123,9 @@ void ProcessDirectory(DirectoryToProcess *dirToEnum, ParallelExec<DirectoryToPro
 	}
 	else
 	{
+#ifdef _DEBUG
+		InterlockedIncrement64(&g_HandleOpen);
+#endif
 		RunEnumeration(hDirectory, dirToEnum, executor, ctx, tls);
 	}
 

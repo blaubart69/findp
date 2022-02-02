@@ -10,6 +10,11 @@
 #include "findp.h"
 #include "utils.h"
 
+#ifdef _DEBUG
+volatile LONGLONG g_HandleOpen;
+volatile LONGLONG g_HandleClose;
+#endif
+
 void printStats(Stats *stats, bool printMatched);
 void printProgress(const ParallelExec<DirectoryToProcess, Context, TLS>* executor);
 bool CheckIfDirectory(LPCWSTR dirname);
@@ -38,6 +43,9 @@ DWORD GetFullName(LPCWSTR filename, bee::wstring* fullname)
 int beeMain(int argc, wchar_t *argv[])
 {
 	int rc;
+
+	g_HandleOpen = 0;
+	g_HandleClose = 0;
 
 	Context ctx;
 	if ((rc = getopts(argc, argv, &ctx.opts)) != 0)
@@ -108,32 +116,34 @@ void printStats(Stats *stats, bool printMatched)
 {
 	WCHAR humanSize[32];
 
-	LPCWSTR seenf    = L"seen    files, filesize, humansize, dirs\t%6I64u %12I64u %s %I64u\n";
-	LPCWSTR matchedf = L"matched files, filesize, humansize      \t%6I64u %12I64u %s\n";
+	LPCWSTR seenf    = L"seen   \t%6I64u %12s (%I64u) %I64u\r\n";
+	LPCWSTR matchedf = L"matched\t%6I64u %12s (%I64u)\r\n";
 
 	bee::wstring tmp;
 
 	tmp.appendf(seenf,
 		stats->files,
-		stats->sumFileSize,
 		StrFormatByteSizeW(stats->sumFileSize, humanSize, 32),
+		stats->sumFileSize,
 		stats->dirs);
 
 	if (printMatched)
 	{
 		tmp.appendf(matchedf,
 			stats->filesMatched,
-			stats->sumFileSizeMatched,
-			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32));
+			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32),
+			stats->sumFileSizeMatched);
 	}
 	bee::Writer::Out().Write(tmp);
 
 	if (stats->errAccessDenied > 0)
 	{
-
-		tmp.sprintf(L"FindFirstFileEx access denied:\t%I64u\n", stats->errAccessDenied);
-		bee::Writer::Err().Write(tmp);
+		bee::Writer::Err().Write(L"access denied:\t%I64u\n", stats->errAccessDenied);
 	}
+#ifdef _DEBUG
+	bee::Writer::Err().Write(L"handles opened/closed\t%I64u/%I64u\n", g_HandleOpen, g_HandleClose);
+#endif
+
 }
 
 bool CheckIfDirectory(LPCWSTR dirname)

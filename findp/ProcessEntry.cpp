@@ -53,7 +53,6 @@ void Append_Time_Attributes_Size(nt::FILE_DIRECTORY_INFORMATION* finddata, bee::
 
 bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, bee::wstring* outBuffer, bool printFull, bool printOwner, bool printQuoted, bee::LastError* lastErr)
 {
-	
 	if (printFull)
 	{
 		Append_Time_Attributes_Size(finddata, outBuffer, lastErr);
@@ -84,7 +83,6 @@ bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_I
 	outBuffer->appendW(L"\r\n");
 	
 	return *lastErr;
-	
 }
 
 void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, Context* ctx, bee::wstring* outBuffer, bee::LastError* lastErr)

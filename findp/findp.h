@@ -80,6 +80,11 @@ typedef struct _LSTR
 } LSTR;
 */
 
+#ifdef _DEBUG
+extern volatile LONGLONG g_HandleOpen;
+extern volatile LONGLONG g_HandleClose;
+#endif
+
 class SafeHandle
 {
 public:
@@ -90,6 +95,9 @@ public:
 	{
 		if (handle != nullptr)
 		{
+#ifdef _DEBUG
+			InterlockedIncrement64(&g_HandleClose);
+#endif
 			CloseHandle(handle);
 		}
 	}
