@@ -65,8 +65,9 @@ namespace bee
 
 		bee:wstring tmp;
 		tmp.vappendf(format, args);
-
 		va_end(args);
+
+		Write(tmp);
 	}
 }
 

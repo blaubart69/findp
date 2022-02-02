@@ -1,6 +1,7 @@
 #pragma once
 
 #include "beewstring.h"
+#include "nt.h"
 
 namespace bee
 {
@@ -34,19 +35,19 @@ namespace bee
 		bool failed() const { return _rc != 0; }
 		bool ok()     const { return _rc == 0; }
 
-		LastError* set(LPCSTR errFunc)
+		LastError& set(LPCSTR errFunc)
 		{
 			_rc = ::GetLastError();
 			_func = errFunc;
-			return this;
+			return *this;
 		}
-		LastError* set(LPCSTR errFunc, DWORD lastError)
+		LastError& set(LPCSTR errFunc, DWORD lastError)
 		{
 			_rc = lastError;
 			_func = errFunc;
-			return this;
+			return *this;
 		}
-		LastError* set(LPCSTR errFunc, const bee::wstring& funcParam)
+		LastError& set(LPCSTR errFunc, const bee::wstring& funcParam)
 		{
 			this->set(errFunc);
 			if (_param == nullptr)
@@ -54,7 +55,32 @@ namespace bee
 				_param = new wstring;
 			}
 			_param->assign(funcParam);
-			return this;
+			return *this;
+		}
+		LastError& rc(DWORD rcToSet)
+		{
+			_rc = rcToSet;
+			return *this;
+		}
+		LastError& rc_from_NTSTATUS(nt::NTSTATUS ntstatus)
+		{
+			_rc = nt::RtlNtStatusToDosError(ntstatus);;
+			return *this;
+		}
+		LastError& func(LPCSTR errFunc)
+		{
+			_rc = ::GetLastError();
+			_func = errFunc;
+			return *this;
+		}
+		LastError& param(const bee::wstring& funcParam)
+		{
+			if (_param == nullptr)
+			{
+				_param = new wstring;
+			}
+			_param->assign(funcParam);
+			return *this;
 		}
 
 		DWORD code(void) { return _rc; }

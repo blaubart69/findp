@@ -22,7 +22,7 @@ void ProcessDirectory(DirectoryToProcess *dirToEnum, ParallelExec<DirectoryToPro
 		, dirToEnum->directoryToEnum.data()
 		, dirToEnum->directoryToEnum.length() * sizeof(WCHAR))))
 	{
-		// TODO
+		bee::LastError().func("NtOpenFile").rc_from_NTSTATUS(ntstatus).param(dirToEnum->directoryToEnum).print();
 	}
 	else
 	{

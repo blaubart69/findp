@@ -138,22 +138,17 @@ void printStats(Stats *stats, bool printMatched)
 
 bool CheckIfDirectory(LPCWSTR dirname)
 {
-	bool rc;
+	bool rc = false;
 	bee::LastError lastErr;
 
 	DWORD rootAttrs = GetFileAttributesW(dirname);
 	if (rootAttrs == INVALID_FILE_ATTRIBUTES)
 	{
-		lastErr.set("GetFileAttributes", dirname);
-		lastErr.print();
-		rc = false;
+		lastErr.set("GetFileAttributes", dirname).print();
 	}
 	else if (!isDirectory(rootAttrs))
 	{
-		bee::wstring tmp;
-		tmp.sprintf(L"not a directory [%s]\n", dirname);
-		bee::Writer::Err().Write(tmp);
-		rc = false;
+		bee::Writer::Err().Write(L"not a directory [%s]\n", dirname);
 	}
 	else
 	{
