@@ -8,6 +8,7 @@
 #include <shellapi.h>
 
 #include "beeLib.h"
+#include "Write.h"
 
 void * __cdecl operator new (size_t size)
 {
@@ -21,15 +22,15 @@ void __cdecl operator delete(void *ptrToRelease, size_t size)
 
 //void __cdecl std::_Xlength_error(char const *) {}
 
-//
-// The _purecall function is a Microsoft-specific implementation detail of the Microsoft Visual C++ compiler. 
-// This function is not intended to be called by your code directly, and it has no public header declaration. 
-// It is documented here because it is a public export of the C Runtime Library.
-// https://msdn.microsoft.com/en-us/library/ff798096.aspx
-//
-extern "C" int __cdecl _purecall() { return -1; }
-
 extern "C" {
+	//
+	// The _purecall function is a Microsoft-specific implementation detail of the Microsoft Visual C++ compiler. 
+	// This function is not intended to be called by your code directly, and it has no public header declaration. 
+	// It is documented here because it is a public export of the C Runtime Library.
+	// https://msdn.microsoft.com/en-us/library/ff798096.aspx
+	//
+	int __cdecl _purecall() { return -1; }
+
 	//__declspec(noreturn) void __cdecl _invalid_parameter_noinfo_noreturn(void) {}
 	
 	//#undef RtlMoveMemory
@@ -57,15 +58,19 @@ extern "C" {
 	//	return destination;
 	//}
 }
-
-
 void rawmain(void)
 {
 	int argc;
 	LPTSTR* argv;
 	argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
+	bee::Out = new bee::Writer(GetStdHandle(STD_OUTPUT_HANDLE));
+	bee::Err = new bee::Writer(GetStdHandle(STD_ERROR_HANDLE));
+
 	int Exitcode = beeMain(argc, argv);
+
+	delete bee::Out;
+	delete bee::Err;
 
 	HeapFree(GetProcessHeap(), 0, argv);
 

@@ -12,8 +12,8 @@ namespace bee
 		vector<char> _array;
 		const HANDLE _fp;
 
-		static Writer* _out;
-		static Writer* _err;
+		//static Writer* _out;
+		//static Writer* _err;
 
 	public:
 		Writer(HANDLE fp) : _fp(fp) {}
@@ -22,7 +22,9 @@ namespace bee
 		void       Write(const wstring& str);
 		void	   Write(const wchar_t* format, ...);
 		void       WriteLine(const wstring& str);
+		void	   WriteA(const char* str);
 
+		/*
 		static Writer& Out()
 		{
 			if (_out == nullptr)
@@ -39,9 +41,12 @@ namespace bee
 			}
 			return *_err;
 		}
+		*/
 	};
 
-	
+	extern Writer* Out;
+	extern Writer* Err;
 
 }
+
 

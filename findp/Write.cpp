@@ -9,8 +9,10 @@ int       __cdecl atexit(void(__cdecl*bumsti)(void))
 
 namespace bee
 {
-	Writer* Writer::_out = nullptr;
-	Writer* Writer::_err = nullptr;
+	//Writer* Writer::_out = nullptr;
+	//Writer* Writer::_err = nullptr;
+	Writer* Out;
+	Writer* Err;
 
 	LastError* Writer::Write(const wstring& str, LastError* err) 
 	{
@@ -75,5 +77,13 @@ namespace bee
 
 		Write(tmp);
 	}
+	//-----------------------------------------------------------------------------
+	void Writer::WriteA(const char* str) {
+	//-----------------------------------------------------------------------------
+		wstring tmp;
+		tmp.appendA(str);
+		Write(tmp);
+	}
+
 }
 

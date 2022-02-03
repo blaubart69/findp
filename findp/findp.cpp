@@ -57,7 +57,7 @@ int beeMain(int argc, wchar_t *argv[])
 
 	if (!TryToSetPrivilege(SE_BACKUP_NAME, TRUE))
 	{
-		bee::Writer::Err().Write(L"could not set privilege SE_BACKUP_NAME\n");
+		bee::Err->Write(L"could not set privilege SE_BACKUP_NAME\n");
 	}
 
 	bee::wstring FullRootDir;
@@ -134,14 +134,14 @@ void printStats(Stats *stats, bool printMatched)
 			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32),
 			stats->sumFileSizeMatched);
 	}
-	bee::Writer::Out().Write(tmp);
+	bee::Out->Write(tmp);
 
 	if (stats->errAccessDenied > 0)
 	{
-		bee::Writer::Err().Write(L"access denied:\t%I64u\n", stats->errAccessDenied);
+		bee::Err->Write(L"access denied:\t%I64u\n", stats->errAccessDenied);
 	}
 #ifdef _DEBUG
-	bee::Writer::Err().Write(L"handles opened/closed\t%I64u/%I64u\n", g_HandleOpen, g_HandleClose);
+	bee::Err->Write(L"handles opened/closed\t%I64u/%I64u\n", g_HandleOpen, g_HandleClose);
 #endif
 
 }
@@ -158,7 +158,7 @@ bool CheckIfDirectory(LPCWSTR dirname)
 	}
 	else if (!isDirectory(rootAttrs))
 	{
-		bee::Writer::Err().Write(L"not a directory [%s]\n", dirname);
+		bee::Err->Write(L"not a directory [%s]\n", dirname);
 	}
 	else
 	{

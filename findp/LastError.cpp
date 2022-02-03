@@ -21,7 +21,7 @@ namespace bee
 		buf.push_back('\n');
 
 		LastError err;
-		if (Writer::Out().Write(buf, &err)->failed())
+		if (Out->Write(buf, &err)->failed())
 		{
 			Beep(400, 2000);
 		}

@@ -122,14 +122,14 @@ DWORD RunEnumeration(HANDLE hDirectory, DirectoryToProcess* dirToEnum, ParallelE
 		ProcessEntry(*currentFullDir, finddata, ctx, &tls->outBuffer, &lastErr);
 		if (tls->outBuffer.length() > 4096)
 		{
-			bee::Writer::Out().Write(tls->outBuffer);
+			bee::Out->Write(tls->outBuffer);
 			tls->outBuffer.resize(0);
 		}
 	});
 
 	if (tls->outBuffer.length() > 0)
 	{
-		bee::Writer::Out().Write(tls->outBuffer);
+		bee::Out->Write(tls->outBuffer);
 	}
 
 	return rc;
