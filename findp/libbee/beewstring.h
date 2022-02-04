@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nt.h"
+#include "../nt.h"
 #include "beeVector.h"
 
 namespace bee

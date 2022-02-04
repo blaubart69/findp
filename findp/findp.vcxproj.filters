@@ -16,6 +16,12 @@
     <Filter Include="Source Files\Hash">
       <UniqueIdentifier>{c9fb4560-9f94-4fe8-954c-f96c9644c868}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\libbee">
+      <UniqueIdentifier>{8098b22c-a7ad-4686-b58b-8ae4102380d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\libbee">
+      <UniqueIdentifier>{16a850e0-a80d-41d8-9043-bb29894e0f8e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -42,26 +48,26 @@
     <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="beeLib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="NtEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="nt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="beevector.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="libbee\beeLib.h">
+      <Filter>Header Files\libbee</Filter>
     </ClInclude>
-    <ClInclude Include="beewstring.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="libbee\beevector.h">
+      <Filter>Header Files\libbee</Filter>
     </ClInclude>
-    <ClInclude Include="LastError.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="libbee\beewstring.h">
+      <Filter>Header Files\libbee</Filter>
     </ClInclude>
-    <ClInclude Include="Write.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="libbee\LastError.h">
+      <Filter>Header Files\libbee</Filter>
+    </ClInclude>
+    <ClInclude Include="libbee\Write.h">
+      <Filter>Header Files\libbee</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -95,17 +101,17 @@
     <ClCompile Include="utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="beeLib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="owner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LastError.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="libbee\beeLib.cpp">
+      <Filter>Source Files\libbee</Filter>
     </ClCompile>
-    <ClCompile Include="Write.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="libbee\LastError.cpp">
+      <Filter>Source Files\libbee</Filter>
+    </ClCompile>
+    <ClCompile Include="libbee\Write.cpp">
+      <Filter>Source Files\libbee</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

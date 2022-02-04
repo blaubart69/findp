@@ -1,6 +1,5 @@
-#include "stdafx.h"
-
 #include "Write.h"
+#include "LastError.h"
 
 int       __cdecl atexit(void(__cdecl*bumsti)(void)) 
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "beewstring.h"
-#include "nt.h"
+#include "../nt.h"
 
 namespace bee
 {

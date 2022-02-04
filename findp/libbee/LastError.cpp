@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "LastError.h"
 #include "Write.h"
 
