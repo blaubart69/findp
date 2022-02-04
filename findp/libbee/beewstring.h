@@ -90,13 +90,41 @@ namespace bee
 			}
 			return *this;
 		}
+		//													          09876543210987654321	
+		// A ULONGLONG is a 64-bit unsigned integer (range: 0 through 18446744073709551615)
+		//
+		short int get_decimal_digits_count(const ULONGLONG val)
+		{
+			if (val < 10) return 1;
+			if (val < 100) return 2;
+			if (val < 1000) return 3;
+			if (val < 10000) return 4;
+			if (val < 100000) return 5;
+			if (val < 1000000) return 6;
+			if (val < 10000000) return 7;
+			if (val < 100000000) return 8;
+			if (val < 1000000000) return 9;
+			if (val < 10000000000) return 10;
+			if (val < 100000000000) return 11;
+			if (val < 1000000000000) return 12;
+			if (val < 10000000000000) return 13;
+			if (val < 100000000000000) return 14;
+			if (val < 1000000000000000) return 15;
+			if (val < 10000000000000000) return 16;
+			if (val < 100000000000000000) return 17;
+			if (val < 1000000000000000000) return 18;
+			if (val < 10000000000000000000) return 19;
+			return 20;
+		}
+		//													          09876543210987654321	
+		// A ULONGLONG is a 64-bit unsigned integer (range: 0 through 18446744073709551615)
 		wstring& append_ull(ULONGLONG val) {
 
-			_vec.reserve(_vec.size() + 32);
+			_vec.reserve(_vec.size() + 20 );
 
 			nt::UNICODE_STRING ucs;
 			ucs.Length			= 0;
-			ucs.MaximumLength	= 32;
+			ucs.MaximumLength	= 20;
 			ucs.Buffer			= _vec.data() + _vec.size();
 
 			nt::NTSTATUS status = nt::RtlInt64ToUnicodeString(val, 10, &ucs);
@@ -104,16 +132,6 @@ namespace bee
 			_vec.resize(_vec.size() + (ucs.Length / sizeof(WCHAR)));
 
 			return *this;
-		}
-		wstring& append_ll(LONGLONG val) {
-
-			if (val < 0)
-			{
-				_vec.push_back(L'-');
-				val = -val;
-			}
-
-			return append_ull((ULONGLONG)val);
 		}
 		WCHAR& operator[](size_t idx) const
 		{

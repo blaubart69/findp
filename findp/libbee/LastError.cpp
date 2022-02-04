@@ -7,7 +7,7 @@ namespace bee
 	{
 		wstring buf;
 		buf.appendW(L"E ");
-		buf.append_ll(_rc);
+		buf.append_ull(_rc);
 		if (_func != nullptr)
 		{
 			buf.push_back(L'\t').appendA(_func);
