@@ -40,7 +40,7 @@ bee::LastError& OpenDirectoryHandle(DirectoryToProcess* dirToEnum, PHANDLE hDire
 		if ((*hDirectory = CreateFileW(
 			dirToEnum->directory.c_str()
 			, FILE_LIST_DIRECTORY
-			, FILE_SHARE_READ | FILE_SHARE_WRITE
+			, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE
 			, NULL
 			, OPEN_EXISTING
 			, FILE_FLAG_BACKUP_SEMANTICS
