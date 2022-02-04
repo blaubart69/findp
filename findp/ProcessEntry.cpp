@@ -99,7 +99,19 @@ void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATIO
 
 		if (ctx->opts.FilenameSubstringPattern != NULL)
 		{
-			matched = StrStrNIW(finddata->FileName, ctx->opts.FilenameSubstringPattern, finddata->FileNameLength / sizeof(WCHAR)) != NULL;
+			std::wstring_view pattern(ctx->opts.FilenameSubstringPattern, lstrlenW(ctx->opts.FilenameSubstringPattern));
+			std::wstring_view filename(finddata->FileName, finddata->FileNameLength / sizeof(WCHAR));
+
+			auto found = std::search(
+				filename.begin(), filename.end(),   // haystack
+				pattern.begin(),  pattern.end(),	// needle
+				[](const wchar_t& a, const wchar_t& b) {
+				  return  
+					     LOWORD(CharUpperW((LPWSTR)a))
+					  == LOWORD(CharUpperW((LPWSTR)b));
+				});
+			
+			matched = found != filename.end();
 		}
 		if (ctx->opts.extToSearch != NULL && ! matched)
 		{

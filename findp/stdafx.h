@@ -16,6 +16,8 @@
 #include <Shlwapi.h>
 
 #include <memory>
+#include <string_view>
+#include <algorithm>
 
 //#include "beeLib.h"
 //
