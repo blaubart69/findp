@@ -1,0 +1,4 @@
+LIBRARY NTDLL
+EXPORTS
+swprintf_s
+vswprintf_s
