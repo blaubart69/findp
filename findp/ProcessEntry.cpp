@@ -105,10 +105,12 @@ void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATIO
 			auto found = std::search(
 				filename.begin(), filename.end(),   // haystack
 				pattern.begin(),  pattern.end(),	// needle
-				[](const wchar_t& a, const wchar_t& b) {
+				[](const wchar_t a, const wchar_t b) {
 				  return  
-					     LOWORD(CharUpperW((LPWSTR)a))
-					  == LOWORD(CharUpperW((LPWSTR)b));
+						 // If the high-order word of this parameter is zero, 
+						 // the low-order word must contain a single character to be converted.
+					     CharUpperW((LPWSTR)a)
+					  == CharUpperW((LPWSTR)b);
 				});
 			
 			matched = found != filename.end();
