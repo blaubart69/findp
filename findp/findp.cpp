@@ -148,7 +148,7 @@ void printStats(Stats *stats, bool printMatched)
 		bee::Err->WriteLine( bee::wstring(L"count access denied: ").append_ull(stats->errAccessDenied) );
 	}
 #ifdef _DEBUG
-	bee::Err->Write(L"handles opened/closed\t%I64u/%I64u\n", g_HandleOpen, g_HandleClose);
+//	bee::Err->Write(L"handles opened/closed\t%I64u/%I64u\n", g_HandleOpen, g_HandleClose);
 #endif
 
 }

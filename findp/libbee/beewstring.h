@@ -122,6 +122,11 @@ namespace bee
 			if (val < 10000000000000000000) return 19;
 			return 20;
 		}
+
+#ifndef NT_SUCCESS
+#define NT_SUCCESS(Status) (((nt::NTSTATUS)(Status)) >= 0)
+#endif
+
 		//													          09876543210987654321	
 		// A ULONGLONG is a 64-bit unsigned integer (range: 0 through 18446744073709551615)
 		wstring& append_ull(ULONGLONG val, int align = 0, wchar_t fill = L' ')
@@ -139,16 +144,21 @@ namespace bee
 
 			nt::UNICODE_STRING ucs;
 			ucs.Length			= 0;
-			ucs.MaximumLength	= 20;
+			ucs.MaximumLength	= 21 * sizeof(WCHAR);	// max is 20 digits for base 10 but RtlInt64ToUnicodeString appends a L'\0'.
 			ucs.Buffer			= _vec.data() + _vec.size();
 
 			nt::NTSTATUS status = nt::RtlInt64ToUnicodeString(val, 10, &ucs);
+			if (!NT_SUCCESS(status))
+			{
+				// 0x80000005 STATUS_BUFFER_OVERFLOW 
+				// wos mochma?
+			}
 			const USHORT charsWritten = ucs.Length / sizeof(WCHAR);
 			_vec.resize( _vec.size() + charsWritten );
 
 			if (align < 0)
 			{
-				const int blanks_to_insert = align - charsWritten;
+				const int blanks_to_insert = align - (int)charsWritten;
 				if (blanks_to_insert > 0)
 				{
 					_vec.append(fill, blanks_to_insert);
@@ -170,69 +180,5 @@ namespace bee
 
 			return _vec[ length() -1 ] == c;
 		}
-		/*
-		wstring& sprintf(const wchar_t* format, ...)
-		{
-			va_list args;
-			va_start(args, format);
-
-			if (_vec.size() == 0)
-			{
-				_vec.resize(32);
-			}
-
-			for (;;)
-			{
-				int charsWritten = nt::vswprintf_s(_vec.data(), _vec.size(), format, args);
-				if (charsWritten == -1)
-				{
-					_vec.resize(_vec.size() * 4);
-				}
-				else
-				{
-					_vec.resize(charsWritten);
-					break;
-				}
-			}
-			va_end(args);
-
-			return *this;
-		}
-		wstring& appendf(const wchar_t* format, ...)
-		{
-			va_list args;
-			va_start(args, format);
-			this->vappendf(format, args);
-			va_end(args);
-
-			return *this;
-		}
-		wstring& vappendf(const wchar_t* format, va_list argptr)
-		{
-			const size_t oldSize = _vec.size();
-			if (_vec.size() == 0)
-			{
-				_vec.resize(32);
-			}
-			else
-			{
-				_vec.resize(oldSize + 64);
-			}
-
-			for (;;)
-			{
-				int charsWritten = nt::vswprintf_s(_vec.data() + oldSize, _vec.size() - oldSize, format, argptr);
-				if (charsWritten == -1)
-				{
-					_vec.resize(_vec.size() * 2);
-				}
-				else
-				{
-					_vec.resize(oldSize + charsWritten);
-					break;
-				}
-			}
-			return *this;
-		}*/
 	};
 }
