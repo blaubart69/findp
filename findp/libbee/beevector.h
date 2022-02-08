@@ -28,6 +28,14 @@ namespace bee
 			}
 			return *this;
 		}
+		vector& append(const T& elem, const size_t count)
+		{
+			for (int i = 0; i < count; ++i)
+			{
+				this->push_back(elem);
+			}
+			return *this;
+		}
 		vector& append(const vector& vec)
 		{
 			append(vec.data(), vec.size());
@@ -56,6 +64,7 @@ namespace bee
 		}
 		vector& resize(const size_t newSize)
 		{
+			
 			if (newSize > _len)
 			{
 				ensureCapacity(newSize);
@@ -78,8 +87,9 @@ namespace bee
 			_len = newSize;
 			return *this;
 		}
-		vector& reserve(size_t newCapacity)
+		vector& reserve(size_t additional)
 		{
+			const size_t newCapacity = _capacity + additional;
 			ensureCapacity(newCapacity);
 			return *this;
 		}

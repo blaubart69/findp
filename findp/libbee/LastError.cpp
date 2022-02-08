@@ -6,7 +6,7 @@ namespace bee
 	void LastError::print(void)
 	{
 		wstring buf;
-		buf.appendW(L"E ");
+		buf.append(L"E ");
 		buf.append_ull(_rc);
 		if (_func != nullptr)
 		{

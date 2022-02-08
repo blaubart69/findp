@@ -14,7 +14,10 @@ void WriteExtensionsItems(const Extensions *ext, bee::Writer& writer)
 			bee::Writer* writer = (bee::Writer*)context;
 
 			bee::wstring tmp;
-			tmp.sprintf(L"%I64u\t%I64u\t%s\r\n", Count, Sum, key);
+			//tmp.sprintf(L"%I64u\t%I64u\t%s\r\n", Count, Sum, key);
+			tmp.append_ull(Count).push_back('\t')
+			   .append_ull(Sum)  .push_back('\t')
+			   .append(key) 	 .append(L"\r\n");
 			writer->Write(tmp);
 		},
 		&stats,

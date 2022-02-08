@@ -14,7 +14,7 @@ namespace bee
 		wstring() {}
 		wstring(const wchar_t* str)
 		{
-			appendW(str);
+			append(str);
 
 		}
 		wstring(const wchar_t* str, const size_t len)
@@ -52,6 +52,12 @@ namespace bee
 			_vec.assign(str._vec);
 			return *this;
 		}
+		wstring& assign(const wchar_t* str)
+		{
+			_vec.resize(0);
+			append(str);
+			return *this;
+		}
 		wstring& assign(const wchar_t* str, const size_t len)
 		{
 			if (str != nullptr)
@@ -70,7 +76,7 @@ namespace bee
 			_vec.append(str, len);
 			return *this;
 		}
-		wstring& appendW(const wchar_t* str)
+		wstring& append(const wchar_t* str)
 		{
 			if (str != nullptr)
 			{
@@ -93,7 +99,7 @@ namespace bee
 		//													          09876543210987654321	
 		// A ULONGLONG is a 64-bit unsigned integer (range: 0 through 18446744073709551615)
 		//
-		short int get_decimal_digits_count(const ULONGLONG val)
+		int get_digits_count(const ULONGLONG val)
 		{
 			if (val < 10) return 1;
 			if (val < 100) return 2;
@@ -118,9 +124,18 @@ namespace bee
 		}
 		//													          09876543210987654321	
 		// A ULONGLONG is a 64-bit unsigned integer (range: 0 through 18446744073709551615)
-		wstring& append_ull(ULONGLONG val) {
+		wstring& append_ull(ULONGLONG val, int align = 0, wchar_t fill = L' ')
+		{
+			if (align > 0)
+			{
+				int blanks_to_insert = align - get_digits_count(val);
+				if (blanks_to_insert > 0)
+				{
+					_vec.append(fill, blanks_to_insert);
+				}
+			}
 
-			_vec.reserve(_vec.size() + 20 );
+			_vec.reserve( 20 );
 
 			nt::UNICODE_STRING ucs;
 			ucs.Length			= 0;
@@ -128,8 +143,17 @@ namespace bee
 			ucs.Buffer			= _vec.data() + _vec.size();
 
 			nt::NTSTATUS status = nt::RtlInt64ToUnicodeString(val, 10, &ucs);
+			const USHORT charsWritten = ucs.Length / sizeof(WCHAR);
+			_vec.resize( _vec.size() + charsWritten );
 
-			_vec.resize(_vec.size() + (ucs.Length / sizeof(WCHAR)));
+			if (align < 0)
+			{
+				const int blanks_to_insert = align - charsWritten;
+				if (blanks_to_insert > 0)
+				{
+					_vec.append(fill, blanks_to_insert);
+				}
+			}
 
 			return *this;
 		}
@@ -146,6 +170,7 @@ namespace bee
 
 			return _vec[ length() -1 ] == c;
 		}
+		/*
 		wstring& sprintf(const wchar_t* format, ...)
 		{
 			va_list args;
@@ -208,6 +233,6 @@ namespace bee
 				}
 			}
 			return *this;
-		}
+		}*/
 	};
 }

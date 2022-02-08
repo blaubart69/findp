@@ -119,7 +119,7 @@ DWORD RunEnumeration(HANDLE hDirectory, DirectoryToProcess* dirToEnum, ParallelE
 			InterlockedIncrement64(&(ctx->stats.files));
 			InterlockedAdd64(&(ctx->stats.sumFileSize), finddata->EndOfFile.QuadPart);
 		}
-		ProcessEntry(*currentFullDir, finddata, ctx, &tls->outBuffer, &lastErr);
+		ProcessEntry(*currentFullDir, finddata, std::wstring_view(finddata->FileName, finddata->FileNameLength / sizeof(WCHAR) ), ctx, &tls->outBuffer, &lastErr);
 		if (tls->outBuffer.length() > 4096)
 		{
 			bee::Out->Write(tls->outBuffer);

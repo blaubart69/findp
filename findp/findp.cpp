@@ -116,30 +116,35 @@ void printStats(Stats *stats, bool printMatched)
 {
 	WCHAR humanSize[32];
 
-	LPCWSTR seenf    = L"seen   \t%6I64u %12s (%I64u) %I64u\r\n";
-	LPCWSTR matchedf = L"matched\t%6I64u %12s (%I64u)\r\n";
+	//LPCWSTR seenf    = L"seen   \t%6I64u %12s (%I64u) %I64u\r\n";
+	//LPCWSTR matchedf = L"matched\t%6I64u %12s (%I64u)\r\n";
 
-	bee::wstring tmp;
+	bee::wstring temp;
 
-	tmp.appendf(seenf,
-		stats->files,
-		StrFormatByteSizeW(stats->sumFileSize, humanSize, 32),
-		stats->sumFileSize,
-		stats->dirs);
-	//tmp.appendW(L"seen   \t").append_ull(stats->files)
+	temp.append(L"seen   \t")
+		.append_ull(stats->files, 12)
+		.push_back(L' ')
+		.append(StrFormatByteSizeW(stats->sumFileSize, humanSize, 32))
+		.append(L" (")
+		.append_ull(stats->sumFileSize)
+		.append(L") ")
+		.append_ull(stats->dirs)
+		.append(L"\r\n");
 
 	if (printMatched)
 	{
-		tmp.appendf(matchedf,
-			stats->filesMatched,
-			StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32),
-			stats->sumFileSizeMatched);
+		temp.append(L"matched\t")
+			.append_ull(stats->filesMatched, 12)
+			.push_back(L' ')
+			.append(StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32))
+			.append(L" (")
+			.append_ull(stats->sumFileSizeMatched)
+			.append(L")\r\n");
 	}
-	bee::Out->Write(tmp);
+	bee::Out->Write(temp);
 
 	if (stats->errAccessDenied > 0)
 	{
-		//bee::Err->Write(L"count access denied:\t%I64u\n", stats->errAccessDenied);
 		bee::Err->WriteLine( bee::wstring(L"count access denied: ").append_ull(stats->errAccessDenied) );
 	}
 #ifdef _DEBUG
@@ -161,7 +166,7 @@ bool CheckIfDirectory(LPCWSTR dirname)
 	else if (!isDirectory(rootAttrs))
 	{
 		//bee::Err->Write(L"not a directory [%s]\n", dirname);
-		bee::Err->Write(bee::wstring(L"not a directory: ").appendW(dirname));
+		bee::Err->Write(bee::wstring(L"not a directory: ").append(dirname));
 	}
 	else
 	{

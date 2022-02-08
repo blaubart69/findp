@@ -92,7 +92,7 @@ bee::LastError& GetOwner(LPCWSTR filename, bee::wstring* owner, bee::LastError* 
 		return *lastErr;
 	}
 	
-	owner->sprintf(L"%s\\%s", ReferencedDomainName, Name);
+	owner->assign(ReferencedDomainName).push_back(L'\\').append(Name);
 
 	LocalFree(pSecDesc);
 
