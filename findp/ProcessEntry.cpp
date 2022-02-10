@@ -15,7 +15,7 @@ bee::LastError& ConvertFiletimeToLocalTime(const FILETIME* filetime, SYSTEMTIME*
 	}
 	else if (!SystemTimeToTzSpecificLocalTime(NULL, &UTCSysTime, localTime))
 	{
-		lastErr->set("FileTimeToSystemTime");
+		lastErr->set("SystemTimeToTzSpecificLocalTime");
 	}
 
 	return *lastErr;
@@ -25,16 +25,11 @@ static const wchar_t DASH = L'-';
 
 void append_systemtime(const SYSTEMTIME& time, bee::wstring* str)
 {
-	str->append_ull(time.wYear,   4, L'0')
-		.push_back(DASH)
-		.append_ull(time.wMonth,  2, L'0')
-		.push_back(DASH)
-		.append_ull(time.wDay,    2, L'0')
-		.push_back(L' ')
-		.append_ull(time.wHour,   2, L'0')
-		.push_back(L':')
-		.append_ull(time.wMinute, 2, L'0')
-		.push_back(L':')
+	str->append_ull(time.wYear,   4, L'0').push_back(DASH)
+		.append_ull(time.wMonth,  2, L'0').push_back(DASH)
+		.append_ull(time.wDay,    2, L'0').push_back(L' ')
+		.append_ull(time.wHour,   2, L'0').push_back(L':')
+		.append_ull(time.wMinute, 2, L'0').push_back(L':')
 		.append_ull(time.wSecond, 2, L'0');
 }
 
@@ -56,16 +51,18 @@ void Append_Time_Attributes_Size(nt::FILE_DIRECTORY_INFORMATION* finddata, bee::
 	if (ConvertFiletimeToLocalTime((FILETIME*)&(finddata->LastWriteTime), &localTime, lastErr).failed())
 	{
 		lastErr->print();
+		//                  yyyy-MM-dd HH:mm:ss
+		outBuffer->append(L"E cnv LastWriteTime");
 	}
 	else
 	{
-		append_systemtime(localTime, outBuffer);					outBuffer->push_back(L'\t');
-		append_attributes(finddata->FileAttributes, outBuffer);		outBuffer->push_back(L'\t');
-		outBuffer->append_ull(finddata->EndOfFile.QuadPart, 12);	outBuffer->push_back(L'\t');
+		append_systemtime(localTime, outBuffer);				outBuffer->push_back(L'\t');
 	}
+	append_attributes(finddata->FileAttributes, outBuffer);		outBuffer->push_back(L'\t');
+	outBuffer->append_ull(finddata->EndOfFile.QuadPart, 12);	outBuffer->push_back(L'\t');
 }
 
-bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, bee::wstring* outBuffer, bool printFull, bool printOwner, bool printQuoted, bee::LastError* lastErr)
+bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, const std::wstring_view& filename, bee::wstring* outBuffer, bool printFull, bool printOwner, bool printQuoted, bee::LastError* lastErr)
 {
 	if (printFull)
 	{
@@ -78,7 +75,7 @@ bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_I
 			bee::wstring tmpFullfilename;
 			tmpFullfilename.assign(FullBaseDir);
 			tmpFullfilename.push_back(L'\\');
-			tmpFullfilename.append(finddata->FileName, finddata->FileNameLength / sizeof(WCHAR));
+			tmpFullfilename.append(filename.data(), filename.length());
 
 			if (GetOwner(tmpFullfilename.c_str(), &owner, lastErr).failed())
 			{
@@ -93,7 +90,7 @@ bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_I
 
 	outBuffer->append(FullBaseDir);
 	outBuffer->push_back(L'\\');
-	outBuffer->append(finddata->FileName, finddata->FileNameLength / sizeof(WCHAR));
+	outBuffer->append(filename.data(), filename.length());
 	outBuffer->append(L"\r\n");
 	
 	return *lastErr;
@@ -150,7 +147,7 @@ void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATIO
 				|| (ctx->opts.emit == EmitType::Files && isFile     (finddata->FileAttributes))
 				|| (ctx->opts.emit == EmitType::Dirs  && isDirectory(finddata->FileAttributes))  )
 			{
-				PrintEntry(FullBaseDir, finddata, outBuffer, ctx->opts.printFull, ctx->opts.printOwner, ctx->opts.quoteFilename, lastErr);
+				PrintEntry(FullBaseDir, finddata, filename, outBuffer, ctx->opts.printFull, ctx->opts.printOwner, ctx->opts.quoteFilename, lastErr);
 			}
 		}
 	}
