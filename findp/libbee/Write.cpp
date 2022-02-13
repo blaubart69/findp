@@ -28,7 +28,7 @@ namespace bee
 			_array.reserve(reserved_capacity);
 
 			if (int multiBytesWritten; (multiBytesWritten = WideCharToMultiByte(
-				GetConsoleOutputCP()
+				_codepage
 				, 0						// dwFlags           [in]
 				, str.data()			// lpWideCharStr     [in]
 				, (int)str.length()		// cchWideChar       [in]

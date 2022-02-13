@@ -87,9 +87,8 @@ namespace bee
 			_len = newSize;
 			return *this;
 		}
-		vector& reserve(size_t additional)
+		vector& reserve(size_t newCapacity)
 		{
-			const size_t newCapacity = _len + additional;
 			ensureCapacity(newCapacity);
 			return *this;
 		}

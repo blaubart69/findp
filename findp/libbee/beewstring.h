@@ -140,7 +140,7 @@ namespace bee
 				}
 			}
 
-			_vec.reserve( 20 );
+			_vec.reserve( _vec.size() + 21 );
 
 			nt::UNICODE_STRING ucs;
 			ucs.Length			= 0;

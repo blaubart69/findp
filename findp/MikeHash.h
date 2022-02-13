@@ -29,12 +29,13 @@ typedef struct _HT_STATS {
 extern "C" {
 #endif
 
-typedef void(*KeyValCallback)(LPWSTR Key, LONGLONG Sum, LONGLONG Count, LPVOID context);
+typedef void(*KeyValCallback)(LPWSTR Key, size_t KeyLen, LONGLONG Sum, LONGLONG Count, LPVOID context);
 
 HT*		MikeHT_Init		(DWORD Entries);
 DWORD	MikeHT_Free		(HT *ht);
 
-BOOL	MikeHT_Insert	(HT *ht, LPWSTR Key, LONGLONG Val);
+//BOOL	MikeHT_Insert	(HT *ht, LPWSTR Key, LONGLONG Val);
+BOOL    MikeHT_Insert2  (HT* ht, LPCWSTR Key, const size_t KeyLen, LONGLONG Val);
 BOOL    MikeHT_Get		(HT *ht, LPCWSTR Key, LONGLONG *Val);
 DWORD   MikeHT_ForEach  (HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPVOID context);
 

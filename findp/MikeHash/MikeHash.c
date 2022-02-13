@@ -31,12 +31,29 @@ DWORD MikeHT_hash_djb2(const WCHAR *str, DWORD *len) {
 	const WCHAR *p = str;
 	while ( *p )
 	{
-		WCHAR upper = LOWORD(CharUpperW((LPWSTR)*p));
+		WCHAR upper = CharUpperW((LPWSTR)*p);
 		hash = ( hash * 33 ) ^ upper;	// ((hash << 5) + hash) // hash * 33 ... compiler knows best :-)
 		p++;
 	}
 
 	*len = p - str;
+
+	return hash;
+}
+
+//-------------------------------------------------------------------------------------------------
+DWORD MikeHT_hash_djb2_2(const WCHAR* str, size_t str_len) {
+//-------------------------------------------------------------------------------------------------
+
+	DWORD hash = 5381;
+
+	const WCHAR* p = str;
+	for (; str_len != 0; --str_len)
+	{
+		WCHAR upper = CharUpperW((LPWSTR)*p);
+		hash = (hash * 33) ^ upper;	// ((hash << 5) + hash) // hash * 33 ... compiler knows best :-)
+		p++;
+	}
 
 	return hash;
 }
@@ -58,24 +75,29 @@ DWORD MikeHT_HashValueSimple(const WCHAR *str, DWORD *len) {
 }
 
 //-------------------------------------------------------------------------------------------------
-static SLIST* FindInList(SLIST *p, LPCWSTR Key, const DWORD KeyLen) {
+static SLIST* FindInList(SLIST *p, LPCWSTR Key, const DWORD cchKeyLen) {
 //-------------------------------------------------------------------------------------------------
 
 	while (p != NULL) {
 
-		if (p->cchKeyLen != KeyLen) {
+		int cmp;
+
+		if (p->cchKeyLen != cchKeyLen) {
 			; // no match
+		}
+		else if (cchKeyLen == 0)
+		{
+			break;	// found. two empty strings
 		}
 		//else if (memcmp(p->Key, Key, KeyLen * sizeof(WCHAR)) != 0) {
-		else if ( lstrcmpiW(p->Key, Key) != 0) {
-			; // no match
+		//else if ( lstrcmpiW(p->Key, Key) != 0) {
+		else if ((cmp = CompareStringW(NULL, NORM_IGNORECASE, p->Key, p->cchKeyLen, Key, cchKeyLen)) == 0)
+		{
+			ExitProcess(999);
 		}
-		else {
-
-			// found
-
+		else if ( cmp == CSTR_EQUAL)
+		{
 			break;
-
 		} /* endif */
 
 		p = p->Nxt;
@@ -83,6 +105,56 @@ static SLIST* FindInList(SLIST *p, LPCWSTR Key, const DWORD KeyLen) {
 	} /* endwhile */
 
 	return p;
+}
+//=================================================================================================
+BOOL MikeHT_Insert2(HT* ht, LPCWSTR Key, const size_t KeyLen, LONGLONG Val) {
+//=================================================================================================
+
+	DWORD idx = MikeHT_hash_djb2_2(Key, KeyLen) % ht->Entries;
+
+	for (;;) {
+
+		SLIST* pNew, * pOld;
+
+		// search
+
+		pOld = pNew = ht->Table[idx];
+
+		pNew = FindInList(pNew, Key, KeyLen);
+		if (pNew != NULL)
+		{
+			// found
+			InterlockedAdd64      (&pNew->Sum, Val);
+			InterlockedIncrement64(&pNew->Count);
+			return FALSE;
+		}
+
+		// create
+
+		pNew = (SLIST*)HeapAlloc(GetProcessHeap()
+			, 0
+			, sizeof(*pNew) + KeyLen * sizeof(WCHAR));
+
+		MoveMemory(pNew->Key, Key, KeyLen * sizeof(WCHAR));
+		//pNew->Key[KeyLen] = L'\0';
+		pNew->Sum = Val;
+		pNew->Count = 1;
+		pNew->cchKeyLen = KeyLen;
+		pNew->Nxt = pOld;
+
+		// insert
+
+		if (InterlockedCompareExchangePointer((PVOID*)ht->Table + idx
+			, pNew
+			, pOld) == pOld) {
+			return TRUE;
+		}
+
+		// retry
+
+		HeapFree(GetProcessHeap(), 0, pNew);
+
+	} /* endfor */
 }
 //=================================================================================================
 DWORD MikeHT_ForEach(HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPVOID context) {
@@ -108,7 +180,7 @@ DWORD MikeHT_ForEach(HT *ht, KeyValCallback KeyValCallback, HT_STATS *stats, LPV
 		{
 			++ItemCount;
 			++ListCount;
-			KeyValCallback(elem->Key, elem->Sum, elem->Count, context);
+			KeyValCallback(elem->Key, elem->cchKeyLen, elem->Sum, elem->Count, context);
 		}
 
 		if (stats != NULL)
@@ -143,25 +215,25 @@ BOOL MikeHT_Get(HT *ht, LPCWSTR Key, LONGLONG *Val) {
 
 	return found;
 }
-
+/*
 //=================================================================================================
-BOOL MikeHT_Insert( HT *ht, LPWSTR Key, LONGLONG Val ) {
+BOOL MikeHT_Insert(HT* ht, LPWSTR Key, LONGLONG Val) {
 //=================================================================================================
 
-    DWORD KeyLen;
+	DWORD KeyLen;
 
-    //DWORD idx = HashValue( Key, &KeyLen ) % ht->Entries;
+	//DWORD idx = HashValue( Key, &KeyLen ) % ht->Entries;
 	DWORD idx = MikeHT_hash_djb2(Key, &KeyLen) % ht->Entries;
 
-    for (;;) {
+	for (;;) {
 
-		SLIST *pNew, *pOld;
+		SLIST* pNew, * pOld;
 
-        // search
+		// search
 
-        pOld = pNew = ht->Table[ idx ];
+		pOld = pNew = ht->Table[idx];
 
-		pNew = FindInList(pNew, Key, KeyLen);	
+		pNew = FindInList(pNew, Key, KeyLen);
 		if (pNew != NULL)
 		{
 			// found
@@ -170,32 +242,33 @@ BOOL MikeHT_Insert( HT *ht, LPWSTR Key, LONGLONG Val ) {
 			return FALSE;
 		}
 
-        // create
+		// create
 
-        pNew = (SLIST*)HeapAlloc( GetProcessHeap()
-                     , 0
-                     , sizeof( *pNew ) + KeyLen * sizeof( WCHAR ));
+		pNew = (SLIST*)HeapAlloc(GetProcessHeap()
+			, 0
+			, sizeof(*pNew) + KeyLen * sizeof(WCHAR));
 
-        MoveMemory( pNew->Key, Key, ( KeyLen + 1 ) * sizeof( WCHAR ));
-        pNew->Sum = Val;
+		MoveMemory(pNew->Key, Key, (KeyLen + 1) * sizeof(WCHAR));
+		pNew->Sum = Val;
 		pNew->Count = 1;
-        pNew->cchKeyLen = KeyLen;
-        pNew->Nxt = pOld;
+		pNew->cchKeyLen = KeyLen;
+		pNew->Nxt = pOld;
 
-        // insert
+		// insert
 
-        if ( InterlockedCompareExchangePointer( (PVOID*)ht->Table + idx
-                                              , pNew
-                                              , pOld ) == pOld ) {
-            return TRUE;
-        } /* endif */
+		if (InterlockedCompareExchangePointer((PVOID*)ht->Table + idx
+			, pNew
+			, pOld) == pOld) {
+			return TRUE;
+		}
 
-        // retry
+		// retry
 
-        HeapFree( GetProcessHeap(), 0, pNew );
+		HeapFree(GetProcessHeap(), 0, pNew);
 
-    } /* endfor */
-}
+	} 
+}*/
+
 
 //=================================================================================================
 DWORD MikeHT_Free( HT *ht ) {

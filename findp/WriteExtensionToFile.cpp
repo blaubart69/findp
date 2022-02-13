@@ -9,15 +9,15 @@ void WriteExtensionsItems(const Extensions *ext, bee::Writer& writer)
 	HT_STATS stats;
 	DWORD itemCount = MikeHT_ForEach(
 		ext->extsHashtable,
-		[](LPWSTR key, LONGLONG Sum, LONGLONG Count, LPVOID context)
+		[](LPWSTR key, size_t keyLen, LONGLONG Sum, LONGLONG Count, LPVOID context)
 		{
 			bee::Writer* writer = (bee::Writer*)context;
 
 			bee::wstring tmp;
 			//tmp.sprintf(L"%I64u\t%I64u\t%s\r\n", Count, Sum, key);
-			tmp.append_ull(Count).push_back('\t')
-			   .append_ull(Sum)  .push_back('\t')
-			   .append(key) 	 .append(L"\r\n");
+			tmp.append_ull(Count)		.push_back('\t')
+			   .append_ull(Sum)			.push_back('\t')
+			   .append(key, keyLen) 	.append(L"\r\n");
 			writer->Write(tmp);
 		},
 		&stats,
@@ -51,7 +51,7 @@ void WriteExtensions(LPCWSTR filename, const Extensions *ext)
 		return;
 	}
 
-	bee::Writer extWriter(fp);
+	bee::Writer extWriter(fp, CP_UTF8);
 
 	WriteExtensionsItems(ext, extWriter);
 	

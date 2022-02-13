@@ -139,10 +139,8 @@ public:
 
 void ProcessDirectory(DirectoryToProcess *item, ParallelExec<DirectoryToProcess, Context, TLS> *executor, Context *ctx, TLS*);
 void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, std::wstring_view filename, Context* ctx, bee::wstring* outBuffer, bee::LastError* lastErr);
-//bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, bee::wstring* outBuffer, bool printFull, bool printOwner, bool printQuoted, bee::LastError* lastErr);
-void ProcessExtension(Extensions *ext, LPCWSTR filename, LONGLONG filesize);
+void ProcessExtension(Extensions* ext, const std::wstring_view& filename, LONGLONG filesize);
 void WriteExtensions(LPCWSTR filename, const Extensions *ext);
-//DirEntryC* CreateDirEntryC(const DirEntryC *parent, LPCWSTR currentDir);
 int getopts(int argc, wchar_t *argv[], Options* opts);
 BOOL TryToSetPrivilege(LPCWSTR szPrivilege, BOOL bEnablePrivilege);
 bee::LastError& GetOwner(LPCWSTR filename, bee::wstring* owner, bee::LastError* lastErr);

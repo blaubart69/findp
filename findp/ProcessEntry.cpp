@@ -137,24 +137,22 @@ void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATIO
 	{
 		InterlockedIncrement64(&ctx->stats.filesMatched);
 		InterlockedAdd64      (&ctx->stats.sumFileSizeMatched, finddata->EndOfFile.QuadPart);
-	}
 
-	if (!ctx->opts.sum)
-	{
-		if ( matched )
+		if (!ctx->opts.sum)
 		{
-			if (   (ctx->opts.emit == EmitType::Both)
-				|| (ctx->opts.emit == EmitType::Files && isFile     (finddata->FileAttributes))
-				|| (ctx->opts.emit == EmitType::Dirs  && isDirectory(finddata->FileAttributes))  )
+			if ((   ctx->opts.emit == EmitType::Both)
+				|| (ctx->opts.emit == EmitType::Files && isFile(finddata->FileAttributes))
+				|| (ctx->opts.emit == EmitType::Dirs  && isDirectory(finddata->FileAttributes)))
 			{
 				PrintEntry(FullBaseDir, finddata, filename, outBuffer, ctx->opts.printFull, ctx->opts.printOwner, ctx->opts.quoteFilename, lastErr);
 			}
 		}
 	}
 
+
 	if (ctx->opts.GroupExtensions && isFile(finddata->FileAttributes) )
 	{
-		ProcessExtension(ctx->ext, finddata->FileName, finddata->EndOfFile.QuadPart);
+		ProcessExtension(ctx->ext, filename, finddata->EndOfFile.QuadPart);
 	}
 }
 

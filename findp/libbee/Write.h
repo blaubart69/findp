@@ -11,9 +11,11 @@ namespace bee
 	private:
 		vector<char> _array;
 		const HANDLE _fp;
+		const UINT   _codepage;
 
 	public:
-		Writer(HANDLE fp) : _fp(fp) {}
+		Writer(HANDLE fp)               : _fp(fp), _codepage(GetConsoleOutputCP()) {}
+		Writer(HANDLE fp, int codepage) : _fp(fp), _codepage(codepage)             {}
 		~Writer() { CloseHandle(_fp); }
 		LastError* Write(const wstring& str, LastError* err);
 		void       Write(const wstring& str);
