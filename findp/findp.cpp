@@ -42,6 +42,7 @@ DWORD GetFullName(LPCWSTR filename, bee::wstring* fullname)
 //int wmain(int argc, wchar_t *argv[])
 int beeMain(int argc, wchar_t *argv[])
 {
+	bee::LastError err;
 	int rc;
 
 #ifdef _DEBUG
@@ -54,12 +55,11 @@ int beeMain(int argc, wchar_t *argv[])
 	{
 		return rc;
 	}
-
-	if (!TryToSetPrivilege(SE_BACKUP_NAME, TRUE))
+	if (TryToSetPrivilege(SE_BACKUP_NAME, TRUE, &err).failed())
 	{
-		bee::Err->WriteLine(L"could not set privilege SE_BACKUP_NAME");
+		bee::Err->WriteA("could not set privilege SE_BACKUP_NAME\r\n");
+		err.print();
 	}
-
 	bee::wstring FullRootDir;
 	GetFullName(ctx.opts.rootDir == NULL ? L"." : ctx.opts.rootDir, &FullRootDir);
 
@@ -141,7 +141,7 @@ void printStats(Stats *stats, bool printMatched)
 			.append_ull(stats->sumFileSizeMatched)
 			.append(L")\r\n");
 	}
-	bee::Out->Write(temp);
+	bee::Err->Write(temp);
 
 	if (stats->errAccessDenied > 0)
 	{

@@ -3,7 +3,7 @@
 #include "LastError.h"
 #include "beewstring.h"
 
-bee::LastError& GetOwner(LPCWSTR filename, bee::wstring* owner, bee::LastError* lastErr)
+bee::LastError& GetOwner(LPCWSTR filename, bee::wstring* str, bee::LastError* lastErr)
 {
 	DWORD lenNeeded;
 	BOOL ok;
@@ -92,7 +92,7 @@ bee::LastError& GetOwner(LPCWSTR filename, bee::wstring* owner, bee::LastError* 
 		return *lastErr;
 	}
 	
-	owner->assign(ReferencedDomainName).push_back(L'\\').append(Name);
+	str->append(ReferencedDomainName).push_back(L'\\').append(Name);
 
 	LocalFree(pSecDesc);
 

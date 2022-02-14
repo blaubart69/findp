@@ -17,10 +17,13 @@ namespace bee
 		Writer(HANDLE fp)               : _fp(fp), _codepage(GetConsoleOutputCP()) {}
 		Writer(HANDLE fp, int codepage) : _fp(fp), _codepage(codepage)             {}
 		~Writer() { CloseHandle(_fp); }
-		LastError* Write(const wstring& str, LastError* err);
-		void       Write(const wstring& str);
-		void       WriteLine(const wstring& str);
-		void	   WriteA(const char* str);
+
+		LastError& Write    (const wstring& str, LastError* err);
+		void       Write    (const wstring& str);
+		void       WriteLine(      wstring& str);
+		void	   WriteA   (const char*    str);
+
+		LastError& Write(const wstring& str, vector<char>& tmp, LastError* err) const;
 	};
 
 	extern Writer* Out;

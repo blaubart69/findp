@@ -130,18 +130,21 @@ class TLS
 public:
 	bee::vector<BYTE>		findBuffer;
 	bee::wstring			outBuffer;
+	bee::vector<char>		tmp;
 
 	TLS()
 	{
 		findBuffer.resize(32 * 1024);
+		outBuffer.reserve(4096);
+		tmp.reserve(512);
 	}
 };
 
 void ProcessDirectory(DirectoryToProcess *item, ParallelExec<DirectoryToProcess, Context, TLS> *executor, Context *ctx, TLS*);
-void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, std::wstring_view filename, Context* ctx, bee::wstring* outBuffer, bee::LastError* lastErr);
+void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, std::wstring_view filename, Context* ctx, bee::wstring* outBuffer, bee::vector<char>* tmp, bee::LastError* lastErr);
 void ProcessExtension(Extensions* ext, const std::wstring_view& filename, LONGLONG filesize);
 void WriteExtensions(LPCWSTR filename, const Extensions *ext);
 int getopts(int argc, wchar_t *argv[], Options* opts);
-BOOL TryToSetPrivilege(LPCWSTR szPrivilege, BOOL bEnablePrivilege);
+bee::LastError& TryToSetPrivilege(LPCWSTR szPrivilege, BOOL bEnablePrivilege, bee::LastError* err);
 bee::LastError& GetOwner(LPCWSTR filename, bee::wstring* owner, bee::LastError* lastErr);
 

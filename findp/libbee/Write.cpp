@@ -13,7 +13,7 @@ namespace bee
 	Writer* Out;
 	Writer* Err;
 
-	LastError* Writer::Write(const wstring& str, LastError* err) 
+	LastError& Writer::Write(const wstring& str, vector<char>& tmp, LastError* err) const
 	{
 		if (DWORD written; GetFileType(_fp) == FILE_TYPE_CHAR)
 		{
@@ -25,14 +25,14 @@ namespace bee
 		else
 		{
 			const size_t reserved_capacity = str.length() * 4;
-			_array.reserve(reserved_capacity);
+			tmp.reserve(reserved_capacity);
 
 			if (int multiBytesWritten; (multiBytesWritten = WideCharToMultiByte(
 				_codepage
 				, 0						// dwFlags           [in]
 				, str.data()			// lpWideCharStr     [in]
 				, (int)str.length()		// cchWideChar       [in]
-				, _array.data()			// lpMultiByteStr    [out, optional]
+				, tmp.data()			// lpMultiByteStr    [out, optional]
 				, reserved_capacity		// cbMultiByte       [in]
 				, NULL					// lpDefaultChar     [in, optional]
 				, NULL					// lpUsedDefaultChar [out, optional]
@@ -42,7 +42,7 @@ namespace bee
 			}
 			else if (DWORD written; !WriteFile(
 				_fp
-				, _array.data()
+				, tmp.data()
 				, multiBytesWritten
 				, &written
 				, NULL))
@@ -50,19 +50,30 @@ namespace bee
 				err->set("WriteFile");
 			}
 		}
-		return err;
+		return *err;
+	}
+
+	LastError& Writer::Write(const wstring& str, LastError* err) 
+	{
+		return Write(str, _array, err);
 	}
 	//-----------------------------------------------------------------------------
 	void Writer::Write(const wstring& str) {
 	//-----------------------------------------------------------------------------
 		LastError err;
 		this->Write(str, &err);
+		if (err.failed())
+		{
+			err.print();
+		}
 	}
 	//-----------------------------------------------------------------------------
-	void Writer::WriteLine(const wstring& str) {
+	void Writer::WriteLine(wstring& str) {
 	//-----------------------------------------------------------------------------
+		const size_t len_before = str.length();
+		str.append(L"\r\n");
 		this->Write(str);
-		this->Write(L"\r\n");
+		str.resize(len_before);
 	}
 	/*
 	//-----------------------------------------------------------------------------

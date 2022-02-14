@@ -119,17 +119,26 @@ DWORD RunEnumeration(HANDLE hDirectory, DirectoryToProcess* dirToEnum, ParallelE
 			InterlockedIncrement64(&(ctx->stats.files));
 			InterlockedAdd64(&(ctx->stats.sumFileSize), finddata->EndOfFile.QuadPart);
 		}
-		ProcessEntry(*currentFullDir, finddata, std::wstring_view(finddata->FileName, finddata->FileNameLength / sizeof(WCHAR) ), ctx, &tls->outBuffer, &lastErr);
+
+		ProcessEntry(
+			*currentFullDir
+			, finddata
+			, std::wstring_view(finddata->FileName, finddata->FileNameLength / sizeof(WCHAR) )
+			, ctx
+			, &tls->outBuffer
+			, &tls->tmp
+			, &lastErr);
+
 		if (tls->outBuffer.length() > 4096)
 		{
-			bee::Out->Write(tls->outBuffer);
+			bee::Out->Write(tls->outBuffer, tls->tmp, &lastErr);
 			tls->outBuffer.resize(0);
 		}
 	});
 
 	if (tls->outBuffer.length() > 0)
 	{
-		bee::Out->Write(tls->outBuffer);
+		bee::Out->Write(tls->outBuffer, tls->tmp, &lastErr);
 	}
 
 	return rc;

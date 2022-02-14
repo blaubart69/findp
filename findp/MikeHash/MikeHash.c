@@ -74,31 +74,36 @@ DWORD MikeHT_HashValueSimple(const WCHAR *str, DWORD *len) {
 	return hash;
 }
 
+static BOOL AreKeysEqualCaseInsensitive(LPCWSTR k1, LPCWSTR k2, DWORD len)
+{
+	for (int i = 0; i < len; ++i)
+	{
+		if (CharUpperW((LPWSTR)k1[i]) != CharUpperW((LPWSTR)k2[i]))
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
 //-------------------------------------------------------------------------------------------------
 static SLIST* FindInList(SLIST *p, LPCWSTR Key, const DWORD cchKeyLen) {
 //-------------------------------------------------------------------------------------------------
 
 	while (p != NULL) {
 
-		int cmp;
-
 		if (p->cchKeyLen != cchKeyLen) {
 			; // no match
 		}
 		else if (cchKeyLen == 0)
 		{
-			break;	// found. two empty strings
+			break;	// found. two empty strings --> EQUAL
 		}
-		//else if (memcmp(p->Key, Key, KeyLen * sizeof(WCHAR)) != 0) {
-		//else if ( lstrcmpiW(p->Key, Key) != 0) {
-		else if ((cmp = CompareStringW(NULL, NORM_IGNORECASE, p->Key, p->cchKeyLen, Key, cchKeyLen)) == 0)
-		{
-			ExitProcess(999);
-		}
-		else if ( cmp == CSTR_EQUAL)
+		else if ( AreKeysEqualCaseInsensitive(p->Key, Key, cchKeyLen) )
 		{
 			break;
-		} /* endif */
+		}
 
 		p = p->Nxt;
 
@@ -136,11 +141,10 @@ BOOL MikeHT_Insert2(HT* ht, LPCWSTR Key, const size_t KeyLen, LONGLONG Val) {
 			, sizeof(*pNew) + KeyLen * sizeof(WCHAR));
 
 		MoveMemory(pNew->Key, Key, KeyLen * sizeof(WCHAR));
-		//pNew->Key[KeyLen] = L'\0';
-		pNew->Sum = Val;
-		pNew->Count = 1;
+		pNew->Sum       = Val;
+		pNew->Count     = 1;
 		pNew->cchKeyLen = KeyLen;
-		pNew->Nxt = pOld;
+		pNew->Nxt       = pOld;
 
 		// insert
 

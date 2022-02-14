@@ -16,10 +16,10 @@ namespace bee
 		{
 			buf.push_back(L'\t').append(*_param);
 		}
-		buf.push_back('\n');
+		buf.append(L"\r\n");
 
 		LastError err;
-		if (Out->Write(buf, &err)->failed())
+		if (Out->Write(buf, &err).failed())
 		{
 			Beep(400, 2000);
 		}

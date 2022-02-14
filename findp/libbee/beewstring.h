@@ -38,6 +38,11 @@ namespace bee
 			_vec.resize(newLen);
 			return *this;
 		}
+		wstring& reserve(size_t newCapacity)
+		{
+			_vec.reserve(newCapacity);
+			return *this;
+		}
 		size_t length() const
 		{
 			return _vec.size();

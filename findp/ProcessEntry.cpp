@@ -62,7 +62,7 @@ void Append_Time_Attributes_Size(nt::FILE_DIRECTORY_INFORMATION* finddata, bee::
 	outBuffer->append_ull(finddata->EndOfFile.QuadPart, 12);	outBuffer->push_back(L'\t');
 }
 
-bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, const std::wstring_view& filename, bee::wstring* outBuffer, bool printFull, bool printOwner, bool printQuoted, bee::LastError* lastErr)
+bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, const std::wstring_view& filename, bee::wstring* outBuffer, bee::vector<char>* tmp, bool printFull, bool printOwner, bool printQuoted, bee::LastError* lastErr)
 {
 	if (printFull)
 	{
@@ -77,13 +77,11 @@ bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_I
 			tmpFullfilename.push_back(L'\\');
 			tmpFullfilename.append(filename.data(), filename.length());
 
+			outBuffer->push_back(L'\t');
 			if (GetOwner(tmpFullfilename.c_str(), &owner, lastErr).failed())
 			{
 				owner.assign(L"n/a");
 			}
-
-			outBuffer->push_back(L'\t');
-			outBuffer->append(owner);
 			outBuffer->push_back(L'\t');
 		}
 	}
@@ -96,7 +94,7 @@ bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_I
 	return *lastErr;
 }
 
-void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, std::wstring_view filename, Context* ctx, bee::wstring* outBuffer, bee::LastError* lastErr)
+void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, std::wstring_view filename, Context* ctx, bee::wstring* outBuffer, bee::vector<char>* tmp, bee::LastError* lastErr)
 {
 	bool matched;
 	if (   ctx->opts.FilenameSubstringPattern.empty()
@@ -141,7 +139,7 @@ void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATIO
 				|| (ctx->opts.emit == EmitType::Files && isFile(finddata->FileAttributes))
 				|| (ctx->opts.emit == EmitType::Dirs  && isDirectory(finddata->FileAttributes)))
 			{
-				PrintEntry(FullBaseDir, finddata, filename, outBuffer, ctx->opts.printFull, ctx->opts.printOwner, ctx->opts.quoteFilename, lastErr);
+				PrintEntry(FullBaseDir, finddata, filename, outBuffer, tmp, ctx->opts.printFull, ctx->opts.printOwner, ctx->opts.quoteFilename, lastErr);
 			}
 		}
 	}
