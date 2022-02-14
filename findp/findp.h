@@ -48,21 +48,21 @@ enum EmitType
 
 struct Options
 {
-	LPCWSTR rootDir;
-	LPCWSTR FilenameSubstringPattern;
-	bool sum;
-	bool progress;
-	bool followJunctions;
-	int maxDepth;
-	int ThreadsToUse;
-	bool GroupExtensions;
-	LPCWSTR ExtsFilename;
-	bool printFull;
-	bool printOwner;
-	EmitType emit;
-	LPWSTR extToSearch;
-	int extToSearchLen;
-	bool quoteFilename;
+	LPCWSTR		rootDir;
+	std::wstring_view FilenameSubstringPattern;
+	bool		sum;
+	bool		progress;
+	bool		followJunctions;
+	int			maxDepth;
+	int			ThreadsToUse;
+	bool		GroupExtensions;
+	LPCWSTR		ExtsFilename;
+	bool		printFull;
+	bool		printOwner;
+	EmitType	emit;
+	LPWSTR		extToSearch;
+	int			extToSearchLen;
+	bool		quoteFilename;
 };
 
 struct Context

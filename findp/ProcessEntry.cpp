@@ -99,7 +99,7 @@ bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_I
 void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, std::wstring_view filename, Context* ctx, bee::wstring* outBuffer, bee::LastError* lastErr)
 {
 	bool matched;
-	if (   ctx->opts.FilenameSubstringPattern	== NULL
+	if (   ctx->opts.FilenameSubstringPattern.empty()
 		&& ctx->opts.extToSearch				== NULL)
 	{
 		matched = true;
@@ -108,14 +108,11 @@ void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATIO
 	{
 		matched = false;
 
-		if (ctx->opts.FilenameSubstringPattern != NULL)
+		if ( ! ctx->opts.FilenameSubstringPattern.empty() )
 		{
-			std::wstring_view pattern(ctx->opts.FilenameSubstringPattern, lstrlenW(ctx->opts.FilenameSubstringPattern));
-			//std::wstring_view filename(finddata->FileName, finddata->FileNameLength / sizeof(WCHAR));
-
 			auto found = std::search(
-				filename.begin(), filename.end(),   // haystack
-				pattern.begin(),  pattern.end(),	// needle
+				filename.begin(), filename.end(),														// haystack
+				ctx->opts.FilenameSubstringPattern.begin(), ctx->opts.FilenameSubstringPattern.end(),	// needle
 				[](const wchar_t a, const wchar_t b) {
 				  return  
 						 // If the high-order word of this parameter is zero, 

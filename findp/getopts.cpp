@@ -13,7 +13,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	opts->progress = false;
 	opts->maxDepth = -1;
 	opts->followJunctions = false;
-	opts->FilenameSubstringPattern = NULL;
+	opts->FilenameSubstringPattern;
 	opts->ThreadsToUse = 16;
 	opts->GroupExtensions = false;
 	opts->ExtsFilename = NULL;
@@ -41,10 +41,10 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 				 case L'f': opts->printFull	 = true;		break;
 				 case L'o': opts->printOwner = true;		break;
 				 case L'q': opts->quoteFilename = true;		break;
-				 case L't': if ( i+1 < argc) tmpEmitType = argv[++i];								   break;
-				 case L'm': if ( i+1 < argc) opts->FilenameSubstringPattern = argv[++i];			   break;
-				 case L'd': if ( i+1 < argc) opts->maxDepth     = StrToInt((const wchar_t*)argv[++i]); break;
-				 case L'z': if ( i+1 < argc) opts->ThreadsToUse = StrToInt((const wchar_t*)argv[++i]); break;
+				 case L't': if ( i+1 < argc) tmpEmitType = argv[++i];											break;
+				 case L'm': if (i + 1 < argc) opts->FilenameSubstringPattern = std::wstring_view(argv[++i]);	break;
+				 case L'd': if ( i+1 < argc) opts->maxDepth     = StrToInt((const wchar_t*)argv[++i]);			break;
+				 case L'z': if ( i+1 < argc) opts->ThreadsToUse = StrToInt((const wchar_t*)argv[++i]);			break;
 				 case L'x': 
 					if (i + 1 < argc)
 					{
