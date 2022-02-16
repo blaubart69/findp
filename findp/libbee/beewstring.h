@@ -47,6 +47,10 @@ namespace bee
 		{
 			return _vec.size();
 		}
+		bool empty() const
+		{
+			return _vec.size() == 0;
+		}
 		wstring& push_back(const wchar_t c)
 		{
 			_vec.push_back(c);

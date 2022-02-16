@@ -60,8 +60,9 @@ struct Options
 	bool		printFull;
 	bool		printOwner;
 	EmitType	emit;
-	LPWSTR		extToSearch;
-	int			extToSearchLen;
+	//LPWSTR		extToSearch;
+	//int			extToSearchLen;
+	bee::wstring extensionToSearch;
 	bool		quoteFilename;
 };
 

@@ -98,7 +98,7 @@ void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATIO
 {
 	bool matched;
 	if (   ctx->opts.FilenameSubstringPattern.empty()
-		&& ctx->opts.extToSearch				== NULL)
+		&& ctx->opts.extensionToSearch       .empty())
 	{
 		matched = true;
 	}
@@ -121,10 +121,10 @@ void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATIO
 			
 			matched = found != filename.end();
 		}
-		if (ctx->opts.extToSearch != NULL && ! matched)
+		if ( ! ctx->opts.extensionToSearch.empty() )
 		{
 			matched |= endsWith(filename.data(), filename.length(),
-								 ctx->opts.extToSearch, ctx->opts.extToSearchLen);
+								 ctx->opts.extensionToSearch.data(), ctx->opts.extensionToSearch.length() );
 		}
 	}
 
