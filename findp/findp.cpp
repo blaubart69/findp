@@ -123,7 +123,7 @@ void printStats(Stats *stats, bool printMatched)
 
 	temp.append(L"seen   \t")
 		.append_ull(stats->files, 12)
-		.push_back(L' ')
+		.push_back(L'\t')
 		.append(StrFormatByteSizeW(stats->sumFileSize, humanSize, 32))
 		.append(L" (")
 		.append_ull(stats->sumFileSize)
@@ -135,13 +135,13 @@ void printStats(Stats *stats, bool printMatched)
 	{
 		temp.append(L"matched\t")
 			.append_ull(stats->filesMatched, 12)
-			.push_back(L' ')
+			.push_back(L'\t')
 			.append(StrFormatByteSizeW(stats->sumFileSizeMatched, humanSize, 32))
 			.append(L" (")
 			.append_ull(stats->sumFileSizeMatched)
 			.append(L")\r\n");
 	}
-	bee::Out->Write(temp);
+	bee::Err->Write(temp);
 
 	if (stats->errAccessDenied > 0)
 	{
