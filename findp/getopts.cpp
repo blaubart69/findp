@@ -21,8 +21,6 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	opts->printFull = false;
 	opts->printOwner = false;
 	opts->emit = EmitType::Files;
-	opts->extToSearch = NULL;
-	opts->extToSearchLen = -1;
 	opts->quoteFilename = false;
 
 	 bool showHelp = false;
@@ -41,19 +39,22 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 				 case L'f': opts->printFull	 = true;		break;
 				 case L'o': opts->printOwner = true;		break;
 				 case L'q': opts->quoteFilename = true;		break;
-				 case L't': if ( i+1 < argc) tmpEmitType = argv[++i];											break;
-				 case L'm': if (i + 1 < argc) opts->FilenameSubstringPattern = std::wstring_view(argv[++i]);	break;
-				 case L'd': if ( i+1 < argc) opts->maxDepth     = StrToInt((const wchar_t*)argv[++i]);			break;
-				 case L'z': if ( i+1 < argc) opts->ThreadsToUse = StrToInt((const wchar_t*)argv[++i]);			break;
+				 case L't': if ( i+1 < argc) tmpEmitType = argv[++i];										break;
+				 case L'm': if ( i+1 < argc) opts->FilenameSubstringPattern = std::wstring_view(argv[++i]);	break;
+				 case L'd': if ( i+1 < argc) opts->maxDepth     = StrToInt((const wchar_t*)argv[++i]);		break;
+				 case L'z': if ( i+1 < argc) opts->ThreadsToUse = StrToInt((const wchar_t*)argv[++i]);		break;
 				 case L'x': 
 					if (i + 1 < argc)
 					{
+						/*
 						LPCWSTR ext = argv[++i];
 						int extLen = lstrlen(ext);
-						opts->extToSearch = (LPWSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, extLen + 4); // + dot + zer0
+						opts->extToSearch = (LPWSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, (extLen + 2) * sizeof(WCHAR) ); // + dot + zer0
 						opts->extToSearch[0] = L'.';
 						lstrcpy(&opts->extToSearch[1], ext);
 						opts->extToSearchLen = extLen + 1;
+						*/
+						opts->extensionToSearch.push_back(L'.').append(argv[++i]);
 					}
 					break;
 				 case L'e':

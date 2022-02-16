@@ -92,7 +92,7 @@ int beeMain(int argc, wchar_t *argv[])
 		}
 	}
 
-	bool printMatched = !ctx.opts.FilenameSubstringPattern.empty() || ctx.opts.extToSearch != NULL;
+	bool printMatched = !ctx.opts.FilenameSubstringPattern.empty() || !ctx.opts.extensionToSearch.empty();
 	printStats(&ctx.stats, printMatched);
 	
 	if (ctx.opts.GroupExtensions)
