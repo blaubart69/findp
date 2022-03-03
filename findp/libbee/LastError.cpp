@@ -19,7 +19,7 @@ namespace bee
 		buf.append(L"\r\n");
 
 		LastError err;
-		if (Out->Write(buf, &err).failed())
+		if (Err->Write(buf, &err).failed())
 		{
 			Beep(400, 2000);
 		}
