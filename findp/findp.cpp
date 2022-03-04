@@ -16,7 +16,6 @@ volatile LONGLONG g_HandleClose;
 #endif
 
 void printStats(Stats *stats, bool printMatched);
-void printProgress(const ParallelExec<DirectoryToProcess, Context, TLS>* executor);
 bool CheckIfDirectory(LPCWSTR dirname);
 //void GetFindExParametersForWindowsVersions(FINDEX_INFO_LEVELS* findex_info_level, DWORD* findex_dwAdditionalFlags);
 
@@ -37,6 +36,20 @@ DWORD GetFullName(LPCWSTR filename, bee::wstring* fullname)
 		fullname->resize(lenNeededPlusZero - 1);
 	}
 	return rc;
+}
+
+void printProgress(const ParallelExec<DirectoryToProcess, Context, TLS>* executor, bee::wstring& tmp)
+{
+	long queued, running, done;
+	executor->Stats(&queued, &running, &done);
+
+	tmp.clear()
+		.appendA("queued/done\t")
+		.append_ull(queued, 12)
+		.push_back(L' ')
+		.append_ull(done, 12);
+
+	bee::Err->WriteLine(tmp);
 }
 
 //int wmain(int argc, wchar_t *argv[])
@@ -84,11 +97,12 @@ int beeMain(int argc, wchar_t *argv[])
 			, ctx.opts.ThreadsToUse);
 
 	executor.EnqueueWork( new DirectoryToProcess(nullptr, nullptr, FullRootDir.data(), FullRootDir.length() * sizeof(WCHAR), 0));
+	bee::wstring buf_progress;
 	while (! executor.Wait(1000) )
 	{
 		if (ctx.opts.progress)
 		{
-			printProgress(&executor);
+			printProgress(&executor, buf_progress);
 		}
 	}
 
@@ -104,13 +118,7 @@ int beeMain(int argc, wchar_t *argv[])
     return 0;
 }
 
-void printProgress(const ParallelExec<DirectoryToProcess, Context, TLS>* executor)
-{
-	long queued, running, done;
-	executor->Stats(&queued, &running, &done);
 
-	//logger->writeLine(L"queued/running/done %ld/%ld/%ld", queued, running, done);
-}
 
 void printStats(Stats *stats, bool printMatched)
 {

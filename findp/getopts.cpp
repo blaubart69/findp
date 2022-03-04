@@ -97,7 +97,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 void PrintUsage(int threadsToUse)
 {
 	bee::Out->WriteA(
-		"v2.0.0"
+		"v2.0.1"
 		"\nusage: findp.exe [OPTIONS] {directory}"
 		"\nOptions:"
 		"\n  -f              ... print date, attributes, filesize, fullname"
@@ -108,15 +108,14 @@ void PrintUsage(int threadsToUse)
 		"\n  -p              ... show progress"
 		"\n  -j              ... follow directory junctions"
 		"\n  -t {f|d|b}      ... emit what  (files|directory|both) default: files"
-		"\n  -m {pattern}	  ... substring to match within name. case insensitive. Not in full path."
+		"\n  -m {pattern}	 ... substring to match within name. case insensitive. Not in full path."
 		"\n  -x {extension}  ... extension to match"
 		"\n  -d {depth}      ... how many directories to go down"
-		"\n  -z {threads}	  ... threads to start for parallel enumerations. default: 16"
+		"\n  -z {threads}	 ... threads to start for parallel enumerations. default: 16"
 		"\n  -h              ... show this help"
 		"\n"
-		"\nprepend   \\\\?\\   if you want long path support."
-		"\nSamples:"
-		"\n  \\\\?\\UNC\\{server}\\{share} for network paths"
+		"\nlong path samples:"
+		"\n  \\\\?\\UNC\\server\\share"
 		"\n  \\\\?\\c:\\windows"
 		"\n");
 }
