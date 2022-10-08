@@ -86,9 +86,17 @@ bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_I
 		}
 	}
 
+	if (printQuoted)
+	{
+		outBuffer->push_back(L'"');
+	}
 	outBuffer->append(FullBaseDir);
 	outBuffer->push_back(L'\\');
 	outBuffer->append(filename.data(), filename.length());
+	if (printQuoted)
+	{
+		outBuffer->push_back(L'"');
+	}
 	outBuffer->append(L"\r\n");
 	
 	return *lastErr;
