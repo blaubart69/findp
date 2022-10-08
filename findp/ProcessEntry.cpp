@@ -53,6 +53,7 @@ void Append_Time_Attributes_Size(nt::FILE_DIRECTORY_INFORMATION* finddata, bee::
 		lastErr->print();
 		//                  yyyy-MM-dd HH:mm:ss
 		outBuffer->append(L"E cnv LastWriteTime");
+		lastErr->clear();
 	}
 	else
 	{
@@ -62,7 +63,7 @@ void Append_Time_Attributes_Size(nt::FILE_DIRECTORY_INFORMATION* finddata, bee::
 	outBuffer->append_ull(finddata->EndOfFile.QuadPart, 12);	outBuffer->push_back(L'\t');
 }
 
-bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, const std::wstring_view& filename, bee::wstring* outBuffer, bee::vector<char>* tmp, bool printFull, bool printOwner, bool printQuoted, bee::LastError* lastErr)
+bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATION* finddata, const std::wstring_view& filename, bee::wstring* outBuffer, bool printFull, bool printOwner, bool printQuoted, bee::LastError* lastErr)
 {
 	if (printFull)
 	{
@@ -71,7 +72,6 @@ bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_I
 		if (printOwner)
 		{
 			bee::wstring owner;
-
 			bee::wstring tmpFullfilename;
 			tmpFullfilename.assign(FullBaseDir);
 			tmpFullfilename.push_back(L'\\');
@@ -81,6 +81,11 @@ bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_I
 			if (GetOwner(tmpFullfilename.c_str(), &owner, lastErr).failed())
 			{
 				owner.assign(L"n/a");
+				lastErr->clear();
+			}
+			else
+			{
+				outBuffer->append(owner);
 			}
 			outBuffer->push_back(L'\t');
 		}
@@ -90,13 +95,16 @@ bee::LastError& PrintEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_I
 	{
 		outBuffer->push_back(L'"');
 	}
+
 	outBuffer->append(FullBaseDir);
 	outBuffer->push_back(L'\\');
 	outBuffer->append(filename.data(), filename.length());
+
 	if (printQuoted)
 	{
 		outBuffer->push_back(L'"');
 	}
+
 	outBuffer->append(L"\r\n");
 	
 	return *lastErr;
@@ -147,7 +155,7 @@ void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATIO
 				|| (ctx->opts.emit == EmitType::Files && isFile(finddata->FileAttributes))
 				|| (ctx->opts.emit == EmitType::Dirs  && isDirectory(finddata->FileAttributes)))
 			{
-				PrintEntry(FullBaseDir, finddata, filename, outBuffer, tmp, ctx->opts.printFull, ctx->opts.printOwner, ctx->opts.quoteFilename, lastErr);
+				PrintEntry(FullBaseDir, finddata, filename, outBuffer, ctx->opts.printFull, ctx->opts.printOwner, ctx->opts.quoteFilename, lastErr);
 			}
 		}
 	}

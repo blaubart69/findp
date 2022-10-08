@@ -95,5 +95,15 @@ namespace bee
 
 		DWORD code(void) { return _rc; }
 		void print(void);
+
+		void clear(void)
+		{
+			_rc = 0;
+			_func = nullptr;
+			if (_param != nullptr)
+			{
+				delete _param;
+			}
+		}
 	};
 }
