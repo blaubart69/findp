@@ -103,6 +103,7 @@ namespace bee
 			if (_param != nullptr)
 			{
 				delete _param;
+				_param = nullptr;
 			}
 		}
 	};
