@@ -226,6 +226,7 @@
       <SectionAlignment>
       </SectionAlignment>
       <SetChecksum>true</SetChecksum>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

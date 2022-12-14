@@ -17,23 +17,22 @@ volatile LONGLONG g_HandleClose;
 
 void printStats(Stats *stats, bool printMatched);
 bool CheckIfDirectory(LPCWSTR dirname);
-//void GetFindExParametersForWindowsVersions(FINDEX_INFO_LEVELS* findex_info_level, DWORD* findex_dwAdditionalFlags);
 
 DWORD GetFullName(LPCWSTR filename, bee::wstring* fullname)
 {
 	DWORD rc = 0;
-	DWORD lenNeededPlusZero;
-	if ((lenNeededPlusZero = GetFullPathNameW(filename, 0, NULL, NULL)) == 0)
+	DWORD LenTCharsWithoutZero;
+	if ((LenTCharsWithoutZero = GetFullPathNameW(filename, 0, NULL, NULL)) == 0)
 	{
 		rc = GetLastError();
 	}
 	else {
-		fullname->resize(lenNeededPlusZero);
-		if (GetFullPathNameW(filename, (DWORD)fullname->length(), (LPWSTR)(fullname->data()), NULL) == 0)
+		fullname->resize(LenTCharsWithoutZero + 1);
+		if ((LenTCharsWithoutZero = GetFullPathNameW(filename, (DWORD)fullname->length(), (LPWSTR)(fullname->data()), NULL)) == 0)
 		{
 			rc = GetLastError();
 		}
-		fullname->resize(lenNeededPlusZero - 1);
+		fullname->resize(LenTCharsWithoutZero);
 	}
 	return rc;
 }

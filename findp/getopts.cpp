@@ -97,7 +97,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 void PrintUsage(int threadsToUse)
 {
 	bee::Out->WriteA(
-		"v2.0.1"
+		"v2.0.2"
 		"\nusage: findp.exe [OPTIONS] {directory}"
 		"\nOptions:"
 		"\n  -f              ... print date, attributes, filesize, fullname"
