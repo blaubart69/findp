@@ -139,8 +139,9 @@ void ProcessEntry(const bee::wstring& FullBaseDir, nt::FILE_DIRECTORY_INFORMATIO
 		}
 		if ( ! ctx->opts.extensionToSearch.empty() )
 		{
-			matched |= endsWith(filename.data(), filename.length(),
-								 ctx->opts.extensionToSearch.data(), ctx->opts.extensionToSearch.length() );
+			matched |= endsWith(
+				                filename.data(),                    (int)filename.length(),
+             ctx->opts.extensionToSearch.data(), (int)ctx->opts.extensionToSearch.length() );
 		}
 	}
 

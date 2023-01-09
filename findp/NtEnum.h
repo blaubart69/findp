@@ -42,12 +42,12 @@ bool isDotOrDotDot(const ULONG fileattributes, LPCWSTR filename, const ULONG cbL
 //#include "C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\km\wdm.h"
 //#include "C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\km\ntifs.h"
 
-nt::NTSTATUS openSubDir(PHANDLE hSubDir, HANDLE hParentDir, PWSTR filename, ULONG cbFilenameLen)
+nt::NTSTATUS openSubDir(PHANDLE hSubDir, HANDLE hParentDir, PWSTR filename, USHORT cbFilenameLen)
 {
 	nt::UNICODE_STRING	uStrFilename;
 	uStrFilename.Buffer				= filename;
-	uStrFilename.Length				= (USHORT)cbFilenameLen;
-	uStrFilename.MaximumLength		= (USHORT)cbFilenameLen;
+	uStrFilename.Length				= cbFilenameLen;
+	uStrFilename.MaximumLength		= cbFilenameLen;
 
 	nt::OBJECT_ATTRIBUTES oAttr;
 	oAttr.Length					= sizeof(nt::OBJECT_ATTRIBUTES);

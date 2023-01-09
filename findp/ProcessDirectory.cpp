@@ -54,9 +54,9 @@ bee::LastError& OpenDirectoryHandle(DirectoryToProcess* dirToEnum, PHANDLE hDire
 		nt::NTSTATUS ntstatus;
 		if ( ! NT_SUCCESS(ntstatus = openSubDir(
 			  hDirectory
-			, dirToEnum->parentHandle->handle
-			, dirToEnum->directory.data()
-			, dirToEnum->directory.length() * sizeof(WCHAR))))
+			,          dirToEnum->parentHandle->handle
+			,          dirToEnum->directory.data()
+			, (USHORT)(dirToEnum->directory.length() * sizeof(WCHAR)) )))
 		{
 			err->func("NtOpenFile").rc_from_NTSTATUS(ntstatus).param(dirToEnum->directory);
 		}
@@ -94,8 +94,8 @@ DWORD RunEnumeration(HANDLE hDirectory, DirectoryToProcess* dirToEnum, ParallelE
 
 	DWORD rc = NtEnumDirectory(
 		hDirectory
-		, tls->findBuffer.data()
-		, tls->findBuffer.size()
+		,        tls->findBuffer.data()
+		, (ULONG)tls->findBuffer.size()
 		, [&](nt::FILE_DIRECTORY_INFORMATION* finddata)
 	{
 		if (isDirectory(finddata->FileAttributes))

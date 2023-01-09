@@ -29,13 +29,13 @@ namespace bee
 
 			if (int multiBytesWritten; (multiBytesWritten = WideCharToMultiByte(
 				_codepage
-				, 0						// dwFlags           [in]
-				, str.data()			// lpWideCharStr     [in]
-				, (int)str.length()		// cchWideChar       [in]
-				, tmp.data()			// lpMultiByteStr    [out, optional]
-				, reserved_capacity		// cbMultiByte       [in]
-				, NULL					// lpDefaultChar     [in, optional]
-				, NULL					// lpUsedDefaultChar [out, optional]
+				, 0							// dwFlags           [in]
+				, str.data()				// lpWideCharStr     [in]
+				, (int)str.length()			// cchWideChar       [in]
+				, tmp.data()				// lpMultiByteStr    [out, optional]
+				, (int)reserved_capacity	// cbMultiByte       [in]
+				, NULL						// lpDefaultChar     [in, optional]
+				, NULL						// lpUsedDefaultChar [out, optional]
 			)) == 0)
 			{
 				err->set("WideCharToMultiByte");

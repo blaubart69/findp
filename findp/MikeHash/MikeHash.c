@@ -31,12 +31,12 @@ DWORD MikeHT_hash_djb2(const WCHAR *str, DWORD *len) {
 	const WCHAR *p = str;
 	while ( *p )
 	{
-		WCHAR upper = CharUpperW((LPWSTR)*p);
+		const WCHAR upper = (WCHAR)CharUpperW((LPWSTR)*p);
 		hash = ( hash * 33 ) ^ upper;	// ((hash << 5) + hash) // hash * 33 ... compiler knows best :-)
 		p++;
 	}
 
-	*len = p - str;
+	*len = (DWORD)(p - str);
 
 	return hash;
 }
@@ -50,7 +50,7 @@ DWORD MikeHT_hash_djb2_2(const WCHAR* str, size_t str_len) {
 	const WCHAR* p = str;
 	for (; str_len != 0; --str_len)
 	{
-		WCHAR upper = CharUpperW((LPWSTR)*p);
+		const WCHAR upper = (WCHAR)CharUpperW((LPWSTR)*p);
 		hash = (hash * 33) ^ upper;	// ((hash << 5) + hash) // hash * 33 ... compiler knows best :-)
 		p++;
 	}
@@ -76,7 +76,7 @@ DWORD MikeHT_HashValueSimple(const WCHAR *str, DWORD *len) {
 
 static BOOL AreKeysEqualCaseInsensitive(LPCWSTR k1, LPCWSTR k2, DWORD len)
 {
-	for (int i = 0; i < len; ++i)
+	for (DWORD i = 0; i < len; ++i)
 	{
 		if (CharUpperW((LPWSTR)k1[i]) != CharUpperW((LPWSTR)k2[i]))
 		{
@@ -112,7 +112,7 @@ static SLIST* FindInList(SLIST *p, LPCWSTR Key, const DWORD cchKeyLen) {
 	return p;
 }
 //=================================================================================================
-BOOL MikeHT_Insert2(HT* ht, LPCWSTR Key, const size_t KeyLen, LONGLONG Val) {
+BOOL MikeHT_Insert2(HT* ht, LPCWSTR Key, const DWORD KeyLen, LONGLONG Val) {
 //=================================================================================================
 
 	DWORD idx = MikeHT_hash_djb2_2(Key, KeyLen) % ht->Entries;
