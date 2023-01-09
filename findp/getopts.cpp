@@ -96,26 +96,26 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 }
 void PrintUsage(int threadsToUse)
 {
-	bee::Out->WriteA(
-		"v2.0.2"
-		"\nusage: findp.exe [OPTIONS] {directory}"
-		"\nOptions:"
-		"\n  -f              ... print date, attributes, filesize, fullname"
-		"\n  -q              ... enclose filename in double quotes"
-		"\n  -o              ... print owner when used with -f"
-		"\n  -s              ... sum dirs, files, filesize. don't print filenames"
-		"\n  -e [filename]   ... group extensions. 3 columns TAB separated: CountFiles | SumFilesize | Extension (UTF-8)"
-		"\n  -p              ... show progress"
-		"\n  -j              ... follow directory junctions"
-		"\n  -t {f|d|b}      ... emit what  (files|directory|both) default: files"
-		"\n  -m {pattern}	 ... substring to match within name. case insensitive. Not in full path."
-		"\n  -x {extension}  ... extension to match"
-		"\n  -d {depth}      ... how many directories to go down"
-		"\n  -z {threads}	 ... threads to start for parallel enumerations. default: 16"
-		"\n  -h              ... show this help"
-		"\n"
-		"\nlong path samples:"
-		"\n  \\\\?\\UNC\\server\\share"
-		"\n  \\\\?\\c:\\windows"
-		"\n");
+    bee::Out->WriteA(
+        "v2.0.2"
+        "\nusage: findp.exe [OPTIONS] {directory}"
+        "\nOptions:"
+        "\n  -f              ... print date, attributes, filesize, fullname"
+        "\n  -q              ... enclose filename in double quotes"
+        "\n  -o              ... print owner when used with -f"
+        "\n  -s              ... sum dirs, files, filesize. don't print filenames"
+        "\n  -e [filename]   ... group extensions. 3 columns TAB separated: CountFiles | SumFilesize | Extension (UTF-8)"
+        "\n  -p              ... show progress"
+        "\n  -j              ... follow directory junctions"
+        "\n  -t {f|d|b}      ... emit what  (files|directory|both) default: files"
+        "\n  -m {substring}  ... to match within filename. case insensitive. Not in full path."
+        "\n  -x {extension}  ... extension to match"
+        "\n  -d {depth}      ... how many directories to go down"
+        "\n  -z {threads}    ... threads to start for parallel enumerations. default: 16"
+        "\n  -h              ... show this help"
+        "\n"
+        "\nlong path samples:"
+        "\n  \\\\?\\UNC\\server\\share"
+        "\n  \\\\?\\c:\\windows"
+        "\n");
 }
