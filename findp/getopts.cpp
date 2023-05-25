@@ -12,7 +12,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 	opts->sum = false;
 	opts->progress = false;
 	opts->maxDepth = -1;
-	opts->followJunctions = false;
+	opts->followJunctions = true;
 	opts->FilenameSubstringPattern;
 	opts->ThreadsToUse = 16;
 	opts->GroupExtensions = false;
@@ -31,14 +31,14 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 		 {
 			 switch (argv[i][1])
 			 {
-				default:									break;
-				 case L'h': showHelp = true;			    break;
-				 case L's': opts->sum = true;				break;
-				 case L'p': opts->progress = true;			break;
-				 case L'j': opts->followJunctions   = true;	break;
-				 case L'f': opts->printFull	 = true;		break;
-				 case L'o': opts->printOwner = true;		break;
-				 case L'q': opts->quoteFilename = true;		break;
+				default:										break;
+				 case L'h': showHelp = true;					break;
+				 case L's': opts->sum = true;					break;
+				 case L'p': opts->progress = true;				break;
+				 case L'j': opts->followJunctions   = false;	break;
+				 case L'f': opts->printFull	 = true;			break;
+				 case L'o': opts->printOwner = true;			break;
+				 case L'q': opts->quoteFilename = true;			break;
 				 case L't': if ( i+1 < argc) tmpEmitType = argv[++i];										break;
 				 case L'm': if ( i+1 < argc) opts->FilenameSubstringPattern = std::wstring_view(argv[++i]);	break;
 				 case L'd': if ( i+1 < argc) opts->maxDepth     = StrToInt((const wchar_t*)argv[++i]);		break;
@@ -97,7 +97,7 @@ int getopts(int argc, wchar_t *argv[], Options* opts)
 void PrintUsage(int threadsToUse)
 {
     bee::Out->WriteA(
-        "v2.0.2"
+        "v2.0.3"
         "\nusage: findp.exe [OPTIONS] {directory}"
         "\nOptions:"
         "\n  -f              ... print date, attributes, filesize, fullname"
@@ -106,7 +106,7 @@ void PrintUsage(int threadsToUse)
         "\n  -s              ... sum dirs, files, filesize. don't print filenames"
         "\n  -e [filename]   ... group extensions. 3 columns TAB separated: CountFiles | SumFilesize | Extension (UTF-8)"
         "\n  -p              ... show progress"
-        "\n  -j              ... follow directory junctions"
+        "\n  -j              ... DO NOT follow directory junctions"
         "\n  -t {f|d|b}      ... emit what  (files|directory|both) default: files"
         "\n  -m {substring}  ... to match within filename. case insensitive. Not in full path."
         "\n  -x {extension}  ... extension to match"
